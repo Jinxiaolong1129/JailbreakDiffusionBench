@@ -7,7 +7,7 @@ from jailbreakbench.llm.llm_output import LLMOutput
 from jailbreakbench.llm.llm_wrapper import LLM, _count_hf_tokens
 
 
-class LLMvLLMfac(LLM):
+class LLMvLLM(LLM):
     def __init__(self, model_name: str):
         """Initializes the LLMvLLM with the specified model name."""
         super().__init__(model_name)
