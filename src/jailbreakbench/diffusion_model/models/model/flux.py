@@ -1,16 +1,16 @@
-from diffusers import CogView3PlusPipeline
+from diffusers import FluxPipeline
 import torch
 from typing import Optional, Dict, Any
 from .base import BaseDiffusionModel
 from core.outputs import GenerationInput, GenerationOutput
 import time
 
-class CogViewModel:
+class FluxModel:
     def __init__(
         self,
-        model_name: str = "THUDM/CogView3-Plus-3B",
+        model_name: str = "black-forest-labs/FLUX.1-dev",
         device: str = "cuda",
-        torch_dtype: torch.dtype = torch.float16,
+        torch_dtype: torch.dtype = torch.bfloat16,
     ):
         self.model_name = model_name
         self.device = device
@@ -18,17 +18,12 @@ class CogViewModel:
         self.model = self.load_model()
         
     def load_model(self):
-        """Load model using CogView3PlusPipeline"""
-        pipeline = CogView3PlusPipeline.from_pretrained(
+        """Load model using FluxPipeline"""
+        pipeline = FluxPipeline.from_pretrained(
             self.model_name,
             torch_dtype=self.torch_dtype,
-        ).to(self.device)
-        
-        # Enable optimizations
-        pipeline.enable_model_cpu_offload()
-        pipeline.vae.enable_slicing()
-        pipeline.vae.enable_tiling()
-        
+        )
+        pipeline.enable_model_cpu_offload()  # Can be configured based on available GPU
         return pipeline
         
     def generate(self, input_data: GenerationInput) -> GenerationOutput:
@@ -38,11 +33,12 @@ class CogViewModel:
         
         generation_params = {
             "prompt": None,
-            "guidance_scale": params.get("guidance_scale", 7.0),
-            "num_images_per_prompt": params.get("num_images_per_prompt", 1),
-            "num_inference_steps": params.get("num_inference_steps", 50),
-            "width": params.get("width", 1024),
             "height": params.get("height", 1024),
+            "width": params.get("width", 1024),
+            "guidance_scale": params.get("guidance_scale", 3.5),
+            "num_inference_steps": params.get("num_inference_steps", 50),
+            "max_sequence_length": params.get("max_sequence_length", 512),
+            "generator": torch.Generator("cpu").manual_seed(params.get("seed", 0))
         }
         
         for prompt in input_data.prompts:

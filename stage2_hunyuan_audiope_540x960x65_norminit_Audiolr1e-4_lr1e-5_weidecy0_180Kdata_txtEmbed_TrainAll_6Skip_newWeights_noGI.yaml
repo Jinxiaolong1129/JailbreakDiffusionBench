@@ -1,0 +1,186 @@
+debug: false
+seed: 39 # random seed
+exp_name: null # name for this experiment in the local run directory and on wandb
+mode: predict # mode: one of 'train', 'eval', or 'sample'
+stage: 2 # the stage of training to start from
+n_epochs: null # the number of epochs to train for; if null, must specify n_examples
+cache_dir: cache 
+ckpt_dir: outputs/ckpt
+is_inference: true
+# resume_ckpt: null # the path to a checkpoint to resume training from
+# 1000 B=128
+# resume_ckpt: /mnt/weka/sr_workspace/PastCkpt/WithEMA20250104_TrainAll_TxtEmb_epoch=0-step=2000.pth
+# resume_state_dict: true
+resume_ckpt: /mnt/weka/training_runs/ckpt/i2v-step=16000/mp_rank_00_model_states_transfer_ema.pth
+resume_state_dict: true
+auto_guidence_scale: 1.0
+enable_ema: true
+
+model:
+  module_name: model_dit.lightning.retiflow_CC_hunyuan_Audio_txtemb # this is mix of 65 (0.8 training time) and 129 (number of frames) during training.
+  class_name: EmoLitModule
+  denoising_model:
+    module_name: model_dit.models.hyvideo.modules.models_crossaudio_addqknorm_audiope
+    class_name: HYVideoDiffusionTransformer
+  base_model_path: /mnt/weka/pretrained_weights/hunyuan-video-t2v-720p/transformers
+  model_additional_kwargs: 
+    # mm_double_blocks_depth: 1
+    # mm_single_blocks_depth: 1
+    # hidden_size: 256
+    # heads_num: 2
+    guidance_embed: false
+    audio_enable: true
+    audio_feature_dim: 768
+    audio_double_layer_skip: 6
+    audio_single_layer_skip: 6
+    new_param_init: norm # for image condition only
+    audio_new_param_init: norm
+    audio_img_pos_embed: true
+    prompt_paths:
+      prompt_path: model_dit/models/hyvideo/talking_prompt/HunYuan_prompt.pt
+      prompt_2_path: model_dit/models/hyvideo/talking_prompt/HunYuan_prompt_2.pt
+      neg_prompt_path: model_dit/models/hyvideo/talking_prompt/HunYuan_empty_prompt.pt
+      neg_prompt_2_path: model_dit/models/hyvideo/talking_prompt/HunYuan_empty_prompt_2.pt
+      prompt_mask_path: model_dit/models/hyvideo/talking_prompt/HunYuan_prompt_mask.pt
+      neg_prompt_mask_path: model_dit/models/hyvideo/talking_prompt/HunYuan_empty_prompt_mask.pt
+  dtype: torch.bfloat16
+  base_model_from_scratch: true
+  trainable_params: # This is all params
+    - audio
+    - img_in
+    - txt_in
+    - time_in
+    - vector_in
+    - guidance_in
+    - double_blocks
+    - single_blocks
+    - final_layer
+
+  vae_model_path: /mnt/weka/pretrained_weights/hunyuan-video-t2v-720p/vae
+  # vae_model_path: null
+  vae_dtype: torch.bfloat16
+  clip_name: null
+
+  text_encoder_path: "/mnt/weka/pretrained_weights/hunyuan-video-t2v-720p/text_encoder"
+  text_encoder_dtype: torch.float16
+  text_encoder2_path: "/mnt/weka/pretrained_weights/hunyuan-video-t2v-720p/text_encoder_2"
+  text_encoder2_dtype: torch.float16
+  text_encoder_vlm_path: /mnt/weka/pretrained_weights/llava-llama-3-8b-v1_1-transformers
+  text_encoder_vlm_dtype: torch.float16
+
+
+logger:
+  neptune_project: datasharedream/video-gen # null is None, TODO, need to change accordingly
+  neptune_api_token: eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJlNDM5M2Y0Yy05ZTI2LTQ3NWUtYjZmNC05MTZkMzk0M2EyYTYifQ==
+  # wandb configuration
+  wandb:
+    enabled: true
+    entity: null
+    project: "3D-Full-Attention"
+
+# callbacks settings
+callbacks:
+  - module_name: model_dit.utils.callbacks
+    class_name: BasicCallback
+    # config: config
+  # - module_name: model_dit.utils.callbacks
+  #   class_name: CacheCleanupCallback    
+  - module_name: lightning.pytorch.callbacks
+    class_name: ModelCheckpoint
+    dirpath: ${ckpt_dir}/${exp_name} # where to save the checkpoints
+    every_n_train_steps: 250 # how often to save checkpoints
+    # save_last: true
+    # filename: run_name + '{epoch}-{step}' # the filename for the checkpoints
+    save_top_k: 4 # -1, save all checkpoints
+    monitor: global_step
+
+trainer:
+  accelerator: gpu
+  strategy: deepspeed_stage_3_offload  # deepspeed_stage_3_offload
+  # sharding_strategy: HYBRID_SHARD
+  precision: bf16-true # bf16-mixed
+  enable_checkpointing: true
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  log_every_n_steps: 1
+  val_check_interval: 50000 # evaluate the model every eval_every steps
+
+# loss settings
+loss:
+  snr_gamma: 5.0
+  zero_embedding: true
+  uncond_ratio: 0.1
+  noise_offset: 0.05
+  ref_image_blur: false
+
+# scheduler settings
+noise_scheduler: "flow"
+scheduler:
+  num_train_timesteps: 1000
+  
+  flow_shift: 5.0
+  flow_reverse: True
+  flow_solver: euler
+
+  weighting_scheme: "logit_normal"
+  logit_mean: 0.0
+  logit_std: 1.0 
+  mode_scale: 1.29
+
+# optimizer settings
+optimizer:
+  lr: 1e-5 # the learning rate
+  audio_module_lr: 1e-4
+  warmup_steps: 0 # number of linear warmup steps for the learning rate
+  adam_beta1: 0.9 # beta1 for the Adam optimizer
+  adam_beta2: 0.999 # beta2 for the Adam optimizer
+  adam_epsilon: 1.0e-08 # epsilon for the Adam optimizer
+  weight_decay: 0 # the weight decay
+
+data:
+  test_bs: 1 # 50GB/80GB
+  train_bs: 1 # micro-batch size i.e. on one GPU
+  #1280 # batchsize = 15,16
+  dataset_file_path: /mnt/weka/data_zip_4121273_batch_2/4M_2827769_clean_caption_T65_full.npz
+  infer_fps: 24
+  n_sample_frames: 65
+  train_mask_scale: 1.0
+  use_prepocess_vae: false
+  use_img_embed: true
+  shuffle: false # if need to shuffle the data
+  dataloader: ShardNPZDatasetXC
+  audio_fea_type: wav2vec2_type2
+
+  num_workers: 8 # number of workers for data loading
+
+test_data:
+  height: 540
+  width: 960
+  image_paths_and_scales:
+    - [/mnt/weka/test_data/user_bad_cases/27f31b9e-2b2e-4bd6-94d8-aafb7b929cef.jpg, 
+      21, 1.2, 
+      /mnt/weka/test_data/widescreen/youtuber01.wav,
+      "A person is not talking to the camera, Realism"]
+
+    - [/mnt/weka/test_data/widescreen/flux005_896x512.jpg, 
+      21, 1.2, 
+      ./test_examples/quiet.wav,
+      "A person doesn't speak to the camera, crying"]
+
+    - [/mnt/weka/test_data/widescreen/youtuber03_896x512.jpg, 
+      21, 1.2, 
+      /mnt/weka/test_data/widescreen/youtuber03.wav,
+      "A person is talking to the camera, Realism"]
+
+    - [/mnt/weka/test_data/widescreen/youtuber01_closeup_896x512.jpg, 
+      21, 1.2, 
+      /mnt/weka/test_data/widescreen/youtuber04.wav,
+      "A person is talking to the camera, Realism"]
+
+inference:
+  ema_infer: false
+  output_dir: outputs/inference
+  num_inference_steps: 20
+  guidance_scale: 6.0
+  repeat_times: 1
