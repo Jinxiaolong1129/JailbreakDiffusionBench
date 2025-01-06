@@ -305,3 +305,4 @@ class DiffusionFactory(DiffusionWrapper):
         if self.model_type == ModelType.IMAGE_TO_IMAGE:
             if "input_image" not in kwargs:
                 raise ValueError("input_image required for image-to-image generation")
+            

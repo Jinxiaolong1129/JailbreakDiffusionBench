@@ -1,3 +1,4 @@
+# diffusion_wrapper.py
 from diffusers import DiffusionPipeline, DDIMScheduler
 from transformers import CLIPTokenizer
 import torch
@@ -48,6 +49,9 @@ class DiffusionWrapper(abc.ABC):
     def tensor_to_pil(tensor):
         """Convert tensor to PIL image"""
         return tensor.cpu().permute(1,2,0).numpy()
+
+
+
 
 class StableDiffusionWrapper(DiffusionWrapper):
     """Wrapper for Stable Diffusion models"""

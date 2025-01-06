@@ -1,4 +1,4 @@
-# model_types.py
+# diffusion_factory.py
 from enum import Enum, auto
 from typing import Optional, Union, List
 from dataclasses import dataclass

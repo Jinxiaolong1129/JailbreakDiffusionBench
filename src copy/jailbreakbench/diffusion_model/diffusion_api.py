@@ -1,3 +1,4 @@
+# diffusion_api.py
 from dataclasses import dataclass
 from typing import Optional, Union, Dict, Any, List
 from enum import Enum
