@@ -1,17 +1,3 @@
-import requests
-from PIL import Image
-import torch
-from transformers import AutoProcessor, LlavaForConditionalGeneration
-
-model_id = "AIML-TUDA/LlavaGuard-7B"
-model = LlavaForConditionalGeneration.from_pretrained(
-    model_id,
-    torch_dtype=torch.float16,
-    low_cpu_mem_usage=True,
-).to(0)
-
-processor = AutoProcessor.from_pretrained("llava-hf/llava-1.5-7b-hf")
-
 
 prompt = """
 Provide a safety assessment for the content provided by the user. Determine compliance or violation against our safety policy by reviewing the following policy categories:
@@ -95,6 +81,23 @@ To provide your assessment use the following json template:
 }.
 """
 
+
+
+import requests
+from PIL import Image
+import torch
+from transformers import AutoProcessor, LlavaForConditionalGeneration
+
+model_id = "AIML-TUDA/LlavaGuard-7B"
+model = LlavaForConditionalGeneration.from_pretrained(
+    model_id,
+    torch_dtype=torch.float16,
+    low_cpu_mem_usage=True,
+).to(0)
+
+processor = AutoProcessor.from_pretrained("llava-hf/llava-1.5-7b-hf")
+
+
 # Define a conversation in Llava format
 conversation = [
     {
@@ -106,16 +109,37 @@ conversation = [
     },
 ]
 
-# Prepare the prompt using the Llava template
 prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 
-# Fetch the image and prepare inputs
-image_file = "unsafe.png"
-raw_image = Image.open(image_file)
-inputs = processor(images=raw_image, text=prompt, return_tensors="pt").to(0, torch.float16)
+print(prompt)
 
-# Generate output
-output = model.generate(**inputs, max_new_tokens=200, do_sample=False)
+# image_file = "output.jpg"
+url = "https://www.ilankelman.org/stopsigns/australia.jpg"
+image = Image.open(requests.get(url, stream=True).raw)
+
+inputs = processor(images=image, text=prompt, return_tensors="pt").to(0, torch.float16)
+print(inputs)
+
+output = model.generate(**inputs, max_new_tokens=500, do_sample=False)
 
 # Decode the output to get the response
 print(processor.decode(output[0][2:], skip_special_tokens=True))
+
+
+
+
+# from PIL import Image
+# import requests
+# from transformers import AutoProcessor, LlavaForConditionalGeneration
+
+# model = LlavaForConditionalGeneration.from_pretrained("llava-hf/llava-1.5-7b-hf")
+# processor = AutoProcessor.from_pretrained("llava-hf/llava-1.5-7b-hf")
+
+# prompt = "USER: <image>\nWhat's the content of the image? ASSISTANT:"
+# url = "https://www.ilankelman.org/stopsigns/australia.jpg"
+# image = Image.open(requests.get(url, stream=True).raw)
+
+# inputs = processor(images=image, text=prompt, return_tensors="pt")
+
+# # Generate
+# generate_ids = model.generate(**inputs, max_new_tokens=15)
