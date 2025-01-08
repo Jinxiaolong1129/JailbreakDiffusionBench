@@ -2,7 +2,7 @@ import os
 import unittest
 
 import pytest
-from jailbreakbench.llm.litellm import LLMLiteLLM
+from jailbreak_diffusion.llm.litellm import LLMLiteLLM
 
 
 @pytest.mark.api_key

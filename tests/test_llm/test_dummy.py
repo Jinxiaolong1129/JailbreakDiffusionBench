@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from jailbreakbench.llm.llm_wrapper import LLMDummy
+from jailbreak_diffusion.llm.llm_wrapper import LLMDummy
 
 
 class TestLLM(unittest.TestCase):

@@ -3,9 +3,9 @@ import unittest
 import pytest
 
 try:
-    from jailbreakbench.llm.vllm import LLMvLLM
+    from jailbreak_diffusion.llm.vllm import LLMvLLM
 except ImportError as e:
-    from jailbreakbench.llm.dummy_vllm import LLMvLLM  # type: ignore
+    from jailbreak_diffusion.llm.dummy_vllm import LLMvLLM  # type: ignore
 
     if "vllm" in e.msg:
         pass

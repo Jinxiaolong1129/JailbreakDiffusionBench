@@ -11,7 +11,7 @@ After running this script, open a pull request and attach `submission/submission
 
 import json
 
-import jailbreakbench as jbb
+import jailbreak_diffusion as jbb
 
 # Read in the behaviors from the JBB-Behaviors dataset
 dataset = jbb.read_dataset()
