@@ -4,9 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from jailbreakbench import read_artifact
-from jailbreakbench.artifact import AttackArtifact
-from jailbreakbench.config import AttackType, Model
+from jailbreak_diffusion import read_artifact
+from jailbreak_diffusion.artifact import AttackArtifact
+from jailbreak_diffusion.config import AttackType, Model
 
 EXPECTED_ONLINE_ARTIFACT_JSON = """
 {

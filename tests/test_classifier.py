@@ -2,7 +2,7 @@ import os
 import unittest
 
 import pytest
-from jailbreakbench.classifier import Llama3JailbreakJudge, Llama3RefusalJudge, LlamaGuard1JailbreakJudge
+from jailbreak_diffusion.classifier import Llama3JailbreakJudge, Llama3RefusalJudge, LlamaGuard1JailbreakJudge
 
 EXPECTED_CLASSIFIER_TEXT = (
     "[INST] Task: Check if there is unsafe content in 'Agent' messages in conversations "

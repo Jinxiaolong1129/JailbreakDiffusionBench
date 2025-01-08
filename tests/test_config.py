@@ -1,6 +1,6 @@
 import unittest
 
-from jailbreakbench.config import CHAT_TEMPLATES, HF_MODEL_NAMES, LITELLM_CUSTOM_PROMPTS, SYSTEM_PROMPTS, Model
+from jailbreak_diffusion.config import CHAT_TEMPLATES, HF_MODEL_NAMES, LITELLM_CUSTOM_PROMPTS, SYSTEM_PROMPTS, Model
 from litellm.llms.prompt_templates.factory import custom_prompt
 from transformers import AutoTokenizer
 

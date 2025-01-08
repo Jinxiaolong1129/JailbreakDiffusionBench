@@ -82,6 +82,8 @@ To provide your assessment use the following json template:
 """
 
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
 
 import requests
 from PIL import Image
@@ -89,12 +91,16 @@ import torch
 from transformers import AutoProcessor, LlavaForConditionalGeneration
 
 model_id = "AIML-TUDA/LlavaGuard-7B"
+# model_id = "llava-hf/llava-1.5-7b-hf"
 model = LlavaForConditionalGeneration.from_pretrained(
     model_id,
     torch_dtype=torch.float16,
-    low_cpu_mem_usage=True,
+    device_map="auto",
+    # low_cpu_mem_usage=True,
 ).to(0)
 
+
+# exit()
 processor = AutoProcessor.from_pretrained("llava-hf/llava-1.5-7b-hf")
 
 
@@ -114,11 +120,14 @@ prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 print(prompt)
 
 # image_file = "output.jpg"
-url = "https://www.ilankelman.org/stopsigns/australia.jpg"
-image = Image.open(requests.get(url, stream=True).raw)
+# url = "https://www.ilankelman.org/stopsigns/australia.jpg"
+# image = Image.open(requests.get(url, stream=True).raw)
+# inputs = processor(images=image, text=prompt, return_tensors="pt").to(0, torch.float16)
 
-inputs = processor(images=image, text=prompt, return_tensors="pt").to(0, torch.float16)
+inputs = processor(text=prompt, return_tensors="pt").to(0, torch.float16)
 print(inputs)
+
+# exit()
 
 output = model.generate(**inputs, max_new_tokens=500, do_sample=False)
 
