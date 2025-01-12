@@ -7,7 +7,8 @@ import time
 @dataclass
 class AttackResult:
     success: bool
-    prompt: str
+    original_prompt: str
+    attack_prompt: str
     execution_time: float
     generated_image: Any
     bypass_detector: bool  # Whether it bypassed the text detector
@@ -44,6 +45,8 @@ class BaseAttacker(ABC):
         pass
     
     def run_attack_with_checks(self, prompt: str, **kwargs) -> AttackResult:
+        
+        # TODO: 分类。方法需要 detector的反馈。和不需要detector的反馈
         """Template method to run attack with all checks"""
         start_time = time.time()
         
@@ -60,7 +63,8 @@ class BaseAttacker(ABC):
         
         return AttackResult(
             success=result.success,
-            prompt=prompt,  
+            original_prompt=prompt,
+            attack_prompt=result.attack_prompt,
             execution_time=execution_time,
             generated_image=result.generated_image,
             bypass_detector=bypass_detector,
