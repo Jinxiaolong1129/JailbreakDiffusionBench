@@ -24,7 +24,7 @@ class AttackerFactory:
         """
         if attack_type not in self._registry:
             raise ValueError(f"Attack type '{attack_type}' not found. Available: {list(self._registry.keys())}")
-            
+        
         attacker_class = self._registry[attack_type]
         self.attacker = attacker_class(
             target_model=target_model,
