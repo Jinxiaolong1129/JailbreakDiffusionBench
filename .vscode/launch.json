@@ -11,6 +11,22 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "jailbreak_diffusion.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_diffusion.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "test_diffusion_model.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_diffusion_model.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
