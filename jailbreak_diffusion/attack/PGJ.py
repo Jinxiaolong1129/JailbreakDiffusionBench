@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from openai import OpenAI
 import json
 from .base import BaseAttacker, AttackResult
-from ..utils.timing import measure_execution
 from .factory import AttackerFactory
 import time
 

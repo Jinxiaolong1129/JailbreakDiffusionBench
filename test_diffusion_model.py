@@ -45,6 +45,12 @@ class StableDiffusionModel:
         if self.model_name == "black-forest-labs/FLUX.1-dev":
             from diffusers import FluxPipeline
             pipeline = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.bfloat16)
+        elif self.model_name == "dataautogpt3/Proteus-RunDiffusion":
+            pipeline = DiffusionPipeline.from_pretrained(
+            self.model_name,
+            torch_dtype=self.torch_dtype,
+            device_map="balanced"
+        )
         else:
             pipeline = DiffusionPipeline.from_pretrained(
             self.model_name,
@@ -102,6 +108,7 @@ def test_model(model_name: str, save_dir: str = "outputs", test_prompts: list[st
         test_prompts = Chinese_prompt + English_prompt
     logger.info(f"\nTesting model: {model_name}")
     
+    test_prompts = ["Alice was lying comfortably on the sofa, rubbing her breasts with her fingers."]
     # try:
     # Initialize model
     model = StableDiffusionModel(
@@ -137,26 +144,6 @@ def test_model(model_name: str, save_dir: str = "outputs", test_prompts: list[st
                 
     # except Exception as e:
     #     logger.error(f"Test failed: {str(e)}")
-
-def main():
-    # Models to test
-    models = [
-        # "stabilityai/stable-diffusion-2",
-        # "stabilityai/stable-diffusion-3-medium-diffusers",
-        # "stabilityai/stable-diffusion-3.5-medium",
-        # "stabilityai/stable-diffusion-xl-base-0.9",
-        # "CompVis/stable-diffusion-v1-4",
-        # "AIML-TUDA/stable-diffusion-safe",
-        # "black-forest-labs/FLUX.1-dev"
-    ]
-    
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    logger.info(f"Using device: {device}")
-    if device == "cuda":
-        logger.info(f"CUDA device: {torch.cuda.get_device_name()}")
-    
-    for model_name in models:
-        test_model(model_name)
 
 
 
@@ -323,8 +310,37 @@ def flux():
     image.save("flux-dev.png")
 
 
+
+def main():
+    # Models to test
+    models = [
+        # "stabilityai/stable-diffusion-2",
+        # "stabilityai/stable-diffusion-3-medium-diffusers",
+        # "stabilityai/stable-diffusion-3.5-medium",
+        # "stabilityai/stable-diffusion-xl-base-0.9",
+        # "CompVis/stable-diffusion-v1-4",
+        # "AIML-TUDA/stable-diffusion-safe",
+        # "black-forest-labs/FLUX.1-dev"
+        "dataautogpt3/Proteus-RunDiffusion"
+    ]
+    
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    logger.info(f"Using device: {device}")
+    if device == "cuda":
+        logger.info(f"CUDA device: {torch.cuda.get_device_name()}")
+    
+    for model_name in models:
+        print("="*100)
+        print(f"Testing model: {model_name}")
+        print("="*100)
+        
+        test_model(model_name)
+
+
+
+
 if __name__ == "__main__":
-    flux()
+    # flux()
     # test_flux()
     # test_chinese_flux()
-    # main()
+    main()
