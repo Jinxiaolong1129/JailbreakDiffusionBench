@@ -16,12 +16,10 @@ class PGJ(BaseAttacker):
     def __init__(
         self, 
         target_model: Any,
-        token_budget: int = 75,
         gpt_model: str = "gpt-4o-mini",
         **kwargs
     ):
         super().__init__(target_model)
-        self.token_budget = token_budget
         self.gpt_model = gpt_model
         
     def _query_gpt(self, messages: List[Dict[str, str]]) -> str:
@@ -39,7 +37,6 @@ class PGJ(BaseAttacker):
                 model=self.gpt_model,
                 messages=messages,
                 temperature=1,
-                max_tokens=self.token_budget
             )
             return response.choices[0].message.content
         except Exception as e:

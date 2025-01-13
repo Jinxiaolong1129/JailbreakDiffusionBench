@@ -27,6 +27,32 @@
             "program": "${workspaceFolder}/test_diffusion_model.py",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "DACA exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/stable-diffusion-xl-base-0.9_DACA.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            }
         }
     ]
 }

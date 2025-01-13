@@ -386,7 +386,6 @@ class DACA(BaseAttacker):
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=1,
-                max_tokens=self.token_budget
             )
             return response.choices[0].message.content
         except Exception as e:

@@ -386,3 +386,4 @@ detector/
 api.txt
 
 test_outputs/
+benchmark_results/
