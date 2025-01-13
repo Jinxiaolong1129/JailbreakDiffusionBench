@@ -26,10 +26,6 @@ class ProteusModel:
         )
         # .to(self.device)
         
-        # Enable optimizations if available
-        if hasattr(pipeline, 'enable_model_cpu_offload'):
-            pipeline.enable_model_cpu_offload()
-        
         if hasattr(pipeline, 'vae'):
             pipeline.vae.enable_slicing()
             pipeline.vae.enable_tiling()

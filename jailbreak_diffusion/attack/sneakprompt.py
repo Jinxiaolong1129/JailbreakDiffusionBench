@@ -861,7 +861,7 @@ class MPA_agent(robot):
 class SneakPromptAttack(BaseAttacker):
     def __init__(self, target_model: Any, **kwargs):
         super().__init__(target_model)
-        self.token_budget = kwargs.get('token_budget', 75)
+        # self.token_budget = kwargs.get('token_budget', 75)
         self.threshold = 0.26
         if self.target_name == "sd":
             self.pipe = SneakPrompt_Diffusion_Pipeline(torch_device, 'ti_sd', fix_seed=False)

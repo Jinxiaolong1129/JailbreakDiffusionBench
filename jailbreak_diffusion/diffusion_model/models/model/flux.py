@@ -24,7 +24,7 @@ class FluxModel:
             torch_dtype=self.torch_dtype,
             device_map="balanced"
         )
-        pipeline.enable_model_cpu_offload()  # Can be configured based on available GPU
+        # pipeline.enable_model_cpu_offload()  # Can be configured based on available GPU
         return pipeline
         
     def generate(self, input_data: GenerationInput) -> GenerationOutput:
