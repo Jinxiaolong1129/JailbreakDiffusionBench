@@ -52,7 +52,22 @@
             ],
             "env": {
                 "CUDA_VISIBLE_DEVICES": "7"
-            }
+            },
+        },
+        {
+            "name": "PGJ exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/PGJ/stable-diffusion-xl-base-0.9_PGJ.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
         }
     ]
 }

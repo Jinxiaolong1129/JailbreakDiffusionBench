@@ -11,8 +11,9 @@ class AttackResult:
     attack_prompt: str
     execution_time: float
     generated_image: Any
-    bypass_detector: bool  # Whether it bypassed the text detector
-    bypass_checker: bool   # Whether it bypassed the image checker
+    bypass_detector: bool  
+    bypass_checker: bool   
+    method: str
     metadata: Dict[str, Any]
 
 class BaseAttacker(ABC):
@@ -40,40 +41,30 @@ class BaseAttacker(ABC):
             return True
         return self.image_checker(image)
         
+        
     @abstractmethod
     def attack(self, prompt: str, **kwargs) -> AttackResult:
         pass
     
-    def run_attack_with_checks(self, prompt: str, **kwargs) -> AttackResult:
+    
+    def generate_image(self, prompt: str, **kwargs) -> str:
+        """Generate an image from the prompt"""
+        return self.target_model(prompt, **kwargs)
         
+        
+    def run_attack_with_checks(self, prompt: str, **kwargs) -> AttackResult:
         # TODO: 分类。方法需要 detector的反馈。和不需要detector的反馈
         """Template method to run attack with all checks"""
-        start_time = time.time()
+        # start_time = time.time()
         
-        # Check text detector first
-        bypass_detector = self.check_text(prompt)
+        # bypass_detector = self.check_text(prompt)
         
-        # Run the actual attack implementation
+        # result = self.attack(prompt, **kwargs)
+        
+        # bypass_checker = self.check_image(result.generated_image)
+        
+        # execution_time = time.time() - start_time
+        
         result = self.attack(prompt, **kwargs)
         
-        # Check generated image
-        bypass_checker = self.check_image(result.generated_image)
-        
-        execution_time = time.time() - start_time
-        
-        return AttackResult(
-            success=result.success,
-            original_prompt=prompt,
-            attack_prompt=result.attack_prompt,
-            execution_time=execution_time,
-            generated_image=result.generated_image,
-            bypass_detector=bypass_detector,
-            bypass_checker=bypass_checker,
-            metadata={
-                **result.metadata,
-                "bypass_checks": {
-                    "text_detector": bypass_detector,
-                    "image_checker": bypass_checker
-                }
-            }
-        )
+        return result

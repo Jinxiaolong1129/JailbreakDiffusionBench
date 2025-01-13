@@ -28,3 +28,6 @@ echo "Process IDs:"
 ps aux | grep "python exp.py" | grep -v grep
 
 echo "All experiments launched. Check nohup_logs directory for output."
+
+
+# CUDA_VISIBLE_DEVICES=7 python exp.py --config_path config/PGJ/stable-diffusion-xl-base-0.9_PGJ.yaml

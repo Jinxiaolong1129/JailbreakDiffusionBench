@@ -880,7 +880,6 @@ class SneakPromptAttack(BaseAttacker):
         start_time = time.time()
 
         def _attack_impl(flag_add_word, prompt_record, nsfw_word, nsfw_index, num_nsfw_word, add_num):
-            # TODO 
             actor = MPA_agent(pipe=self.pipe, nsfw_word=nsfw_word, num_word=num_nsfw_word, word_index=nsfw_index, num_subword=3, len_subword=10,
                               mode='clip',  threshold=0.26, target_prompt=prompt, query_limit=60, query_online=0, query=0, prompt_record=prompt_record, en=False)
 
@@ -920,6 +919,8 @@ class SneakPromptAttack(BaseAttacker):
             target_model
         '''
         success = True if result['result_type'] == "succeed" else False
+        
+        
         return AttackResult(
             success=True,
             execution_time=exec_time,

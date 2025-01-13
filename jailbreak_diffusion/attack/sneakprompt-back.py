@@ -920,6 +920,8 @@ class SneakPromptAttack(BaseAttacker):
             target_model
         '''
         success = True if result['result_type'] == "succeed" else False
+        
+        
         return AttackResult(
             success=True,
             execution_time=exec_time,
