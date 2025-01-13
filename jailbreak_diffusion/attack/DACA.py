@@ -533,20 +533,26 @@ class DACA(BaseAttacker):
         
         end_time = time.time()
         
-        # Step 3: Generate image using target model
-        generated_image = self.target_model(perturbed_prompt)
         
-        result['image'] = generated_image
+        bypass_detector = self.check_text(perturbed_prompt)
+        
+        generation_output = self.target_model.generate(perturbed_prompt)
+        
+        bypass_checker = self.check_image(generation_output.images)
+        
+        success = bypass_detector and bypass_checker
         
         return AttackResult(
+            success=success,
             original_prompt=prompt,
             attack_prompt=perturbed_prompt,
             execution_time=end_time - start_time,
-            generated_image=generated_image,
+            bypass_checker=bypass_checker,
+            bypass_detector=bypass_detector,
+            generated_image=generation_output.images,
+            method='DACA',
             metadata={
-                'method': 'DACA',
                 'num_queries': result['num_query'],
-                'original_prompt': prompt,
             }
         )
     

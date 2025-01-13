@@ -1,6 +1,6 @@
 # diffusion_model/core/factory.py
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from pathlib import Path
 import logging
 from .wrapper import DiffusionWrapper
@@ -300,24 +300,27 @@ class DiffusionFactory(DiffusionWrapper):
             
         raise ValueError(f"Unsupported local model architecture: {self.model_arch}")
 
-    def generate(self, prompts: List[str], **kwargs) -> GenerationOutput:
+    def generate(self, prompts: Union[str, List[str]], **kwargs) -> GenerationOutput:
         """
         Generate outputs from the given prompts.
         
         Args:
-            prompts: List of text prompts
+            prompts: A single text prompt or a list of text prompts
             **kwargs: Override default generation parameters
             
         Returns:
             GenerationOutput containing the generated images and metadata
         """
         try:
-            # Merge default and custom parameters
+            if isinstance(prompts, str):
+                prompts = [prompts]
+            elif not isinstance(prompts, list):
+                raise TypeError("prompts must be a string or a list of strings")
+            
             params = self.generation_params.copy()
             params.update(kwargs)
             
             if self.is_api_model:
-                # Handle API model generation
                 outputs = []
                 for prompt in prompts:
                     output = self.model.generate(prompt, **params)
@@ -332,8 +335,7 @@ class DiffusionFactory(DiffusionWrapper):
                 return self.model.generate(input_data)
                 
         except Exception as e:
-            self.logger.error(f"Generation failed: {str(e)}")
-            raise
+            raise ValueError(f"Generation failed: {str(e)}")
 
     def _merge_outputs(self, outputs: List[GenerationOutput]) -> GenerationOutput:
         """Merge multiple generation outputs into a single output."""

@@ -11,16 +11,6 @@ import yaml
 from jailbreak_diffusion.attack import AttackerFactory
 from jailbreak_diffusion.diffusion_model import DiffusionFactory
 
-import sys
-
-def global_exception_handler(exctype, value, traceback):
-    print(''.join(traceback.format_exception(exctype, value, traceback)))
-    sys.exit(1)  # 或者其他您需要的处理方式
-
-# 在程序入口设置
-sys.excepthook = global_exception_handler
-
-
 
 @dataclass
 class ModelConfig:
@@ -79,22 +69,13 @@ class PromptDataset:
         }
 
 class BenchmarkExperiment:
-    """Main experiment class for running jailbreak benchmarks"""
-    
     def __init__(
         self,
         config: BenchmarkConfig,
         dataset_path: str,
     ):
-        """
-        Initialize benchmark experiment
-        
-        Args:
-            config: Experiment configuration
-            dataset_path: Path to the dataset
-        """
         self.config = config
-        self.config.experiment_name = f"jailbreak_{self.config.model.name}_{self.config.attack_method}"
+        # 移除了experiment_name的自动生成，使用配置文件中的名称
         self.dataset_path = dataset_path
         
         # Setup model and attacker
@@ -109,10 +90,10 @@ class BenchmarkExperiment:
         # Setup dataset
         self.dataset = PromptDataset(dataset_path)
         
-        # Create output directories
+        # Create base output directory
         os.makedirs(self.config.output_dir, exist_ok=True)
         
-        # Create experiment directory
+        # Create experiment directory with new structure
         self.exp_dir = self._setup_experiment_dir()
         self.image_dir = self.exp_dir / "images"
         self.image_dir.mkdir(exist_ok=True)
@@ -123,17 +104,27 @@ class BenchmarkExperiment:
         
         self.results = []
         
+    def _setup_experiment_dir(self) -> Path:
+        """Create and return experiment directory with new structure"""
+        # 新的目录结构：benchmark_results/[attack_method]/[model_name]/[dataset_name]
+        exp_dir = Path(self.config.output_dir) / \
+                 self.config.attack_method / \
+                 self.config.model.name / \
+                 Path(self.dataset_path).stem
+        exp_dir.mkdir(parents=True, exist_ok=True)
+        return exp_dir
+
     def _setup_logging(self):
         """Configure logging"""
-        exp_name = f"{self.config.experiment_name}_{Path(self.dataset_path).stem}"
+        # 修改日志文件路径以匹配新的目录结构
+        exp_name = f"{self.config.attack_method}_{self.config.model.name}_{Path(self.dataset_path).stem}"
         
         self.logger = logging.getLogger(exp_name)
         self.logger.setLevel(self.config.log_level)
         
-        # File handler
-        fh = logging.FileHandler(
-            Path(self.config.output_dir) / f"{self.config.experiment_name}" / f"{exp_name}.log"
-        )
+        # File handler - 使用新的目录结构
+        log_file = self.exp_dir / f"{exp_name}.log"
+        fh = logging.FileHandler(log_file)
         fh.setLevel(self.config.log_level)
         
         # Console handler
@@ -149,18 +140,7 @@ class BenchmarkExperiment:
         
         self.logger.addHandler(fh)
         self.logger.addHandler(ch)
-        self.logger.info(f"Logging file: {Path(self.config.output_dir) / self.config.experiment_name / f'{exp_name}.log'}")
-        
-        
-        
-    def _setup_experiment_dir(self) -> Path:
-        """Create and return experiment directory"""
-        # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        exp_name = f"{self.config.experiment_name}"
-        exp_dir = Path(self.config.output_dir) / exp_name / Path(self.dataset_path).stem
-        exp_dir.mkdir(parents=True, exist_ok=True)
-        return exp_dir
-
+        self.logger.info(f"Logging file: {log_file}")
 
     def _save_image(self, image: Any, prompt_index: str, save=True) -> str:
         """Save generated image and return path"""
@@ -178,9 +158,8 @@ class BenchmarkExperiment:
     def _save_results(self):
         """Save experiment results to CSV and JSON"""
         results_df = pd.DataFrame(self.results)
-        results_df.to_csv(self.exp_dir / "results.csv", index=False)
+        self._save_csv(results_df, self.exp_dir / "results.csv")
         
-        # Save experiment metadata
         metadata = {
             "experiment_name": self.config.experiment_name,
             "timestamp": datetime.now().isoformat(),
@@ -194,6 +173,13 @@ class BenchmarkExperiment:
             json.dump(metadata, f, indent=2)
 
 
+    def _save_csv(self, data, save_dir: str):
+        if not os.path.exists(save_dir):
+            data.to_csv(save_dir, index=False)
+        else:
+            data.to_csv(save_dir, mode='a', header=False, index=False)
+        
+        
     def _process_attack_result(
         self,
         result,
@@ -247,19 +233,17 @@ class BenchmarkExperiment:
                 self.logger.debug(f"Processing prompt {prompt_index}")
             
                 try:
-                    result = self.attacker.attack(prompt)
+                    result = self.attacker(prompt)
                     processed_result = self._process_attack_result(result, prompt_index)
                     self.results.append(processed_result)
                 except Exception as e:
-                    self.logger.error(f"Error processing prompt {prompt_index}: {str(e)}")
-                    continue
+                    raise ValueError(f"Error processing prompt {prompt_index}: {str(e)}")
                     
             self._save_results()
             self.logger.info("Experiment completed successfully")
             
         except Exception as e:
-            self.logger.error(f"Experiment failed: {str(e)}")
-            raise
+            raise ValueError(f"Experiment failed: {str(e)}")
             
     def get_summary(self) -> Dict:
         """Return summary statistics of the experiment"""
@@ -299,13 +283,22 @@ def run_benchmark(config_path: str):
             all_summaries.append(summary)
         except Exception as e:
             print(f"Error running experiment with dataset={dataset_path}: {str(e)}")
-            continue
+            raise
     
-    # Save overall summary
     summary_df = pd.DataFrame(all_summaries)
-    summary_path = Path(config.output_dir) / f"{config.experiment_name}" / f"{config.experiment_name}_summary.csv"
-    summary_df.to_csv(summary_path, index=False)
+    summary_path = Path(config.output_dir) / \
+                config.attack_method / \
+                config.model.name / \
+                f"{config.attack_method}_{config.model.name}_summary.csv"
+    
+    if not summary_path.exists():
+        summary_df.to_csv(summary_path, index=False)
+    else:
+        summary_df.to_csv(summary_path, mode='a', header=False, index=False)
+
     print(f"Overall summary saved to {summary_path}")
+    
+    
     
 if __name__ == "__main__":
     import argparse

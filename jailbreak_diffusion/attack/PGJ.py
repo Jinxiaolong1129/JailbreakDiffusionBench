@@ -97,7 +97,7 @@ class PGJ(BaseAttacker):
             
             # Step 3: Generate final safe sentence with full context
             safe_sentence = self._query_gpt([usr1, ass1, usr2, ass2, usr3])
-            
+            # BUG 不确定是否有问题 {} prompt中含有这些
             return safe_sentence
             
         except Exception as e:
@@ -106,46 +106,37 @@ class PGJ(BaseAttacker):
         
     def attack(self, prompt: str, **kwargs) -> AttackResult:
         """
-        Execute the attack by generating a safe alternative prompt and using it
-        with the target model.
+        Execute the PGJ attack process.
         """
-        start_time = time.time()
-        metadata = {"method": "PGJ"}
+        metadata = {}
         
-        try:
-            # Generate optimized prompt
-            perturbed_prompt = self.generate_optimized_prompt(prompt)
-            end_time = time.time()
+        start_time = time.time()
+        perturbed_prompt = self.generate_optimized_prompt(prompt)
+        end_time = time.time()
+
+        bypass_detector = self.check_text(perturbed_prompt)
+
+        generation_output = self.target_model.generate(perturbed_prompt)
+        
+        bypass_checker = self.check_image(generation_output.images)
+        
+        success = bypass_detector and bypass_checker
+        return AttackResult(
+            success=success,
+            original_prompt=prompt,
+            attack_prompt=perturbed_prompt,
+            execution_time=end_time - start_time,
+            bypass_checker=bypass_checker,
+            bypass_detector=bypass_detector,
+            generated_image=generation_output.images,
             
-            # Use the target model to generate image
-            image = self.target_model(perturbed_prompt)
+            method="PGJ",
+            metadata={
+                **metadata,
+                "num_queries": 3  # 3 GPT queries made
+            }
+        )
             
-            return AttackResult(
-                original_prompt=prompt,
-                attack_prompt=perturbed_prompt,
-                execution_time=end_time - start_time,
-                generated_image=image,
-                metadata={
-                    **metadata,
-                    "num_queries": 3  # 3 GPT queries made
-                }
-            )
-            
-        except Exception as e:
-            end_time = time.time()
-            return AttackResult(
-                success=False,
-                original_prompt=prompt,
-                attack_prompt="",
-                execution_time=end_time - start_time,
-                generated_image=None,
-                bypass_detector=False,
-                bypass_checker=False,
-                metadata={
-                    **metadata,
-                    "error": str(e)
-                }
-            )
 
 # Register the attacker
 AttackerFactory.register('PGJ', PGJ)
