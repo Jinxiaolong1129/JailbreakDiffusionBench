@@ -65,6 +65,7 @@ class NoAttacker(BaseAttacker):
         end_time = time.time()
 
         return AttackResult(
+            method="no_attack",
             success=True,
             original_prompt=prompt,
             attack_prompt=prompt,

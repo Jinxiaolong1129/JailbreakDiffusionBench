@@ -37,12 +37,9 @@ class CompositeChecker(BaseChecker):
         results = []
         for t in text:
             is_inappropriate = False
-            # Try word matching first as it's faster
-            if 'word_match' in self.methods:
-                is_inappropriate = self.checkers['word_match'].check(t)
-            # Only use model if needed and available
-            if not is_inappropriate and 'model' in self.methods:
-                is_inappropriate = self.checkers['model'].check(t)
+            word_match_result = self.checkers['word_match'].check(t) if 'word_match' in self.methods else False
+            model_result = self.checkers['model'].check(t) if 'model' in self.methods else False
+            is_inappropriate = word_match_result or model_result
             results.append(is_inappropriate)
             
         return results[0] if is_single else results

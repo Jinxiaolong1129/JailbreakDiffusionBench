@@ -1,5 +1,5 @@
 experiment_name: "jailbreak_flux_noattack"
-output_dir: "benchmark_results"
+output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
 log_level: "INFO"

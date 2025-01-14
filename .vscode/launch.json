@@ -68,6 +68,17 @@
             "env": {
                 "CUDA_VISIBLE_DEVICES": "7"
             },
+        },
+        {
+            "name": "test_MultiHead.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_MultiHead.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
         }
     ]
 }

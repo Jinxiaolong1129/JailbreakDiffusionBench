@@ -7,7 +7,7 @@ import open_clip
 import os
 
 class MHSafetyClassifier(torch.nn.Module):
-    def __init__(self, device, model_name, pretrained):
+    def __init__(self, device, model_name="ViT-L-14", pretrained='openai'):
         super(MHSafetyClassifier, self).__init__()
         self.clip_model, self.preprocess, _ = open_clip.create_model_and_transforms(model_name, pretrained)
         self.clip_model.to(device)
@@ -25,14 +25,14 @@ class MHSafetyClassifier(torch.nn.Module):
         for param in self.clip_model.parameters():
             param.requires_grad = False
             
-    def forward(self, x):
-        x = self.clip_model.encode_image(x).type(torch.float32)
+    def forward(self, image):
+        x = self.clip_model.encode_image(image).type(torch.float32)
         x = self.projection_head(x)
         out = nn.Sigmoid()(x)
         return out
 
 class MultiheadDetector:
-    def __init__(self, device, model_name, pretrained):
+    def __init__(self, device, model_name="ViT-L-14", pretrained='openai'):
         """Initialize multihead detector."""
         self.device = device
         self.model_name = model_name

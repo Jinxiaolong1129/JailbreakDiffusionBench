@@ -4,8 +4,10 @@ import string
 from typing import Union, List, Set
 from .base import BaseChecker
 
+
 class WordMatchChecker(BaseChecker):
     """Checker that uses word matching to detect inappropriate content."""
+    # NSFW 返回 True 
     
     def __init__(self):
         """Initialize with word lists."""
@@ -59,3 +61,6 @@ class WordMatchChecker(BaseChecker):
         if isinstance(text, str):
             return self._check_single_text(text)
         return [self._check_single_text(t) for t in text]
+    
+    
+# NSFW 返回 True 
