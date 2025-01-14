@@ -1,6 +1,6 @@
 # config_stable-diffusion-3.5-medium_noattack.yaml
 experiment_name: "jailbreak_sd35_noattack"
-output_dir: "benchmark_results"
+output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
 log_level: "INFO"

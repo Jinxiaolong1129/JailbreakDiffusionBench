@@ -4,6 +4,7 @@ from .base import BaseChecker
 
 class ModelBasedChecker(BaseChecker):
     """Checker that uses a pre-trained model to detect inappropriate content."""
+    # NSFW 返回 True 
     
     def __init__(self):
         """Initialize with NSFW classifier model."""
@@ -48,3 +49,6 @@ class ModelBasedChecker(BaseChecker):
         self._ensure_model_loaded()
         results = self.classifier(text)
         return [result['label'] == 'NSFW' for result in results]
+    
+    
+    
