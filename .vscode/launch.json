@@ -90,6 +90,18 @@
             "env": {
                 "CUDA_VISIBLE_DEVICES": "7"
             },
+        },
+        {
+            "name": "OpenAI Image Checker",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${fileDirname}/openai_image_checker.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}/jailbreak_diffusion/judger/post_checker/",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }

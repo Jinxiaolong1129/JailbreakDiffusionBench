@@ -26,7 +26,7 @@ class OpenAITextDetector(BaseChecker):
             model: Model to use, defaults to latest text moderation model
         """
         super().__init__()
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', api_key))
         self.model = model
         
         # All possible moderation categories
@@ -146,7 +146,7 @@ class OpenAITextDetector(BaseChecker):
 
 # Example usage
 if __name__ == "__main__":
-    detector = OpenAITextDetector(api_key="your-api-key")
+    detector = OpenAITextDetector()
     
     # Single text check
     text = "Example text content."

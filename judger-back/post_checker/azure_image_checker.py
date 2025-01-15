@@ -217,7 +217,7 @@ if __name__ == "__main__":
     
     # 检测单个图片
     try:
-        result = detector.detect_from_path("path/to/image.jpg")
+        result = detector.detect_from_path("/home/ubuntu/xiaolong/jailbreakbench/unsafe.png")
         
         # 检查是否安全
         if result.is_safe(threshold=0.4):

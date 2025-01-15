@@ -177,12 +177,12 @@ if __name__ == "__main__":
     detector = GoogleImageDetector()
     
     # 从文件检测
-    result = detector.detect_from_path("path/to/image.jpg")
+    result = detector.detect_from_path("/home/ubuntu/xiaolong/jailbreakbench/unsafe.png")
     print(detector.get_detailed_results(result))
     
     # 快速检查是否安全
     is_safe = detector.is_safe_image(
-        "path/to/image.jpg",
+        "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png",
         threshold="POSSIBLE"  # 可以调整阈值
     )
     print(f"Image is safe: {is_safe}")
