@@ -503,40 +503,41 @@ class DACA(BaseAttacker):
         print("******************************************")
         return final_prompt
 
-    def attack(self, prompt: str, **kwargs) -> AttackResult:
+    def attack(self, prompt: str, attack_prompt: str=None, **kwargs) -> AttackResult:
         """
         Execute the DACA attack process.
         """
         start_time = time.time()
         result = {
             'original_prompt': prompt,
-            'perturbed_prompt': None,
+            'attack_prompt': None,
             'image': None,
             'num_query': 0
         }
-        
-        # Step 1: Categorize the prompt
-        category = self._categorize_prompt(prompt)
-        result['num_query'] += 1
-        
-        # Step 2: Process the prompt based on category
-        if category == "Character Copyright":
-            perturbed_prompt = self._all_in_one_go(prompt)
-            result['num_query'] += 2  # Describe + Check
-        elif category == "Sensitive Content":
-            perturbed_prompt = self._step_wise(prompt)
-            result['num_query'] += 16  # Multiple processing steps
-        else:   
-            raise ValueError(f"Invalid category: {category}")
-        
-        result['perturbed_prompt'] = perturbed_prompt
-        
+        if not attack_prompt:
+            # Step 1: Categorize the prompt
+            category = self._categorize_prompt(prompt)
+            result['num_query'] += 1
+            
+            # Step 2: Process the prompt based on category
+            if category == "Character Copyright":
+                attack_prompt = self._all_in_one_go(prompt)
+                result['num_query'] += 2  # Describe + Check
+            elif category == "Sensitive Content":
+                attack_prompt = self._step_wise(prompt)
+                result['num_query'] += 16  # Multiple processing steps
+            else:   
+                raise ValueError(f"Invalid category: {category}")
+        else:
+            print(f"Use attack prompt | {attack_prompt}")
+
+        result['attack_prompt'] = attack_prompt
+            
         end_time = time.time()
         
+        bypass_detector = self.check_text(attack_prompt)
         
-        bypass_detector = self.check_text(perturbed_prompt)
-        
-        generation_output = self.target_model.generate(perturbed_prompt)
+        generation_output = self.target_model.generate(attack_prompt)
         
         bypass_checker = self.check_image(generation_output.images)
         
@@ -545,7 +546,7 @@ class DACA(BaseAttacker):
         return AttackResult(
             success=success,
             original_prompt=prompt,
-            attack_prompt=perturbed_prompt,
+            attack_prompt=attack_prompt,
             execution_time=end_time - start_time,
             bypass_checker=bypass_checker,
             bypass_detector=bypass_detector,

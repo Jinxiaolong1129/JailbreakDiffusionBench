@@ -52,7 +52,7 @@ class BaseAttacker(ABC):
         return self.target_model(prompt, **kwargs)
         
         
-    def run_attack_with_checks(self, prompt: str, **kwargs) -> AttackResult:
+    def run_attack_with_checks(self, prompt: str, attack_prompt: str = None, **kwargs) -> AttackResult:
         # TODO: 分类。方法需要 detector的反馈。和不需要detector的反馈
         """Template method to run attack with all checks"""
         # start_time = time.time()
@@ -64,7 +64,8 @@ class BaseAttacker(ABC):
         # bypass_checker = self.check_image(result.generated_image)
         
         # execution_time = time.time() - start_time
-        
-        result = self.attack(prompt, **kwargs)
+        if not attack_prompt:
+            print("!!!! Already have attack prompt")
+        result = self.attack(prompt, attack_prompt, **kwargs)
         
         return result

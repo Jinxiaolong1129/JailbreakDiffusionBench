@@ -2,7 +2,7 @@ from .artifact import read_artifact
 # from .judger import CLUE_Judger, LlavaGuard, NSF_Judger, Q16_Judger
 from .dataset import DiffusionJailbreakDataset, load_jailbreak_dataset
 
-from .submission import evaluate_prompts
+# from .submission import evaluate_prompts
 
 from .diffusion_model.core.factory import DiffusionFactory
 from .diffusion_model.core.model_types import ModelType

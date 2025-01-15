@@ -104,14 +104,19 @@ class PGJ(BaseAttacker):
             raise Exception(f"Prompt optimization failed: {str(e)}")
         
         
-    def attack(self, prompt: str, **kwargs) -> AttackResult:
+    def attack(self, prompt: str, attack_prompt: str = None, **kwargs) -> AttackResult:
         """
         Execute the PGJ attack process.
         """
         metadata = {}
         
         start_time = time.time()
-        perturbed_prompt = self.generate_optimized_prompt(prompt)
+        if not attack_prompt:
+            perturbed_prompt = self.generate_optimized_prompt(prompt)
+        else:
+            perturbed_prompt = attack_prompt
+            print(f"Use attack prompt | {attack_prompt}")
+            
         end_time = time.time()
 
         bypass_detector = self.check_text(perturbed_prompt)
