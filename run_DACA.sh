@@ -10,9 +10,9 @@ echo "Started stable-diffusion-3.5-medium DACA on GPU 3"
 nohup env CUDA_VISIBLE_DEVICES=4 python exp.py --config_path config/DACA/stable-diffusion-xl-base-0.9_DACA.yaml > nohup_logs/sdxl_base_DACA.log 2>&1 &
 echo "Started stable-diffusion-xl-base DACA on GPU 4"
 
-# # GPU 5: flux-1-dev DACA
-# nohup env CUDA_VISIBLE_DEVICES=5 python exp.py --config_path config/DACA/flux-1-dev_DACA.yaml > nohup_logs/flux_DACA.log 2>&1 &
-# echo "Started flux-1-dev DACA on GPU 5"
+# GPU 5: flux-1-dev DACA
+nohup env CUDA_VISIBLE_DEVICES=5 python exp.py --config_path config/DACA/flux-1-dev_DACA.yaml > nohup_logs/flux_DACA.log 2>&1 &
+echo "Started flux-1-dev DACA on GPU 5"
 
 # GPU 6: proteus DACA
 nohup env CUDA_VISIBLE_DEVICES=6 python exp.py --config_path config/DACA/proteus_DACA.yaml > nohup_logs/proteus_DACA.log 2>&1 &

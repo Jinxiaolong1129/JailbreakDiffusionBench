@@ -36,7 +36,7 @@ class PGJ(BaseAttacker):
             response = client.chat.completions.create(
                 model=self.gpt_model,
                 messages=messages,
-                temperature=1,
+                temperature=0,
             )
             return response.choices[0].message.content
         except Exception as e:

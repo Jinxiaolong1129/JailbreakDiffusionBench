@@ -47,9 +47,9 @@ echo "Started stable-diffusion-3.5-medium PGJ on GPU 3"
 nohup env CUDA_VISIBLE_DEVICES=4 python exp.py --config_path config/PGJ/stable-diffusion-xl-base-0.9_PGJ.yaml > nohup_logs/sdxl_base_pgj.log 2>&1 &
 echo "Started stable-diffusion-xl-base PGJ on GPU 4"
 
-# GPU 5: flux-1-dev PGJ
-nohup env CUDA_VISIBLE_DEVICES=2 python exp.py --config_path config/PGJ/flux-1-dev_PGJ.yaml > nohup_logs/flux_pgj.log 2>&1 &
-echo "Started flux-1-dev PGJ on GPU 2"
+# # GPU 5: flux-1-dev PGJ
+# nohup env CUDA_VISIBLE_DEVICES=2 python exp.py --config_path config/PGJ/flux-1-dev_PGJ.yaml > nohup_logs/flux_pgj.log 2>&1 &
+# echo "Started flux-1-dev PGJ on GPU 2"
 
 # GPU 6: proteus PGJ
 nohup env CUDA_VISIBLE_DEVICES=6 python exp.py --config_path config/PGJ/proteus_PGJ.yaml > nohup_logs/proteus_pgj.log 2>&1 &
