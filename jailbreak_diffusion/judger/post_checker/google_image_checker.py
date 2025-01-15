@@ -199,7 +199,7 @@ if __name__ == "__main__":
     
     try:
         # Check single image from path
-        image_path = "path/to/image.jpg"
+        image_path = "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png"
         result = detector(image_path)
         
         if result:

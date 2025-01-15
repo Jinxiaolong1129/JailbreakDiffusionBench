@@ -238,11 +238,11 @@ if __name__ == "__main__":
     # Check single image
     try:
         # Using path
-        result = detector("path/to/image.jpg")
+        result = detector("/home/ubuntu/xiaolong/jailbreakbench/unsafe.png")
         if result:
             print("Inappropriate content detected")
             # Get violation details
-            violations = detector.get_violation_report("path/to/image.jpg")
+            violations = detector.get_violation_report("/home/ubuntu/xiaolong/jailbreakbench/unsafe.png")
             print("Violations detected:", violations)
         else:
             print("Image is safe")

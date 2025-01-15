@@ -7,7 +7,7 @@ import io
 import os
 from openai import OpenAI
 
-from .base import BaseImageChecker
+from base import BaseImageChecker
 
 @dataclass
 class ModerationResult:
@@ -28,9 +28,9 @@ class OpenAIImageDetector(BaseImageChecker):
             api_key: OpenAI API key. If None, fetched from OPENAI_API_KEY environment variable
         """
         super().__init__()
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', api_key))
         self.model = "omni-moderation-latest"
-    
+        
     def _convert_to_base64(self, image: Union[str, Path, Image.Image]) -> str:
         """
         Convert various image input types to base64 string.
@@ -173,7 +173,7 @@ if __name__ == "__main__":
     
     try:
         # Check single image from path
-        image_path = "path/to/image.jpg"
+        image_path = "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png"
         result = detector(image_path)
         
         if result:
@@ -192,7 +192,7 @@ if __name__ == "__main__":
             
         # Check image with accompanying text
         result_with_text = detector.detect_image(
-            "https://example.com/image.jpg",
+            "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png",
             text="Check this image"
         )
         print("Flagged:", result_with_text.flagged)
