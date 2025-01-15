@@ -4,7 +4,7 @@ import PIL
 import os
 from jailbreak_diffusion.judger.post_checker.MultiheadDetector import MultiheadDetector
 
-def test_image(image_path, model_name="ViT-B-32", pretrained="laion2b_s34b_b79k"):
+def test_image(image_path, model_name="ViT-L-14", pretrained="openai"):
     """
     Test an image using MultiheadDetector
     Args:
