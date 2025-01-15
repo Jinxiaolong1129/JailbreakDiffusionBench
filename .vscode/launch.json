@@ -55,10 +55,10 @@
             },
         },
         {
-            "name": "PGJ exp.py",
+            "name": "PGJ exp_direct_attack_prompt.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/exp.py",
+            "program": "${workspaceFolder}/exp_direct_attack_prompt.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -91,14 +91,14 @@
                 "CUDA_VISIBLE_DEVICES": "7"
             },
         },
-        {
-            "name": "OpenAI Image Checker",
+        {   
+            "name": "OpenAI Text Checker",
             "type": "debugpy",
             "request": "launch",
-            "program": "${fileDirname}/openai_image_checker.py",
+            "program": "${workspaceFolder}/jailbreak_diffusion/judger/pre_checker/openai_text_checker.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "cwd": "${workspaceFolder}/jailbreak_diffusion/judger/post_checker/",
+            "cwd": "${workspaceFolder}/jailbreak_diffusion/judger/pre_checker/",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }

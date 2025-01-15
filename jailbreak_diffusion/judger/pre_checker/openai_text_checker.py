@@ -3,7 +3,9 @@ from typing import Dict, List, Optional, Union
 from openai import OpenAI
 from abc import ABC, abstractmethod
 from .base import BaseChecker
+import os
 
+# TODO finish testing
 
 @dataclass
 class ModerationResult:
@@ -86,6 +88,7 @@ class OpenAITextDetector(BaseChecker):
             
             results = []
             for result in response.results:
+                # TODO: 更多的检测结果
                 results.append(ModerationResult(
                     flagged=result.flagged,
                     categories=result.categories,

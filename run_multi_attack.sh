@@ -40,7 +40,7 @@ echo "Started flux-1-dev on GPU 5"
 echo "No-attack experiments completed. Starting PGJ experiments..."
 
 # GPU 3: stable-diffusion-3.5-medium PGJ
-nohup env CUDA_VISIBLE_DEVICES=3 python exp.py --config_path config/PGJ/stable-diffusion-3.5-medium_PGJ.yaml > nohup_logs/sd35_medium_pgj.log 2>&1 &
+nohup env CUDA_VISIBLE_DEVICES=5 python exp.py --config_path config/PGJ/stable-diffusion-3.5-medium_PGJ.yaml > nohup_logs/sd35_medium_pgj.log 2>&1 &
 echo "Started stable-diffusion-3.5-medium PGJ on GPU 3"
 
 # GPU 4: stable-diffusion-xl-base PGJ

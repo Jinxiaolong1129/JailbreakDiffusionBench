@@ -33,7 +33,7 @@ class AttackerFactory:
             **kwargs
         )
         
-    def __call__(self, prompt: str, **kwargs) -> AttackResult:
+    def __call__(self, prompt: str, attack_prompt: str = None, **kwargs) -> AttackResult:
         """
         Run attack with the specified prompt.
         
@@ -44,7 +44,7 @@ class AttackerFactory:
         Returns:
             AttackResult containing attack results and bypass status
         """
-        return self.attacker.run_attack_with_checks(prompt, **kwargs)
+        return self.attacker.run_attack_with_checks(prompt, attack_prompt, **kwargs)
     
     
     @classmethod

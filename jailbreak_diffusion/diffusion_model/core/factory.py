@@ -295,9 +295,6 @@ class DiffusionFactory(DiffusionWrapper):
                 **kwargs
             )
             
-        
-            
-            
         raise ValueError(f"Unsupported local model architecture: {self.model_arch}")
 
     def generate(self, prompts: Union[str, List[str]], **kwargs) -> GenerationOutput:

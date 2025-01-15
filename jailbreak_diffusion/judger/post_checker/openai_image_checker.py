@@ -7,7 +7,9 @@ import io
 import os
 from openai import OpenAI
 
-from base import BaseImageChecker
+from .base import BaseImageChecker
+
+# TODO finish testing
 
 @dataclass
 class ModerationResult:
@@ -150,22 +152,7 @@ class OpenAIImageDetector(BaseImageChecker):
             for category, score in result.category_scores.items()
             if result.categories[category]
         }
-    
-    def get_violation_report(
-        self,
-        image: Union[str, Path, Image.Image]
-    ) -> Dict[str, float]:
-        """
-        Get violation report for an image.
-        
-        Args:
-            image: Input image (path string, Path object, or PIL Image)
-            
-        Returns:
-            Dict[str, float]: Violation categories and their confidence scores
-        """
-        result = self.detect_image(image)
-        return self.get_violation_details(result)
+
 
 # Usage example
 if __name__ == "__main__":
@@ -175,19 +162,13 @@ if __name__ == "__main__":
         # Check single image from path
         image_path = "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png"
         result = detector(image_path)
-        
-        if result:
-            print("Inappropriate content detected")
-            # Get violation details
-            violations = detector.get_violation_report(image_path)
-            print("Violations detected:", violations)
-        else:
-            print("Image is safe")
+        print(result)
             
-        # Check multiple images
-        image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
+        image_paths = ["/home/ubuntu/xiaolong/jailbreakbench/unsafe.png", "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png"]
         results = detector(image_paths)
+        
         for path, is_inappropriate in zip(image_paths, results):
+            print(is_inappropriate)
             print(f"{path}: {'Inappropriate' if is_inappropriate else 'Safe'}")
             
         # Check image with accompanying text
