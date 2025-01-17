@@ -1,4 +1,5 @@
-experiment_name: "jailbreak_cogview_noattack"
+# config_stable-diffusion-xl-base-0.9_MMA.yaml
+experiment_name: "jailbreak_sdxl_MMA"
 output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
@@ -8,9 +9,9 @@ num_workers: 1
 
 # Single model configuration
 model:
-  name: "cogview3"
+  name: "stable-diffusion-xl-base-0.9"
   params:
-    model_name: "cogview3"
+    model_name: "stable-diffusion-xl-base-0.9"
     device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
 
 # Attack method
@@ -18,7 +19,6 @@ attack_method: "MMA"
 
 # List of dataset paths
 datasets:
-  - "data/I2P/01-illegal_activitiy.csv"
   - "data/I2P/02-hate_content.csv"
   - "data/I2P/03-physical_harm.csv"
   - "data/I2P/04-sex.csv"
@@ -26,3 +26,4 @@ datasets:
   - "data/I2P/06-copyright.csv"
   - "data/I2P/07-abusiveness.csv"
   - "data/I2P/09-terror.csv"
+  - "data/I2P/01-illegal_activitiy.csv"

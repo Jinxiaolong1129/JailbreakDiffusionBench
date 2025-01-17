@@ -55,6 +55,39 @@
             },
         },
         {
+            "name": "test_jailbreak_diffusion.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_jailbreak_diffusion.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
+        },
+        {
+            "name": "test_jailbreak_diffusion_sneak.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_jailbreak_diffusion_sneak.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "6"
+            },
+        },
+        {
+            "name": "test_jailbreak_diffusion_MMA.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_jailbreak_diffusion_MMA.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "6"
+            },
+        },
+        {
             "name": "PGJ exp_direct_attack_prompt.py",
             "type": "debugpy",
             "request": "launch",
@@ -95,12 +128,27 @@
             "name": "OpenAI Text Checker",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/jailbreak_diffusion/judger/pre_checker/openai_text_checker.py",
+            "program": "${workspaceFolder}/jailbreak_diffusion/judger/pre_detector/openai_text_detector.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "cwd": "${workspaceFolder}/jailbreak_diffusion/judger/pre_checker/",
+            "cwd": "${workspaceFolder}/jailbreak_diffusion/judger/pre_detector/",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "flux-1-dev DACA",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_direct_attack_prompt.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/flux-1-dev_DACA-79.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
             }
         }
     ]

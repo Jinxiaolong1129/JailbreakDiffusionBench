@@ -19,6 +19,12 @@ class DiffusionFactory(DiffusionWrapper):
 
     MODEL_REGISTRY = {
         # Local Stable Diffusion Models
+        "stable-diffusion-v1-5": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "sd-legacy/stable-diffusion-v1-5",
+            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "type": ModelType.TEXT_TO_IMAGE,
+        },
         "stable-diffusion-2": {
             "provider": ModelProvider.LOCAL,
             "model_id": "stabilityai/stable-diffusion-2",
@@ -78,7 +84,7 @@ class DiffusionFactory(DiffusionWrapper):
             "height": 512,
             "num_inference_steps": 50,
             "guidance_scale": 7.5,
-            "safety_checker": True
+            "safety_detector": True
             }
         },
         "flux-1-dev": {

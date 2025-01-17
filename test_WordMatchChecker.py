@@ -1,5 +1,5 @@
 import pytest
-from jailbreak_diffusion.judger.pre_checker.NSFW_word_match import WordMatchChecker
+from jailbreak_diffusion.judger.pre_detector.NSFW_word_match import WordMatchChecker
 
 def test_single_text_safe():
     checker = WordMatchChecker()

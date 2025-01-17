@@ -4,6 +4,10 @@ import string
 from typing import Union, List, Set
 from .base import BaseChecker
 
+# NOTE finish testing
+
+# True: NSFW
+# False: Safe
 
 class WordMatchChecker(BaseChecker):
     """Checker that uses word matching to detect inappropriate content."""

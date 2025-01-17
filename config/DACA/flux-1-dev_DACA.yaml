@@ -34,5 +34,5 @@ datasets:
   - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/04-sex.csv"
   - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/05-political_lobbying.csv"
   - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/06-copyright.csv"
-  - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/07-abusiveness.csv"
-  - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/09-terror.csv"
+  # - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/07-abusiveness.csv"
+  # - "/data4/xiaolong/jailbreak_diffusion/benchmark_results/DACA/stable-diffusion-3.5-medium/attack_prompt/09-terror.csv"

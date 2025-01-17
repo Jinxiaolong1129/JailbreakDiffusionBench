@@ -1,5 +1,4 @@
-# config_proteus_noattack.yaml
-experiment_name: "jailbreak_proteus_noattack"
+experiment_name: "jailbreak_cogview_MMA"
 output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
@@ -9,9 +8,9 @@ num_workers: 1
 
 # Single model configuration
 model:
-  name: "proteus-rundiffusion"
+  name: "cogview3"
   params:
-    model_name: "proteus-rundiffusion"
+    model_name: "cogview3"
     device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
 
 # Attack method

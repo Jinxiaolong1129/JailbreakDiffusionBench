@@ -2,10 +2,13 @@ from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from .base import BaseChecker
 
+
+# NOTE finish testing
+# True: NSFW
+# False: Safe
+
 class ModelBasedChecker(BaseChecker):
     """Checker that uses a pre-trained model to detect inappropriate content."""
-    # NSFW 返回 True 
-    
     def __init__(self):
         """Initialize with NSFW classifier model."""
         super().__init__()
