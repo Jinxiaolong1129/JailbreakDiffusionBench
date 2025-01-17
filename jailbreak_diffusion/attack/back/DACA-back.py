@@ -655,7 +655,7 @@ class DACA(BaseAttacker):
                        'num_query': 0,
                        }
 
-    def attack(self, prompt: str, pre_checker=None, post_checker=None, **kwargs) -> AttackResult:
+    def attack(self, prompt: str, pre_detector=None, post_detector=None, **kwargs) -> AttackResult:
         start_time = time.time()
         category = categorize_prompt(api_key, self.LLM_agent, prompt)
         perturbed_prompt = generate_prompt(

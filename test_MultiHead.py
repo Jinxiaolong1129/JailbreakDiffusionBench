@@ -2,7 +2,7 @@ import torch
 from PIL import Image
 import PIL
 import os
-from jailbreak_diffusion.judger.post_checker.MultiheadDetector import MultiheadDetector
+from jailbreak_diffusion.judger.post_detector.MultiheadDetector import MultiheadDetector
 
 def test_image(image_path, model_name="ViT-L-14", pretrained="openai"):
     """

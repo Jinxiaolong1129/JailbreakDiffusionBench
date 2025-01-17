@@ -1,4 +1,4 @@
-from jailbreak_diffusion.judger.pre_checker.NSFW_text_classifier import ModelBasedChecker
+from jailbreak_diffusion.judger.pre_detector.NSFW_text_classifier import ModelBasedChecker
 
 def test_single_text_safe():
     checker = ModelBasedChecker()

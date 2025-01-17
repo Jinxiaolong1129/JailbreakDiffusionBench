@@ -9,7 +9,10 @@ from openai import OpenAI
 
 from .base import BaseImageChecker
 
-# TODO finish testing
+# NOTE finish testing
+# True: NSFW
+# False: Safe
+
 
 @dataclass
 class ModerationResult:

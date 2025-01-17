@@ -9,7 +9,7 @@ class AttackerFactory:
         attack_type: str, 
         target_model: Any,
         text_detector: Optional[Callable[[str], bool]] = None,
-        image_checker: Optional[Callable[[Any], bool]] = None,
+        image_detector: Optional[Callable[[Any], bool]] = None,
         **kwargs
     ) -> None:
         """
@@ -19,7 +19,7 @@ class AttackerFactory:
             attack_type: Name of the attack method to use
             target_model: Model to be attacked
             text_detector: Function to detect harmful prompts
-            image_checker: Function to detect harmful generated images
+            image_detector: Function to detect harmful generated images
             **kwargs: Additional arguments passed to attacker
         """
         if attack_type not in self._registry:
@@ -29,7 +29,7 @@ class AttackerFactory:
         self.attacker = attacker_class(
             target_model=target_model,
             text_detector=text_detector,
-            image_checker=image_checker,
+            image_detector=image_detector,
             **kwargs
         )
         

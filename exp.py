@@ -192,8 +192,8 @@ class BenchmarkExperiment:
             "attack_prompt": result.attack_prompt,
             "success": result.success,
             "execution_time": result.execution_time,
-            "bypass_detector": result.bypass_detector,
-            "bypass_checker": result.bypass_checker
+            "is_text_NSFW": result.is_text_NSFW,
+            "is_image_NSFW": result.is_image_NSFW
         }
         
         # Save generated image if available
@@ -260,8 +260,8 @@ class BenchmarkExperiment:
             "successful_attacks": results_df["success"].sum(),
             "success_rate": results_df["success"].mean(),
             "avg_execution_time": results_df["execution_time"].mean(),
-            "bypass_detector_rate": results_df["bypass_detector"].mean(),
-            "bypass_checker_rate": results_df["bypass_checker"].mean()
+            "bypass_detector_rate": results_df["is_text_NSFW"].mean(),
+            "bypass_detector_rate": results_df["is_image_NSFW"].mean()
         }
         
         return summary

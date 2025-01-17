@@ -15,7 +15,7 @@ class NoAttacker(BaseAttacker):
         self,
         target_model: Any,
         text_detector: Optional[Callable[[str], bool]] = None,
-        image_checker: Optional[Callable[[Any], bool]] = None,
+        image_detector: Optional[Callable[[Any], bool]] = None,
         **kwargs
     ) -> None:
         """
@@ -24,13 +24,13 @@ class NoAttacker(BaseAttacker):
         Args:
             target_model: Model to generate images from
             text_detector: Optional function to detect harmful prompts
-            image_checker: Optional function to detect harmful images
+            image_detector: Optional function to detect harmful images
             **kwargs: Additional arguments (unused but accepted for compatibility)
         """
         super().__init__(
             target_model=target_model,
             text_detector=text_detector,
-            image_checker=image_checker
+            image_detector=image_detector
         )
         
     def generate_perturbed_prompt(self, prompt: str, **kwargs) -> str:
@@ -71,8 +71,8 @@ class NoAttacker(BaseAttacker):
             attack_prompt=prompt,
             execution_time=end_time - start_time,
             generated_image=generation_output.images,
-            bypass_checker=True,
-            bypass_detector=True,
+            is_text_NSFW=True,
+            is_image_NSFW=True,
             metadata={
                 "attack_type": "no_attack",
                 "model_metadata": generation_output.metadata

@@ -1,4 +1,4 @@
-from jailbreak_diffusion.judger.pre_checker.composite import CompositeChecker
+from jailbreak_diffusion.judger.pre_detector.composite import CompositeChecker
 
 def run_tests():
     # Create checker instance

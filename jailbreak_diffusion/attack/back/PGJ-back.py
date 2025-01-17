@@ -184,7 +184,7 @@ class PGJ(BaseAttacker):
 
         item["output"] = safeSentence
         return safeSentence
-    def attack(self, prompt: str, pre_checker=None,post_checker=None,**kwargs) -> AttackResult:
+    def attack(self, prompt: str, pre_detector=None,post_detector=None,**kwargs) -> AttackResult:
         start_time=time.time()
         perturbed_prompt=self.generate_optimized_prompt(prompt)
         image_url,image=generate_images_for_prompts(api_key, perturbed_prompt)

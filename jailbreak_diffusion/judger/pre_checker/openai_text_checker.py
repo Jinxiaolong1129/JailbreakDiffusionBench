@@ -5,7 +5,10 @@ from abc import ABC, abstractmethod
 from .base import BaseChecker
 import os
 
-# TODO finish testing
+# NOTE finish testing
+
+# True: NSFW
+# False: Safe
 
 @dataclass
 class ModerationResult:

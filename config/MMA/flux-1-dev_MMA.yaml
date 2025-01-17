@@ -1,5 +1,4 @@
-# config_stable-diffusion-xl-base-0.9_noattack.yaml
-experiment_name: "jailbreak_sdxl_noattack"
+experiment_name: "jailbreak_flux_MMA"
 output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
@@ -9,9 +8,9 @@ num_workers: 1
 
 # Single model configuration
 model:
-  name: "stable-diffusion-xl-base-0.9"
+  name: "flux-1-dev"
   params:
-    model_name: "stable-diffusion-xl-base-0.9"
+    model_name: "flux-1-dev"
     device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
 
 # Attack method

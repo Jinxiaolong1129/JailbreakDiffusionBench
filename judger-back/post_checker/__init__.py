@@ -8,5 +8,5 @@ from .MultiheadDetector import MultiheadDetector
 
 from .Q16 import Q16Detector, FinetunedQ16Detector
 
-from .SD_safety_checker import SafetyCheckerDetector
+from .SD_safety_detector import SafetyCheckerDetector
 

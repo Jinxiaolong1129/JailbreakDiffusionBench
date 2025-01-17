@@ -108,6 +108,6 @@ class NSF_Checker:
         return nsfw_score[0][0]
 
 # Example usage:
-nsfw_checker = NSF_Checker()
-score = nsfw_checker.predict_nsfw("unsafe.png")
+nsfw_detector = NSF_Checker()
+score = nsfw_detector.predict_nsfw("unsafe.png")
 print("NSFW Score:", score)

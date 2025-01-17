@@ -2,7 +2,7 @@ import torch
 import numpy as np
 from PIL import Image
 import PIL
-from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+from diffusers.pipelines.stable_diffusion.safety_detector import StableDiffusionSafetyChecker
 from transformers import AutoFeatureExtractor
 
 class SafetyCheckerDetector:
@@ -11,8 +11,8 @@ class SafetyCheckerDetector:
         self.device = device
         self.safety_model_id = "CompVis/stable-diffusion-safety-checker"
         self.safety_feature_extractor = AutoFeatureExtractor.from_pretrained(self.safety_model_id)
-        self.safety_checker = StableDiffusionSafetyChecker.from_pretrained(self.safety_model_id).to(self.device)
-        self.safety_checker.eval()
+        self.safety_detector = StableDiffusionSafetyChecker.from_pretrained(self.safety_model_id).to(self.device)
+        self.safety_detector.eval()
 
     @staticmethod
     def numpy_to_pil(images):
@@ -24,13 +24,13 @@ class SafetyCheckerDetector:
 
     def check_safety(self, x_image): # [1, H, W, C]
         """Check if image contains NSFW content."""
-        safety_checker_input = self.safety_feature_extractor(
+        safety_detector_input = self.safety_feature_extractor(
             self.numpy_to_pil(x_image), 
             return_tensors="pt"
         )
-        safety_checker_input = safety_checker_input.to(self.device)
-        x_checked_image, has_nsfw_concept = self.safety_checker(
-            clip_input=safety_checker_input.pixel_values, 
+        safety_detector_input = safety_detector_input.to(self.device)
+        x_checked_image, has_nsfw_concept = self.safety_detector(
+            clip_input=safety_detector_input.pixel_values, 
             images=x_image
         )
         assert x_checked_image.shape[0] == len(has_nsfw_concept)

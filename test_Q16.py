@@ -2,7 +2,7 @@ import torch
 from PIL import Image
 import PIL
 import os
-from jailbreak_diffusion.judger.post_checker.Q16 import Q16Detector, FinetunedQ16Detector
+from jailbreak_diffusion.judger.post_detector.Q16 import Q16Detector, FinetunedQ16Detector
 
 
 # 测试代码
