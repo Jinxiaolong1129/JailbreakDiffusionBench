@@ -1,3 +1,4 @@
+# jailbreak_diffusion/attack/MMA.py
 import torch
 from rich import print
 import torch.nn as nn
@@ -173,7 +174,9 @@ class MMA_Agent:
             torch.cuda.empty_cache()
             control, loss = self.step(
                 batch_size=batch_size, topk=topk, filter_cand=filter_cand)
+            self.control_str=control
             print(f"Step {_}/{n_steps} | Control: {control} | Loss: {loss}")
+            
             if loss < best_loss:
                 best_loss = loss
                 self.best_control = control

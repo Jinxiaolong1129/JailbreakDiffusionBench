@@ -150,6 +150,17 @@
             "env": {
                 "CUDA_VISIBLE_DEVICES": "7"
             }
-        }
+        },
+        {
+            "name": "MMA_exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/MMA_exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            }
+        },
     ]
 }
