@@ -14,36 +14,30 @@ from jailbreak_diffusion.diffusion_model import DiffusionFactory
 
 @dataclass
 class ModelConfig:
-    """Configuration for a single model"""
     name: str
     params: Dict[str, Any]
 
 @dataclass
 class BenchmarkConfig:
-    """Configuration for benchmark experiments"""
     experiment_name: str
     output_dir: str
-    save_images: bool
-    save_prompts: bool
-    log_level: str
-    batch_size: int
-    num_workers: int
     model: ModelConfig
-    attack_method: str
     datasets: List[str]
+    attack_method: str
+    log_level: str = "INFO"
+    batch_size: int = 32
+    optimization_steps: int = 1000
+    topk: int = 256
+    save_history: bool = True
+    save_intermediate: bool = False
     
     @classmethod
-    def from_yaml(cls, yaml_path: str) -> 'BenchmarkConfig':
-        """Create config from YAML file"""
-        with open(yaml_path, 'r') as f:
+    def from_yaml(cls, path: str):
+        with open(path, 'r') as f:
             config_dict = yaml.safe_load(f)
-            
-        # Convert model dict to ModelConfig
-        model_dict = config_dict.pop('model')
-        model_config = ModelConfig(**model_dict)
-        
-        return cls(model=model_config, **config_dict)
-
+        # 转换model配置
+        config_dict['model'] = ModelConfig(**config_dict['model'])
+        return cls(**config_dict)
 
 
 class PromptDataset:
