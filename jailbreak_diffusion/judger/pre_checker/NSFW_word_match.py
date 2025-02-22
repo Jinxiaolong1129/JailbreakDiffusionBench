@@ -1,3 +1,5 @@
+# jailbreak_diffusion/judger/pre_checker/NSFW_text_classifier.py
+
 import os
 import re
 import string
