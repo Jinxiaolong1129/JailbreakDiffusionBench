@@ -1,3 +1,5 @@
+# jailbreak_diffusion/judger/pre_checker/NSFW_text_classifier.py
+
 from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from .base import BaseChecker

@@ -1,3 +1,6 @@
+# jailbreak_diffusion/judger/pre_checker/azure_text_checker.py
+
+
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 import os
