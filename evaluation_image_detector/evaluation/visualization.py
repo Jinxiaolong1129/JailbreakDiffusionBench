@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import numpy as np
-from typing import Dict
+from typing import Dict, List
+import pandas as pd
 
 class ImageMetricsVisualizer:
     def __init__(self, output_dir: str):
@@ -11,6 +12,7 @@ class ImageMetricsVisualizer:
         plt.style.use('seaborn')
         
     def plot_roc_curves(self, metrics_results: Dict[str, Dict], title: str):
+        """Plot ROC curves for all detectors"""
         plt.figure(figsize=(10, 8))
         
         for detector_name, results in metrics_results.items():
@@ -34,6 +36,7 @@ class ImageMetricsVisualizer:
         plt.close()
         
     def plot_pr_curves(self, metrics_results: Dict[str, Dict], title: str):
+        """Plot Precision-Recall curves for all detectors"""
         plt.figure(figsize=(10, 8))
         
         for detector_name, results in metrics_results.items():
@@ -56,47 +59,120 @@ class ImageMetricsVisualizer:
         plt.close()
         
     def plot_metrics_heatmap(self, metrics_results: Dict[str, Dict], title: str):
-        """绘制不同检测器的指标热力图"""
-        metrics = ["accuracy", "precision", "recall", "f1", "auc", "average_precision"]
+        """Plot heatmap comparing metrics across detectors"""
+        metrics = [
+            "accuracy", "precision", "recall", "f1",
+            "false_accept_rate", "false_reject_rate",
+            "equal_error_rate"
+        ]
         detectors = list(metrics_results.keys())
         
         data = np.zeros((len(detectors), len(metrics)))
         for i, detector in enumerate(detectors):
             for j, metric in enumerate(metrics):
-                if metric in ["auc", "average_precision"]:
-                    data[i, j] = metrics_results[detector]["curves"]["roc"]["auc"] if metric == "auc" else \
-                                 metrics_results[detector]["curves"]["pr"]["average_precision"]
-                else:
-                    data[i, j] = metrics_results[detector]["basic_metrics"][metric]
+                data[i, j] = metrics_results[detector]["basic_metrics"][metric]
         
         plt.figure(figsize=(12, len(detectors) * 0.8 + 2))
-        sns.heatmap(data, annot=True, fmt='.3f', 
-                    xticklabels=metrics, 
-                    yticklabels=detectors,
-                    cmap='YlOrRd')
+        sns.heatmap(
+            data,
+            annot=True,
+            fmt='.3f',
+            xticklabels=metrics,
+            yticklabels=detectors,
+            cmap='YlOrRd'
+        )
         plt.title(title)
         plt.tight_layout()
         
         plt.savefig(self.output_dir / f"{title.lower().replace(' ', '_')}_heatmap.png")
         plt.close()
-
-    def plot_confusion_matrices(self, metrics_results: Dict[str, Dict], title: str):
-        """绘制所有检测器的混淆矩阵"""
-        num_detectors = len(metrics_results)
-        fig, axes = plt.subplots(1, num_detectors, figsize=(5*num_detectors, 5))
         
-        for idx, (detector_name, results) in enumerate(metrics_results.items()):
-            cm = results["confusion_matrix"]
-            cm_data = np.array([[cm["tn"], cm["fp"]], [cm["fn"], cm["tp"]]])
+    def plot_category_performance(
+        self,
+        metrics_results: Dict[str, Dict],
+        category_distribution: Dict[str, Dict[str, int]],
+        title: str
+    ):
+        """Plot performance metrics by category"""
+        categories = list(category_distribution.keys())
+        metrics = ["accuracy", "precision", "recall", "f1"]
+        
+        # Create subplots
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle(title)
+        axes = axes.ravel()
+        
+        for idx, metric in enumerate(metrics):
+            ax = axes[idx]
+            detector_names = list(metrics_results.keys())
+            x = np.arange(len(categories))
+            width = 0.8 / len(detector_names)
             
-            ax = axes[idx] if num_detectors > 1 else axes
-            sns.heatmap(cm_data, annot=True, fmt='d', cmap='Blues', ax=ax)
-            ax.set_title(f"{detector_name} Confusion Matrix")
-            ax.set_xlabel("Predicted")
-            ax.set_ylabel("Actual")
-            ax.set_xticklabels(["Safe", "Unsafe"])
-            ax.set_yticklabels(["Safe", "Unsafe"])
-        
+            for i, detector in enumerate(detector_names):
+                values = []
+                for category in categories:
+                    cat_metrics = metrics_results[detector].get("category_metrics", {})
+                    if category in cat_metrics:
+                        values.append(
+                            cat_metrics[category]["basic_metrics"][metric]
+                        )
+                    else:
+                        values.append(0)
+                
+                ax.bar(
+                    x + i * width - width * len(detector_names) / 2,
+                    values,
+                    width,
+                    label=detector
+                )
+            
+            ax.set_title(f"{metric.capitalize()} by Category")
+            ax.set_xticks(x)
+            ax.set_xticklabels(categories, rotation=45)
+            ax.set_ylim(0, 1)
+            ax.legend()
+            
         plt.tight_layout()
-        plt.savefig(self.output_dir / f"{title.lower().replace(' ', '_')}_confusion_matrices.png")
+        plt.savefig(self.output_dir / f"{title.lower().replace(' ', '_')}_categories.png")
+        plt.close()
+        
+    def plot_error_analysis(self, metrics_results: Dict[str, Dict], title: str):
+        """Plot error analysis visualization"""
+        detectors = list(metrics_results.keys())
+        
+        # Prepare data for error types
+        error_types = ['false_positives', 'false_negatives']
+        error_data = {
+            detector: [
+                results['confusion_matrix']['fp'],
+                results['confusion_matrix']['fn']
+            ] for detector, results in metrics_results.items()
+        }
+        
+        # Create error type distribution plot
+        plt.figure(figsize=(10, 6))
+        x = np.arange(len(detectors))
+        width = 0.35
+        
+        plt.bar(
+            x - width/2,
+            [error_data[d][0] for d in detectors],
+            width,
+            label='False Positives'
+        )
+        plt.bar(
+            x + width/2,
+            [error_data[d][1] for d in detectors],
+            width,
+            label='False Negatives'
+        )
+        
+        plt.xlabel('Detectors')
+        plt.ylabel('Number of Errors')
+        plt.title(f'{title} - Error Analysis')
+        plt.xticks(x, detectors, rotation=45)
+        plt.legend()
+        plt.tight_layout()
+        
+        plt.savefig(self.output_dir / f"{title.lower().replace(' ', '_')}_errors.png")
         plt.close()

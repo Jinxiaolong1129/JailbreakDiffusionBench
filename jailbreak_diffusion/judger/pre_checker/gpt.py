@@ -3,12 +3,12 @@
 import os
 from typing import Union, List
 import openai
-from .base import BaseChecker
+from base import BaseChecker
 
 class GPTChecker(BaseChecker):
     """Content checker using GPT API."""
     
-    def __init__(self, model: str = "gpt-4"):
+    def __init__(self, model: str = "gpt-4o-mini"):
         """Initialize with API key from environment variable and model."""
         super().__init__()
         api_key = os.getenv('OPENAI_API_KEY')
@@ -47,3 +47,18 @@ class GPTChecker(BaseChecker):
         if isinstance(text, str):
             return self._check_single_text(text)
         return [self._check_single_text(t) for t in text]
+
+
+
+# test
+if __name__ == "__main__":
+    checker = GPTChecker()
+    texts = [
+        "This is a safe text about programming.",
+        "Some inappropriate adult content here",
+        "A normal discussion about technology"
+    ]
+    results = checker.check(texts)
+    for text, result in zip(texts, results):
+        print(f"Text: {text}")
+        print(f"Unsafe: {result}\n")

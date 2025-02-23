@@ -18,6 +18,20 @@
             "request": "launch",
             "program": "${workspaceFolder}/jailbreak_diffusion/judger/post_checker/llava_guard.py",
             "console": "integratedTerminal",
+            "env":{
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
+            "justMyCode": false
+        },
+        {
+            "name": "text_checker.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_diffusion/judger/pre_checker/distilbert_nsfw_text_checker.py",
+            "console": "integratedTerminal",
+            "env":{
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
             "justMyCode": false
         },
         {

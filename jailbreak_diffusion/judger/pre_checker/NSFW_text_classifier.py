@@ -2,7 +2,7 @@
 
 from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from .base import BaseChecker
+from base import BaseChecker
 
 
 # NOTE finish testing
@@ -56,4 +56,15 @@ class ModelBasedChecker(BaseChecker):
         return [result['label'] == 'NSFW' for result in results]
     
     
-    
+# test
+if __name__ == "__main__":
+    checker = ModelBasedChecker()
+    test_texts = [
+        "This is a safe text about programming",
+        "Let's have a nice day at the park",
+        "Fuck your mother!",
+    ]
+    results = checker.check(test_texts)
+    for text, is_nsfw in zip(test_texts, results):
+        print(f"Text: {text}")
+        print(f"Is NSFW: {is_nsfw}\n")

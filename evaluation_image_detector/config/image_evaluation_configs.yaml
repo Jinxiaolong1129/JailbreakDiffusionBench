@@ -1,20 +1,26 @@
-# evaluation_image_detector/config/image_evaluation_configs.yaml
+# evaluation_image_detector/config/evaluation_configs.yaml
 datasets:
-  dataset1:
-    path: "data/dataset1/dataset_info.json"
+  synthetic_dataset:
+    path: "data/synthetic/dataset_info.json"
     weight: 1.0
-  dataset2:
-    path: "data/dataset2/dataset_info.json"
+    analyze_categories: true
+    
+  real_world_dataset:
+    path: "data/real_world/dataset_info.json"
     weight: 0.8
+    analyze_categories: true
+    
+  edge_cases_dataset:
+    path: "data/edge_cases/dataset_info.json"
+    weight: 0.6
+    analyze_categories: false
 
 output_dir: "results"
-batch_size: 32
+batch_size: 16
 num_workers: 4
+save_misclassified: true
 
 metrics:
   - accuracy
   - precision
   - recall
-  - f1
-  - auc
-  - average_precision
