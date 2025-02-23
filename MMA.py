@@ -11,7 +11,11 @@ import torch
 import string
 from tqdm import tqdm
 import torch.nn as nn
+<<<<<<< HEAD
+import gc
+=======
 
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 from typing import Optional
 import torch.nn.functional as F
 
@@ -32,8 +36,79 @@ class CosineSimilarityLoss(nn.Module):
 
         return loss
 
+<<<<<<< HEAD
+class CosineSimilarityLoss_1d(nn.Module):
+    def __init__(self, reduction=None):
+        """
+        Args:
+            reduction (str): 可选值为 'mean', 'sum', 或 None。
+                             - 'mean': 返回所有样本的平均损失。
+                             - 'sum': 返回所有样本的损失总和。
+                             - None: 返回每个样本的独立损失，形状为 [512]。
+        """
+        super(CosineSimilarityLoss_1d, self).__init__()
+        self.reduction = reduction
+
+    def forward(self, x, y):
+        """
+        Args:
+            x (Tensor): 输入张量，形状为 [512, 768]。
+            y (Tensor): 输入张量，形状为 [768]。
+        
+        Returns:
+            loss (Tensor): 损失值。
+                           如果 reduction=None，形状为 [512]。
+                           如果 reduction='mean' 或 'sum'，返回标量值。
+        """
+        # 扩展 y 的维度以与 x 匹配
+        y = y.unsqueeze(0)  # 将 y 的形状从 [768] 扩展为 [1, 768]
+        
+        # 计算余弦相似度，输出形状为 [512]
+        cos_sim = F.cosine_similarity(x, y, dim=1, eps=1e-6)
+        
+        # 损失为 1 - 余弦相似度
+        loss = 1 - cos_sim
+
+        # 根据 reduction 参数处理损失
+        if self.reduction == 'mean':
+            loss = loss.mean()
+        elif self.reduction == 'sum':
+            loss = loss.sum()
+        return loss
+
+class CosineSimilarityLoss_batch(nn.Module):
+    def __init__(self, reduction=None):
+        super(CosineSimilarityLoss_batch, self).__init__()
+        self.reduction = reduction
+
+    def forward(self, x, y):
+        """
+        Args:
+            x: [batch_size, seq_len, feature_dim]  # 三维张量
+            y: [batch_size, feature_dim]          # 二维张量
+        Returns:
+            loss: [batch_size, seq_len]  # 每个序列位置对应的损失
+        """
+        # 将 y 扩展到与 x 形状匹配 [batch_size, 1, feature_dim]
+        y = y.unsqueeze(1)  # [batch_size, 1, feature_dim]
+        
+        # 计算余弦相似度 [batch_size, seq_len]
+        cos_sim = nn.functional.cosine_similarity(x, y, dim=-1, eps=1e-6)  # 在最后一个维度计算
+        
+        # 转化为损失
+        loss = 1 - cos_sim  # [batch_size, seq_len]
+        
+        # 如果需要归约
+        if self.reduction == 'mean':
+            loss = loss.mean(dim=-1)  # 按序列维度求平均，返回 [batch_size]
+        elif self.reduction == 'sum':
+            loss = loss.sum(dim=-1)  # 按序列维度求和，返回 [batch_size]
+
+        return loss
+=======
 
 
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 @dataclass
 class PromptHistory:
     """记录单个prompt的优化历史"""
@@ -247,6 +322,39 @@ class ParallelMMA:
         with torch.no_grad():
             target_embeddings = self.text_encoder.text_model(target_input)["pooler_output"]
         return target_embeddings
+<<<<<<< HEAD
+    def get_target_embeddings_batch_3d(self, prompts: List[List[List[str]]]):
+        """
+        批量获取目标 embeddings，支持形状为 [32,512,20] 的 3D 列表。
+        Args:
+            prompts: 形状为 [batch_size, seq_len, num_cands] 的嵌套列表。
+        Returns:
+            target_embeddings: 张量，形状为 [batch_size, seq_len, num_cands, embedding_dim]。
+        """
+        batch_size, seq_len, num_cands = len(prompts), len(prompts[0]), len(prompts[0][0])
+        
+        # 展开 prompts 为一维列表
+        flattened_prompts = [cand for batch in prompts for seq in batch for cand in seq]
+
+        # 批量 tokenize 展开的 prompts
+        target_tokenized = self.tokenizer(
+            flattened_prompts,
+            padding="max_length",
+            return_tensors="pt",
+            truncation=True
+        )
+        target_input = target_tokenized["input_ids"].to(self.device)
+        
+        # 批量获取 embeddings
+        with torch.no_grad():
+            target_embeddings = self.text_encoder.text_model(target_input)["pooler_output"]  # [batch_size * seq_len * num_cands, embedding_dim]
+        
+        # 将 embeddings 重新 reshape 成 [batch_size, seq_len, num_cands, embedding_dim]
+        target_embeddings = target_embeddings.view(batch_size, seq_len,  -1)
+        
+        return target_embeddings
+=======
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 
     def token_gradient_batch(self, controls: List[str], target_embeddings: torch.Tensor):
         """批量计算梯度"""
@@ -261,7 +369,12 @@ class ParallelMMA:
         batch_size = len(controls)
         control_length = 20
         embed_weights = self.text_encoder.text_model.embeddings.token_embedding.weight
+<<<<<<< HEAD
+        # print(embed_weights.shape)[49408,768]
+        # print(2222222222)
+=======
 
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # 为整个batch创建one-hot向量
         one_hot = torch.zeros(
             batch_size,
@@ -276,18 +389,34 @@ class ParallelMMA:
             one_hot[i].scatter_(1, input_ids[i][:control_length].unsqueeze(1), 1.0)
         
         one_hot.requires_grad_()
+<<<<<<< HEAD
+        # print(one_hot.shape)[32,20,49408]
+        # 批量处理embeddings
+        input_embeds = torch.matmul(one_hot, embed_weights)
+        # print(input_embeds.shape)[32,20,768]
+=======
 
         # 批量处理embeddings
         input_embeds = torch.matmul(one_hot, embed_weights)
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         embeds = self.text_encoder.text_model.embeddings.token_embedding(input_ids)
         full_embeds = torch.cat(
             [input_embeds, embeds[:, control_length:]], dim=1
         )
+<<<<<<< HEAD
+        # print(33333333333)
+        # print(full_embeds.shape)[32,77,768]
+        position_ids = torch.arange(0, self.tokenizer.model_max_length).to(self.device)
+        position_embeddings = self.text_encoder.text_model.embeddings.position_embedding
+        pos_embeds = position_embeddings(position_ids).unsqueeze(0).expand(batch_size, -1, -1)
+        # print(pos_embeds.shape)[32,77,768]
+=======
 
         position_ids = torch.arange(0, self.tokenizer.model_max_length).to(self.device)
         position_embeddings = self.text_encoder.text_model.embeddings.position_embedding
         pos_embeds = position_embeddings(position_ids).unsqueeze(0).expand(batch_size, -1, -1)
 
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         embeddings = full_embeds + pos_embeds
         
         # 计算loss和梯度
@@ -295,6 +424,222 @@ class ParallelMMA:
             input_ids=input_ids, 
             input_embed=embeddings
         )["pooler_output"]
+<<<<<<< HEAD
+        # print(control_embeddings.shape)[32,768]
+        criteria = CosineSimilarityLoss()
+        loss = criteria(control_embeddings, target_embeddings)
+        loss.backward()
+        # print(one_hot.grad.shape)[32,20,49408]
+        # print(444444)
+        # exit()
+        return one_hot.grad.clone()
+    def sample_control_batch(self, grad, control_str=None,topk=256,num_can=512):
+        """
+        Sample control tokens based on gradient information, handling two levels of batching.
+        
+        Args:
+            grad (torch.Tensor): Gradient tensor of shape [batch_size, 20, 490408].
+            num_can (int): Number of samples to generate per batch (e.g., 512).
+            topk (int): Number of top candidates to consider for replacement.
+
+        Returns:
+            torch.Tensor: Updated control tokens of shape [batch_size, num_can, 20].
+        """
+        batch_size, num_tokens, vocab_size = grad.shape  # batch_size=32, num_tokens=20, vocab_size=490408
+        
+        # 1. 将敏感 token 的梯度置为无穷大
+        for input_id in set(self.tokens_to_remove_set):
+            grad[:, :, input_id] = float("inf")  # 屏蔽敏感 token
+        
+        # 2. 提取 topk 的索引
+        top_indices = (-grad).topk(topk, dim=2).indices  # shape [batch_size, 20, topk]
+        # 3. 转换控制字符串为初始 token IDs
+        if isinstance(control_str, list):
+
+            # 批量分词和 ID 转换
+            tokenized = self.tokenizer.batch_encode_plus(
+                control_str,
+                add_special_tokens=False,  # 不添加特殊标记
+                return_tensors="pt"        # 返回 PyTorch 张量
+            )
+
+            # 提取 token IDs 并转为 Tensor
+            control_toks = tokenized["input_ids"].to(grad.device).type(torch.int64)  # shape: [batch_size, token_length]
+        else:
+            tokens = self.tokenizer.tokenize(control_str)
+            control_toks = torch.Tensor(self.tokenizer.convert_tokens_to_ids(tokens)).to(grad.device)
+            control_toks = control_toks.type(torch.int64)# shape [32,20]
+        # 扩展 control_toks 为 [batch_suze, num_can, num_tokens] 的初始形状
+        original_control_toks = control_toks.unsqueeze(1).expand(batch_size, num_can, -1)  # shape [32, 512, 20]
+        # 4. 随机选取需要替换的 token
+        # 每个外部 batch 都需要生成 batch_size 个样本
+        # Step 1: 生成一个等间距的 [512] 张量
+        new_token_pos = torch.arange(0, len(control_toks[0]), len(control_toks[0]) / num_can).type(torch.int64).to(grad.device)  # shape [512]
+        # Step 2: 扩展到 [32, 512]，所有行的值相同
+        new_token_pos = new_token_pos.unsqueeze(0).repeat( original_control_toks.shape[0], 1)  # shape [32, 512]
+        # 根据 new_token_pos 和 top_indices 随机选择替换值
+        batch_indices = torch.arange(batch_size).unsqueeze(1).expand(-1, new_token_pos.size(1))#[32,512]
+        
+        selected_top_indices=top_indices[
+            batch_indices,  # 用于选择每个 batch
+            new_token_pos                          # [batch_size, num_replacements]
+        ]  # 输出形状：[32, 512, 256]
+    
+        # 2. 随机选择候选集合中的一个 token
+        random_indices = torch.randint(0, topk, (batch_size, num_can, 1), device=top_indices.device)#[32,512,1]
+        # 利用 torch.gather 选择对应列的值
+        new_token_val = torch.gather(selected_top_indices, 2, random_indices)
+        # 输出形状：[32, 512, 1]
+        # 5. 替换控制 token 的值
+        new_control_toks = original_control_toks.clone().scatter_(
+                2,  # 操作的维度是最后一个维度（token 维度）
+                new_token_pos.unsqueeze(-1),  # 将 [32, 512] 扩展为 [32, 512, 1]
+                new_token_val  # 形状已经是 [32, 512, 1]
+            ) # shape [32, 512, 20]
+        return new_control_toks# shape [32, 512, 20]
+    def get_filtered_cands(self, control_cand, filter_cand=True, curr_control=None):
+        """
+        Args:
+            control_cand: [32, 512, 20]，候选 token 的 ID。
+            filter_cand: 是否过滤候选字符串。
+            curr_control: 当前的控制字符串，用于排除。
+        Returns:
+            batch_cands: [batch_size, seq_len]，解码后的候选字符串。
+        """
+        batch_size, seq_len, num_cands = control_cand.shape  # 获取输入维度
+
+        # 展平所有 batch 的 token [32, 512, 20] -> [32 * 512 * 20]
+        flattened_tokens = control_cand.view(-1).tolist()
+
+        # 一次性解码所有 token
+        tokenizer = self.tokenizer
+        decoded_flattened = tokenizer.convert_ids_to_tokens(flattened_tokens)
+
+        # 将解码后的 token 转换为 3D list
+        # 先按每个 batch 分割，每个 batch 包含 [seq_len * num_cands] 个 token
+        batch_cands = []
+
+        for batch_idx in range(batch_size):
+            # 每个 batch 的解码结果
+            start_idx = batch_idx * seq_len * num_cands
+            end_idx = (batch_idx + 1) * seq_len * num_cands
+            batch_decoded = decoded_flattened[start_idx:end_idx]
+
+            # 将解码结果重组为 [seq_len, num_cands]
+            decoded_batch = [
+                "".join(batch_decoded[i * num_cands:(i + 1) * num_cands]).replace('</w>', ' ')[:-1]
+                for i in range(seq_len)
+            ]
+
+            # 如果需要过滤，按照条件筛选
+            cands = []
+            count = 0
+            for i, decoded_str in enumerate(decoded_batch):
+                if filter_cand:
+                    if decoded_str != curr_control and len(tokenizer(decoded_str, add_special_tokens=False).input_ids) == len(control_cand[batch_idx, i]):
+                        cands.append(decoded_str)
+                    else:
+                        count += 1
+                else:
+                    cands.append(decoded_str)
+
+            if filter_cand:
+                # 如果候选不足 seq_len，重复最后一个候选补足
+                cands = cands + [cands[-1]] * (seq_len - len(cands))
+
+            batch_cands.append(cands)
+
+        return batch_cands
+    def step(self,batch_controls,batch_target_embeddings,topk):
+        # 计算梯度
+        print("getting gradient")
+        grads = self.token_gradient_batch(
+            batch_controls,
+            batch_target_embeddings
+        )
+        print("sampling")
+        # 采样新的控制字符串
+        new_controls = self.sample_control_batch(
+            grads,
+            batch_controls,
+            topk=topk
+        ) #[32,512,20] 32是batch，512是candidate个数，20是字符串长度。
+        print("filtering")
+        control_cands=self.get_filtered_cands(new_controls)
+
+        del grads, new_controls ; gc.collect()
+        
+        # 更新当前batch的控制字符串
+        
+        # 计算新的loss
+        print("getting loss")
+        with torch.no_grad():
+            control_embeddings = None  # 初始化为空
+            for controls in control_cands:
+                embeddings = self.get_target_embeddings_batch(controls)  # 获取当前 batch 的 embeddings
+                if control_embeddings is None:
+                    control_embeddings = embeddings
+                else:
+                    control_embeddings = torch.cat([control_embeddings, embeddings], dim=0)
+
+            # 最终 reshape 为目标形状
+            control_embeddings = control_embeddings.view(
+                len(control_cands), -1, control_embeddings.shape[-1]
+            )
+            # control_embeddings=[]
+            # for controls in control_cands:
+            #     control_embeddings.append(self.get_target_embeddings_batch(controls))
+            # control_embeddings=torch.cat(control_embeddings,dim=0).view(len(control_cands),-1,control_embeddings[0].shape[-1])
+            # control_embeddings= torch.stack(control_embeddings)
+            criteria =CosineSimilarityLoss_batch(reduction=None)
+            loss=criteria(control_embeddings,batch_target_embeddings)#[32,512]
+        min_idx = loss.argmin(dim=1)
+        next_control = [control_cands[i][min_idx[i].item()] for i in range(len(control_cands))]#返回了一个list，这个list是包含了32个字符串
+        # next_control = control_cands[min_idx]#只返回了一个最小的loss对应的control string
+        cand_loss = loss[torch.arange(loss.size(0)), min_idx]
+        return next_control,cand_loss
+    
+    def run(self,control_strs,target_embeddings,batch_size,n_steps,topk=256):
+        #control_strs和target_embeddings都是所有prompts对应的
+        self.results=[]
+        num_batches = (len(control_strs) + batch_size - 1) // batch_size
+        for batch_idx in range(num_batches): 
+            start_idx = batch_idx * batch_size
+            end_idx = min((batch_idx + 1) * batch_size, len(control_strs))
+            
+            self.batch_controls = control_strs[start_idx:end_idx]
+            self.best_controls=self.batch_controls
+            self.batch_target_embeddings = target_embeddings[start_idx:end_idx]
+            self.best_losses = [float('inf')] * len(self.batch_controls)
+            for step in tqdm(range(n_steps), desc="Optimization Progress"):
+                
+                #print(batch_target_embeddings.shape)[32.768]
+                #control 一个list，长度为batch_size个。
+                control, loss = self.step(batch_controls=self.batch_controls,batch_target_embeddings=self.batch_target_embeddings,topk = topk)
+                self.batch_controls = control
+                for i in range(len(self.best_losses)):
+                    if loss[i] < self.best_losses[i]:  # 如果新的 loss 比当前的最佳 loss 小
+                            self.best_losses[i] = loss[i]  # 更新最佳 loss
+                            self.best_controls[i] = control[i]  # 更新最佳候选
+
+                # 打印当前step的统计信息
+                if step % 10 == 0:
+                    avg_loss = sum(self.best_losses) / len(self.best_losses)
+                    print(f"Step {step}/{n_steps} | Avg Best Loss: {avg_loss:.4f}")
+
+                # 可选：提前停止
+                if max(self.best_losses) < 0.1:
+                    print(f"Early stopping at step {step} - target loss achieved")
+                    break
+            self.results.extend(self.best_controls)
+
+        return self.results
+    def attack_batch_parallel(
+        self, 
+        prompts: List[str], #传递的是数据集所有得prompt
+        n_steps: int = 5, 
+        batch_size: int = 128,
+=======
 
         criteria = CosineSimilarityLoss(reduction='none')
         loss = criteria(control_embeddings, target_embeddings).mean()
@@ -353,29 +698,52 @@ class ParallelMMA:
         prompts: List[str], 
         n_steps: int = 1000, 
         batch_size: int = 32,
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         topk: int = 256,
         track_interval: int = 1  # 每隔多少步记录一次
     ) -> BatchAttackResult:
         """并行处理多个提示词的攻击，并记录优化过程"""
         start_time = time.time()
+<<<<<<< HEAD
+        print(len(prompts))
+        # 获取所有提示词的目标embeddings
+
+        target_embeddings = self.get_target_embeddings_batch(prompts)
+        #print(target_embeddings.shape)#[2243,768]
+=======
         
         # 获取所有提示词的目标embeddings
         target_embeddings = self.get_target_embeddings_batch(prompts)
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # target_embeddings 是否需要保存？
         # 初始化控制字符串
         control_strs = [
             " ".join([random.choice(string.ascii_letters) for _ in range(20)])
             for _ in range(len(prompts))
         ]
+<<<<<<< HEAD
+        best_controls = control_strs.copy()#[243]
+        # print(control_strs)
+        # print(len(control_strs))#[243]
+        result=self.run(control_strs,target_embeddings,batch_size,n_steps)
+        df = pd.DataFrame(result, columns=["prompt"])       
+        df.to_csv("prompts.csv", index=True, encoding="utf-8")
+        print("finished")
+        exit()
+=======
         best_controls = control_strs.copy()
         best_losses = [float('inf')] * len(prompts)
 
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # 如果有tracker，初始化所有prompt
         if self.tracker:
             for i, prompt in enumerate(prompts):
                 self.tracker.initialize_prompt(i, prompt)
 
         # 分batch处理
+<<<<<<< HEAD
+ 
+=======
         num_batches = (len(prompts) + batch_size - 1) // batch_size
         
         for step in tqdm(range(n_steps), desc="Optimization Progress"):
@@ -441,6 +809,7 @@ class ParallelMMA:
                 print(f"Early stopping at step {step} - target loss achieved")
                 break
 
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # 完成所有prompt的优化并保存结果
         if self.tracker:
             for i in range(len(prompts)):
