@@ -9,7 +9,7 @@ class AttackerFactory:
         attack_type: str, 
         target_model: Any,
         text_detector: Optional[Callable[[str], bool]] = None,
-        image_checker: Optional[Callable[[Any], bool]] = None,
+        image_detector: Optional[Callable[[Any], bool]] = None,
         **kwargs
     ) -> None:
         """
@@ -19,21 +19,21 @@ class AttackerFactory:
             attack_type: Name of the attack method to use
             target_model: Model to be attacked
             text_detector: Function to detect harmful prompts
-            image_checker: Function to detect harmful generated images
+            image_detector: Function to detect harmful generated images
             **kwargs: Additional arguments passed to attacker
         """
         if attack_type not in self._registry:
             raise ValueError(f"Attack type '{attack_type}' not found. Available: {list(self._registry.keys())}")
-            
+        
         attacker_class = self._registry[attack_type]
         self.attacker = attacker_class(
             target_model=target_model,
             text_detector=text_detector,
-            image_checker=image_checker,
+            image_detector=image_detector,
             **kwargs
         )
         
-    def attack(self, prompt: str, **kwargs) -> AttackResult:
+    def __call__(self, prompt: str, attack_prompt: str = None, **kwargs) -> AttackResult:
         """
         Run attack with the specified prompt.
         
@@ -44,7 +44,8 @@ class AttackerFactory:
         Returns:
             AttackResult containing attack results and bypass status
         """
-        return self.attacker.run_attack_with_checks(prompt, **kwargs)
+        return self.attacker.run_attack_with_checks(prompt, attack_prompt, **kwargs)
+    
     
     @classmethod
     def register(cls, name: str, attacker_class: Type[BaseAttacker]) -> None:

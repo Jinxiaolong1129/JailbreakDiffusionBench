@@ -380,5 +380,13 @@ Temporary Items
 examples/logs/
 examples/submissions/
 
+detector/
+
 
 api.txt
+
+test_outputs/
+benchmark_results/
+benchmark_results_back/
+unsafe-diffusion-main
+unsafe-diffusion-main.zip

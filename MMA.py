@@ -11,7 +11,11 @@ import torch
 import string
 from tqdm import tqdm
 import torch.nn as nn
+<<<<<<< HEAD
 import gc
+=======
+
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 from typing import Optional
 import torch.nn.functional as F
 
@@ -32,6 +36,7 @@ class CosineSimilarityLoss(nn.Module):
 
         return loss
 
+<<<<<<< HEAD
 class CosineSimilarityLoss_1d(nn.Module):
     def __init__(self, reduction=None):
         """
@@ -100,6 +105,10 @@ class CosineSimilarityLoss_batch(nn.Module):
             loss = loss.sum(dim=-1)  # 按序列维度求和，返回 [batch_size]
 
         return loss
+=======
+
+
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 @dataclass
 class PromptHistory:
     """记录单个prompt的优化历史"""
@@ -313,6 +322,7 @@ class ParallelMMA:
         with torch.no_grad():
             target_embeddings = self.text_encoder.text_model(target_input)["pooler_output"]
         return target_embeddings
+<<<<<<< HEAD
     def get_target_embeddings_batch_3d(self, prompts: List[List[List[str]]]):
         """
         批量获取目标 embeddings，支持形状为 [32,512,20] 的 3D 列表。
@@ -343,6 +353,8 @@ class ParallelMMA:
         target_embeddings = target_embeddings.view(batch_size, seq_len,  -1)
         
         return target_embeddings
+=======
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 
     def token_gradient_batch(self, controls: List[str], target_embeddings: torch.Tensor):
         """批量计算梯度"""
@@ -357,8 +369,12 @@ class ParallelMMA:
         batch_size = len(controls)
         control_length = 20
         embed_weights = self.text_encoder.text_model.embeddings.token_embedding.weight
+<<<<<<< HEAD
         # print(embed_weights.shape)[49408,768]
         # print(2222222222)
+=======
+
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # 为整个batch创建one-hot向量
         one_hot = torch.zeros(
             batch_size,
@@ -373,20 +389,34 @@ class ParallelMMA:
             one_hot[i].scatter_(1, input_ids[i][:control_length].unsqueeze(1), 1.0)
         
         one_hot.requires_grad_()
+<<<<<<< HEAD
         # print(one_hot.shape)[32,20,49408]
         # 批量处理embeddings
         input_embeds = torch.matmul(one_hot, embed_weights)
         # print(input_embeds.shape)[32,20,768]
+=======
+
+        # 批量处理embeddings
+        input_embeds = torch.matmul(one_hot, embed_weights)
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         embeds = self.text_encoder.text_model.embeddings.token_embedding(input_ids)
         full_embeds = torch.cat(
             [input_embeds, embeds[:, control_length:]], dim=1
         )
+<<<<<<< HEAD
         # print(33333333333)
         # print(full_embeds.shape)[32,77,768]
         position_ids = torch.arange(0, self.tokenizer.model_max_length).to(self.device)
         position_embeddings = self.text_encoder.text_model.embeddings.position_embedding
         pos_embeds = position_embeddings(position_ids).unsqueeze(0).expand(batch_size, -1, -1)
         # print(pos_embeds.shape)[32,77,768]
+=======
+
+        position_ids = torch.arange(0, self.tokenizer.model_max_length).to(self.device)
+        position_embeddings = self.text_encoder.text_model.embeddings.position_embedding
+        pos_embeds = position_embeddings(position_ids).unsqueeze(0).expand(batch_size, -1, -1)
+
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         embeddings = full_embeds + pos_embeds
         
         # 计算loss和梯度
@@ -394,6 +424,7 @@ class ParallelMMA:
             input_ids=input_ids, 
             input_embed=embeddings
         )["pooler_output"]
+<<<<<<< HEAD
         # print(control_embeddings.shape)[32,768]
         criteria = CosineSimilarityLoss()
         loss = criteria(control_embeddings, target_embeddings)
@@ -608,22 +639,89 @@ class ParallelMMA:
         prompts: List[str], #传递的是数据集所有得prompt
         n_steps: int = 5, 
         batch_size: int = 128,
+=======
+
+        criteria = CosineSimilarityLoss(reduction='none')
+        loss = criteria(control_embeddings, target_embeddings).mean()
+        loss.backward()
+
+        return one_hot.grad.clone()
+
+    def sample_control_batch(self, grads: torch.Tensor, controls: List[str], topk: int = 256) -> List[str]:
+        """批量采样新的控制字符串"""
+        batch_size = len(controls)
+        
+        # 处理禁用词
+        for input_id in self.tokens_to_remove_set:
+            grads[..., input_id] = np.inf
+            
+        # 获取topk索引
+        top_indices = (-grads).topk(topk, dim=-1).indices
+        
+        # 批量处理token
+        control_tokens = [
+            self.tokenizer.tokenize(control)
+            for control in controls
+        ]
+        
+        control_ids = [
+            torch.tensor(
+                self.tokenizer.convert_tokens_to_ids(tokens),
+                device=self.device
+            )
+            for tokens in control_tokens
+        ]
+        
+        # 生成新的控制字符串
+        new_controls = []
+        for i in range(batch_size):
+            # 随机选择要修改的位置
+            pos = random.randint(0, len(control_tokens[i]) - 1)
+            # 随机选择新的token
+            new_token_idx = random.randint(0, topk - 1)
+            new_token = top_indices[i, pos, new_token_idx].item()
+            
+            # 更新token
+            temp_ids = control_ids[i].clone()
+            temp_ids[pos] = new_token
+            
+            # 转换回字符串
+            new_control = self.tokenizer.decode(temp_ids)
+            new_controls.append(new_control)
+            
+        return new_controls
+
+
+
+    def attack_batch_parallel(
+        self, 
+        prompts: List[str], 
+        n_steps: int = 1000, 
+        batch_size: int = 32,
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         topk: int = 256,
         track_interval: int = 1  # 每隔多少步记录一次
     ) -> BatchAttackResult:
         """并行处理多个提示词的攻击，并记录优化过程"""
         start_time = time.time()
+<<<<<<< HEAD
         print(len(prompts))
         # 获取所有提示词的目标embeddings
 
         target_embeddings = self.get_target_embeddings_batch(prompts)
         #print(target_embeddings.shape)#[2243,768]
+=======
+        
+        # 获取所有提示词的目标embeddings
+        target_embeddings = self.get_target_embeddings_batch(prompts)
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # target_embeddings 是否需要保存？
         # 初始化控制字符串
         control_strs = [
             " ".join([random.choice(string.ascii_letters) for _ in range(20)])
             for _ in range(len(prompts))
         ]
+<<<<<<< HEAD
         best_controls = control_strs.copy()#[243]
         # print(control_strs)
         # print(len(control_strs))#[243]
@@ -632,13 +730,86 @@ class ParallelMMA:
         df.to_csv("prompts.csv", index=True, encoding="utf-8")
         print("finished")
         exit()
+=======
+        best_controls = control_strs.copy()
+        best_losses = [float('inf')] * len(prompts)
+
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # 如果有tracker，初始化所有prompt
         if self.tracker:
             for i, prompt in enumerate(prompts):
                 self.tracker.initialize_prompt(i, prompt)
 
         # 分batch处理
+<<<<<<< HEAD
  
+=======
+        num_batches = (len(prompts) + batch_size - 1) // batch_size
+        
+        for step in tqdm(range(n_steps), desc="Optimization Progress"):
+            for batch_idx in range(num_batches):
+                start_idx = batch_idx * batch_size
+                end_idx = min((batch_idx + 1) * batch_size, len(prompts))
+                
+                batch_controls = control_strs[start_idx:end_idx]
+                batch_target_embeddings = target_embeddings[start_idx:end_idx]
+                
+                # 计算梯度
+                grads = self.token_gradient_batch(
+                    batch_controls,
+                    batch_target_embeddings
+                )
+                
+                # 采样新的控制字符串
+                new_controls = self.sample_control_batch(
+                    grads,
+                    batch_controls,
+                    topk=topk
+                )
+                
+                # 更新当前batch的控制字符串
+                control_strs[start_idx:end_idx] = new_controls
+                
+                # 计算新的loss
+                with torch.no_grad():
+                    new_embeddings = self.get_target_embeddings_batch(new_controls)
+                    losses = F.cosine_similarity(
+                        new_embeddings,
+                        batch_target_embeddings
+                    )
+                    
+                    # 更新最佳结果并记录
+                    for i, loss in enumerate(losses):
+                        idx = start_idx + i
+                        loss_val = loss.item()
+                        is_best = loss_val < best_losses[idx]
+                        
+                        # 记录优化历史（如果需要）
+                        if self.tracker and step % track_interval == 0:
+                            self.tracker.update_prompt(
+                                prompt_id=idx,
+                                control=new_controls[i],
+                                loss=loss_val,
+                                step=step,
+                                is_best=is_best
+                            )
+                        
+                        # 更新最佳结果
+                        if is_best:
+                            best_losses[idx] = loss_val
+                            best_controls[idx] = new_controls[i]
+
+            # 打印当前step的统计信息
+            if step % 10 == 0:
+                avg_loss = sum(best_losses) / len(best_losses)
+                print(f"Step {step}/{n_steps} | Avg Best Loss: {avg_loss:.4f}")
+
+            # 可选：提前停止
+            if max(best_losses) < 0.1:
+                print(f"Early stopping at step {step} - target loss achieved")
+                break
+
+>>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # 完成所有prompt的优化并保存结果
         if self.tracker:
             for i in range(len(prompts)):

@@ -22,8 +22,9 @@ class FluxModel:
         pipeline = FluxPipeline.from_pretrained(
             self.model_name,
             torch_dtype=self.torch_dtype,
-        )
-        pipeline.enable_model_cpu_offload()  # Can be configured based on available GPU
+            # device_map="balanced"
+        ).to('cuda')
+        # pipeline.enable_model_cpu_offload()  # Can be configured based on available GPU
         return pipeline
         
     def generate(self, input_data: GenerationInput) -> GenerationOutput:

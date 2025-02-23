@@ -10,7 +10,7 @@ class CogViewModel:
         self,
         model_name: str = "THUDM/CogView3-Plus-3B",
         device: str = "cuda",
-        torch_dtype: torch.dtype = torch.float16,
+        torch_dtype: torch.dtype = torch.bfloat16,
     ):
         self.model_name = model_name
         self.device = device
@@ -22,10 +22,10 @@ class CogViewModel:
         pipeline = CogView3PlusPipeline.from_pretrained(
             self.model_name,
             torch_dtype=self.torch_dtype,
-        ).to(self.device)
-        
-        # Enable optimizations
-        pipeline.enable_model_cpu_offload()
+            device_map="balanced"
+        )
+        # .to(self.device)
+        # pipeline.enable_model_cpu_offload()
         pipeline.vae.enable_slicing()
         pipeline.vae.enable_tiling()
         

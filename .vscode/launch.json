@@ -11,6 +11,164 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false
-        }
+        },
+        {
+            "name": "llava_guard.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_diffusion/judger/post_checker/llava_guard.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "jailbreak_diffusion.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_diffusion.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "test_diffusion_model.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_diffusion_model.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "DACA exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/stable-diffusion-xl-base-0.9_DACA.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
+        },
+        {
+            "name": "test_jailbreak_diffusion.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_jailbreak_diffusion.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
+        },
+        {
+            "name": "test_jailbreak_diffusion_sneak.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_jailbreak_diffusion_sneak.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "6"
+            },
+        },
+        {
+            "name": "test_jailbreak_diffusion_MMA.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_jailbreak_diffusion_MMA.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "6"
+            },
+        },
+        {
+            "name": "PGJ exp_direct_attack_prompt.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_direct_attack_prompt.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/PGJ/stable-diffusion-xl-base-0.9_PGJ.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
+        },
+        {
+            "name": "test_MultiHead.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_MultiHead.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
+        },
+        {
+            "name": "test_Q16.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/test_Q16.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            },
+        },
+        {   
+            "name": "OpenAI Text Checker",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_diffusion/judger/pre_detector/openai_text_detector.py",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "cwd": "${workspaceFolder}/jailbreak_diffusion/judger/pre_detector/",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "flux-1-dev DACA",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_direct_attack_prompt.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/flux-1-dev_DACA-79.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            }
+        },
+        {
+            "name": "MMA_exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/MMA_exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            }
+        },
     ]
 }
