@@ -10,8 +10,8 @@ from jailbreak_diffusion.judger.pre_checker import (
     GPTDetector
 )
 from evaluation.data_loader import DatasetLoader
-from evaluation.metrics import AdvancedMetricsCalculator
-from evaluation.visualizations import MetricsVisualizer
+from evaluation.metric import AdvancedMetricsCalculator
+from evaluation.visualization import MetricsVisualizer
 
 class BenchmarkRunner:
     def __init__(self, config_path: str):
