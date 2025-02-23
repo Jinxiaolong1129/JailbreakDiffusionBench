@@ -1,8 +1,9 @@
+# jailbreak_diffusion/judger/pre_checker/google_text_checker.py
+
 from google.cloud import language_v2
 from typing import Union, List, Dict
 from abc import ABC, abstractmethod
 from .base import BaseChecker
-
 
 
 class GoogleTextModerator(BaseChecker):
