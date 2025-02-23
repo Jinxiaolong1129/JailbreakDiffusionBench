@@ -14,13 +14,15 @@ class ModelArchitecture(str, Enum):
     """Supported model architectures"""
     STABLE_DIFFUSION = "stable_diffusion"
     STABLE_DIFFUSION_XL = "stable_diffusion_xl"
-    KANDINSKY = "kandinsky"
-    IF = "if"
+    FLUX = "flux"
     DALLE = "dalle"
     ANIMATED_DIFF = "animated_diff"
     STABLE_VIDEO = "stable_video"
     MODELSCOPE = "modelscope"
-
+    COGVIEW = "cogview"
+    PROTEUS = "proteus"
+    
+    
 class ModelProvider(str, Enum):
     """Model providers/sources"""
     OPENAI = "openai"

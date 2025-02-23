@@ -1,6 +1,6 @@
 # diffusion_model/core/factory.py
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from pathlib import Path
 import logging
 from .wrapper import DiffusionWrapper
@@ -19,6 +19,24 @@ class DiffusionFactory(DiffusionWrapper):
 
     MODEL_REGISTRY = {
         # Local Stable Diffusion Models
+        "stable-diffusion-v1-5": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "sd-legacy/stable-diffusion-v1-5",
+            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "type": ModelType.TEXT_TO_IMAGE,
+        },
+        "stable-diffusion-2": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "stabilityai/stable-diffusion-2",
+            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "width": 1024,
+            "height": 1024,
+            "num_inference_steps": 50,
+            "guidance_scale": 7.5
+            }
+        },   
         "stable-diffusion-3-medium": {
             "provider": ModelProvider.LOCAL,
             "model_id": "stabilityai/stable-diffusion-3-medium-diffusers",
@@ -34,7 +52,7 @@ class DiffusionFactory(DiffusionWrapper):
         "stable-diffusion-xl-base-0.9": {
             "provider": ModelProvider.LOCAL,
             "model_id": "stabilityai/stable-diffusion-xl-base-0.9",
-            "arch": ModelArchitecture.STABLE_DIFFUSION_XL,
+            "arch": ModelArchitecture.STABLE_DIFFUSION,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
             "width": 1024,
@@ -66,13 +84,13 @@ class DiffusionFactory(DiffusionWrapper):
             "height": 512,
             "num_inference_steps": 50,
             "guidance_scale": 7.5,
-            "safety_checker": True
+            "safety_detector": True
             }
         },
         "flux-1-dev": {
             "provider": ModelProvider.LOCAL,
             "model_id": "black-forest-labs/FLUX.1-dev",
-            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "arch": ModelArchitecture.FLUX,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
             "width": 1024,
@@ -84,7 +102,7 @@ class DiffusionFactory(DiffusionWrapper):
         "cogview3": {
             "provider": ModelProvider.LOCAL,
             "model_id": "THUDM/CogView3-Plus-3B",
-            "arch": ModelArchitecture.IF,
+            "arch": ModelArchitecture.COGVIEW,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
             "width": 1024,
@@ -106,7 +124,7 @@ class DiffusionFactory(DiffusionWrapper):
         "proteus-rundiffusion": {
             "provider": ModelProvider.LOCAL,
             "model_id": "dataautogpt3/Proteus-RunDiffusion",
-            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "arch": ModelArchitecture.PROTEUS,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
             "width": 512,
@@ -116,6 +134,7 @@ class DiffusionFactory(DiffusionWrapper):
             }
         },
         
+        # NOTE close source models
         # DALL-E Models
         "dalle-3": {
             "provider": ModelProvider.OPENAI,
@@ -260,27 +279,51 @@ class DiffusionFactory(DiffusionWrapper):
                 device=self.device,
                 **kwargs
             )
-        # Add support for other local model architectures here
+        elif self.model_arch == ModelArchitecture.FLUX:
+            from ..models.model.flux import FluxModel
+            return FluxModel(
+                model_name=self.model_config["model_id"],
+                device=self.device,
+                **kwargs
+            )
+        elif self.model_arch == ModelArchitecture.COGVIEW:
+            from ..models.model.cogview import CogViewModel
+            return CogViewModel(
+                model_name=self.model_config["model_id"],
+                device=self.device,
+                **kwargs
+            )
+        elif self.model_arch == ModelArchitecture.PROTEUS:
+            from ..models.model.proteus_rundiffusion import ProteusModel
+            return ProteusModel(
+                model_name=self.model_config["model_id"],
+                device=self.device,
+                **kwargs
+            )
+            
         raise ValueError(f"Unsupported local model architecture: {self.model_arch}")
 
-    def generate(self, prompts: List[str], **kwargs) -> GenerationOutput:
+    def generate(self, prompts: Union[str, List[str]], **kwargs) -> GenerationOutput:
         """
         Generate outputs from the given prompts.
         
         Args:
-            prompts: List of text prompts
+            prompts: A single text prompt or a list of text prompts
             **kwargs: Override default generation parameters
             
         Returns:
             GenerationOutput containing the generated images and metadata
         """
         try:
-            # Merge default and custom parameters
+            if isinstance(prompts, str):
+                prompts = [prompts]
+            elif not isinstance(prompts, list):
+                raise TypeError("prompts must be a string or a list of strings")
+            
             params = self.generation_params.copy()
             params.update(kwargs)
             
             if self.is_api_model:
-                # Handle API model generation
                 outputs = []
                 for prompt in prompts:
                     output = self.model.generate(prompt, **params)
@@ -295,8 +338,7 @@ class DiffusionFactory(DiffusionWrapper):
                 return self.model.generate(input_data)
                 
         except Exception as e:
-            self.logger.error(f"Generation failed: {str(e)}")
-            raise
+            raise ValueError(f"Generation failed: {str(e)}")
 
     def _merge_outputs(self, outputs: List[GenerationOutput]) -> GenerationOutput:
         """Merge multiple generation outputs into a single output."""

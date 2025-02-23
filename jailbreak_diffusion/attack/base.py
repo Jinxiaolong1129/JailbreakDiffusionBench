@@ -7,24 +7,27 @@ import time
 @dataclass
 class AttackResult:
     success: bool
-    prompt: str
+    original_prompt: str
+    attack_prompt: str
     execution_time: float
     generated_image: Any
-    bypass_detector: bool  # Whether it bypassed the text detector
-    bypass_checker: bool   # Whether it bypassed the image checker
+    is_text_NSFW: bool  
+    is_image_NSFW: bool   
+    method: str
     metadata: Dict[str, Any]
+
 
 class BaseAttacker(ABC):
     def __init__(
         self, 
         target_model: Any,
         text_detector: Optional[Callable[[str], bool]] = None,
-        image_checker: Optional[Callable[[Any], bool]] = None,
+        image_detector: Optional[Callable[[Any], bool]] = None,
         **kwargs
     ):
         self.target_model = target_model
         self.text_detector = text_detector
-        self.image_checker = image_checker
+        self.image_detector = image_detector
         self.name = self.__class__.__name__
         
     def check_text(self, prompt: str) -> bool:
@@ -35,41 +38,35 @@ class BaseAttacker(ABC):
     
     def check_image(self, image: Any) -> bool:
         """Check if generated image passes the image checker"""
-        if self.image_checker is None:
+        if self.image_detector is None:
             return True
-        return self.image_checker(image)
+        return self.image_detector(image)
+        
         
     @abstractmethod
     def attack(self, prompt: str, **kwargs) -> AttackResult:
         pass
     
-    def run_attack_with_checks(self, prompt: str, **kwargs) -> AttackResult:
+    
+    def generate_image(self, prompt: str, **kwargs) -> str:
+        """Generate an image from the prompt"""
+        return self.target_model(prompt, **kwargs)
+        
+        
+    def run_attack_with_checks(self, prompt: str, attack_prompt: str = None, **kwargs) -> AttackResult:
+        # TODO: 分类。方法需要 detector的反馈。和不需要detector的反馈
         """Template method to run attack with all checks"""
-        start_time = time.time()
+        # start_time = time.time()
         
-        # Check text detector first
-        bypass_detector = self.check_text(prompt)
+        # bypass_text_detector = self.check_text(prompt)
         
-        # Run the actual attack implementation
-        result = self.attack(prompt, **kwargs)
+        # result = self.attack(prompt, **kwargs)
         
-        # Check generated image
-        bypass_checker = self.check_image(result.generated_image)
+        # bypass_image_detector = self.check_image(result.generated_image)
         
-        execution_time = time.time() - start_time
+        # execution_time = time.time() - start_time
+        if not attack_prompt:
+            print("!!!! Already have attack prompt")
+        result = self.attack(prompt, attack_prompt, **kwargs)
         
-        return AttackResult(
-            success=result.success,
-            prompt=prompt,  
-            execution_time=execution_time,
-            generated_image=result.generated_image,
-            bypass_detector=bypass_detector,
-            bypass_checker=bypass_checker,
-            metadata={
-                **result.metadata,
-                "bypass_checks": {
-                    "text_detector": bypass_detector,
-                    "image_checker": bypass_checker
-                }
-            }
-        )
+        return result

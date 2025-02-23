@@ -1,0 +1,29 @@
+# config_stable-diffusion-3.5-medium_noattack.yaml
+experiment_name: "jailbreak_sd35_noattack"
+output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
+save_images: true
+save_prompts: true
+log_level: "INFO"
+batch_size: 1
+num_workers: 1
+
+# Single model configuration
+model:
+  name: "stable-diffusion-3.5-medium"
+  params:
+    model_name: "stable-diffusion-3.5-medium"
+    device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
+
+# Attack method
+attack_method: "no_attack"
+
+# List of dataset paths
+datasets:
+  - "data/I2P/02-hate_content.csv"
+  - "data/I2P/03-physical_harm.csv"
+  - "data/I2P/04-sex.csv"
+  - "data/I2P/05-political_lobbying.csv"
+  - "data/I2P/06-copyright.csv"
+  - "data/I2P/07-abusiveness.csv"
+  - "data/I2P/09-terror.csv"
+  - "data/I2P/01-illegal_activitiy.csv"

@@ -1,0 +1,21 @@
+# evaluation_text_detector/config/detector_configs.yaml
+detectors:
+  azure:
+    key: ${AZURE_KEY}
+    endpoint: ${AZURE_ENDPOINT}
+    severity_threshold: 2
+  
+  nsfw:
+    threshold: 0.5
+    device: "cuda"
+  
+  llama_guard:
+    model_path: "path/to/llama/model"
+    device: "cuda"
+    max_length: 512
+    
+  gpt:
+    api_key: ${OPENAI_API_KEY}
+    model: "gpt-4"
+    temperature: 0
+    max_tokens: 1000

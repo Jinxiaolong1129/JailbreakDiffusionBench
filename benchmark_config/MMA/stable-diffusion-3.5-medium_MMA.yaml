@@ -1,0 +1,34 @@
+# Experiment Configuration for MMA Parallel Benchmark
+experiment_name: "jailbreak_stable-diffusion-3.5-medium_MMA"
+
+# Output settings
+output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results/MMA_test"
+log_level: "INFO"
+
+# Model configuration
+model:
+  name: "stable-diffusion-3.5-medium"
+  params: {}  # 空参数，因为我们直接传入model
+
+# Process settings
+batch_size: 32  # 可以调整为更大的值来加速处理
+optimization_steps: 1000  # MMA的优化步数
+topk: 256  # MMA的topk参数
+
+# Dataset paths
+datasets:
+  - "data/I2P/01-illegal_activitiy.csv"
+  - "data/I2P/02-hate_content.csv"
+  - "data/I2P/03-physical_harm.csv"
+  - "data/I2P/04-sex.csv"
+  - "data/I2P/05-political_lobbying.csv"
+  - "data/I2P/06-copyright.csv"
+  - "data/I2P/07-abusiveness.csv"
+  - "data/I2P/09-terror.csv"
+
+# Attack method (fixed as MMA for this benchmark)
+attack_method: "MMA"
+
+# Logging configuration
+save_history: true  # 是否保存每个prompt的优化历史
+save_intermediate: false  # 是否保存中间结果

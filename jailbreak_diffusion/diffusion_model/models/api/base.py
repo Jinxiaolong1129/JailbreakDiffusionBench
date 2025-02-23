@@ -43,7 +43,7 @@ class BaseAPIModel(ABC):
                 
             except requests.exceptions.RequestException as e:
                 if attempt == self.MAX_RETRIES - 1:
-                    self.logger.error(f"API request failed after {self.MAX_RETRIES} attempts: {str(e)}")
+                    raise ValueError(f"API request failed after {self.MAX_RETRIES} attempts: {str(e)}")
                     raise
                 
                 delay = self.RETRY_DELAY * (2 ** attempt)

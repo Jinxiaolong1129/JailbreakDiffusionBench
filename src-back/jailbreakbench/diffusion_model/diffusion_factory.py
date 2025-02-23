@@ -113,7 +113,7 @@ class StableDiffusionModel(DiffusionModelBase):
         self.pipeline = pipeline_class.from_pretrained(
             self.model_path,
             torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-            safety_checker=None,
+            safety_detector=None,
         ).to(self.device)
         
         self.tokenizer = self.pipeline.tokenizer

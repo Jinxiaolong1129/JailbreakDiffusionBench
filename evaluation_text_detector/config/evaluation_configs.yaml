@@ -1,0 +1,21 @@
+# evaluation_text_detector/config/evaluation_configs.yaml
+datasets:
+  dataset1:
+    path: "data/dataset1/dataset_info.json"
+    weight: 1.0
+  dataset2:
+    path: "data/dataset2/dataset_info.json"
+    weight: 0.8
+
+
+output_dir: "results"
+batch_size: 32
+num_workers: 4
+
+metrics:
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - auc
+  - average_precision
