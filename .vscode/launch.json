@@ -13,6 +13,14 @@
             "justMyCode": false
         },
         {
+            "name": "llava_guard.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_diffusion/judger/post_checker/llava_guard.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
             "name": "jailbreak_diffusion.py",
             "type": "debugpy",
             "request": "launch",
