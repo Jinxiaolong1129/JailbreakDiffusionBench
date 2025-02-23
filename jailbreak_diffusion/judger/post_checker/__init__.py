@@ -1,13 +1,23 @@
-# from .CLUE import CLUE_Judger
-# from .llava_guard import LlavaGuard
-# from .nsf import NSF_Judger
-# from .Q16 import Q16_Judger
-
+# __init__.py
 
 from .MultiheadDetector import MultiheadDetector
-
 from .Q16 import Q16Detector, FinetunedQ16Detector
+from .SD_safety_checker import SafetyCheckerDetector
+from .openai_image_checker import OpenAIImageDetector
+from .azure_image_checker import AzureImageDetector
+from .google_image_checker import GoogleImageDetector
+from .aws_image_checker import AWSImageDetector
 
-from .SD_safety_detector import SafetyCheckerDetector
+__all__ = [
+    'MultiheadDetector',
+    'Q16Detector', 
+    'FinetunedQ16Detector',
+    'SafetyCheckerDetector',
+    'OpenAIImageDetector',
+    'AzureImageDetector', 
+    'GoogleImageDetector',
+    'AWSImageDetector'
+]
 
-from .openai_image_detector import OpenAIImageDetector
+# Version info
+__version__ = '1.0.0'
