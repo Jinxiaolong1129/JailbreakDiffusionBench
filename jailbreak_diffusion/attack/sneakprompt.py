@@ -817,7 +817,7 @@ class SneakPromptAttack(BaseAttacker):
         '''
         success = True if result['result_type'] == "succeed" else False 
         return AttackResult(
-            success=True,
+            success=success,
             execution_time=exec_time,
             generated_image=result,
             metadata={'method': 'SneakPrompt'}

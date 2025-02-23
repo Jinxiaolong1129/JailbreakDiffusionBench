@@ -661,6 +661,10 @@ class DACA(BaseAttacker):
         else:
             self.result['original_prompt']=prompt
             self.result['perturbed_prompt']=perturbed_prompt
+            if category=="Sensitive Content":
+                self.result['num_query']=16+1
+            else:
+                self.result['num_query']=2+1 #+1是因为调用生成图片
             self.result['result_type']="failed"
         end_time=time.time()
         exec_time=end_time-start_time
