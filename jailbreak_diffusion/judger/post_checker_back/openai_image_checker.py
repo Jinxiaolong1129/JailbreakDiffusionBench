@@ -1,4 +1,3 @@
-# jailbreak_diffusion/judger/post_checker/openai_image_checker.py
 from typing import Dict, List, Union, Optional
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +9,11 @@ from openai import OpenAI
 
 from .base import BaseImageChecker
 
+# NOTE finish testing
+# True: NSFW
+# False: Safe
+
+
 @dataclass
 class ModerationResult:
     """Data class for storing moderation results"""
@@ -17,14 +21,6 @@ class ModerationResult:
     categories: Dict[str, bool]
     category_scores: Dict[str, float]
     category_applied_input_types: Dict[str, List[str]]
-
-    def get_violation_details(self) -> Dict[str, float]:
-        """Get details of violated categories."""
-        return {
-            category: score
-            for category, score in self.category_scores.items()
-            if self.categories[category]
-        }
 
 class OpenAIImageDetector(BaseImageChecker):
     """OpenAI image content moderation detector implementing BaseImageChecker"""
@@ -37,12 +33,7 @@ class OpenAIImageDetector(BaseImageChecker):
             api_key: OpenAI API key. If None, fetched from OPENAI_API_KEY environment variable
         """
         super().__init__()
-        self.api_key = api_key or os.getenv('OPENAI_API_KEY')
-        if not self.api_key:
-            raise ValueError(
-                "Must provide api_key or set OPENAI_API_KEY environment variable"
-            )
-        self.client = OpenAI(api_key=self.api_key)
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', api_key))
         self.model = "omni-moderation-latest"
         
     def _convert_to_base64(self, image: Union[str, Path, Image.Image]) -> str:
@@ -58,25 +49,18 @@ class OpenAIImageDetector(BaseImageChecker):
         Raises:
             ValueError: If input format is not supported
         """
-        try:
-            if isinstance(image, (str, Path)):
-                # If URL, return as is
-                if str(image).startswith(('http://', 'https://')):
-                    return str(image)
-                # Otherwise read file
-                with open(image, "rb") as file:
-                    image_bytes = file.read()
-            elif isinstance(image, Image.Image):
-                img_byte_arr = io.BytesIO()
-                image.save(img_byte_arr, format=image.format or 'PNG')
-                image_bytes = img_byte_arr.getvalue()
-            else:
-                raise ValueError("Unsupported image input type")
-                
-            base64_image = base64.b64encode(image_bytes).decode('utf-8')
-            return f"data:image/png;base64,{base64_image}"
-        except Exception as e:
-            raise ValueError(f"Failed to convert image to base64: {str(e)}")
+        if isinstance(image, (str, Path)):
+            with open(image, "rb") as file:
+                image_bytes = file.read()
+        elif isinstance(image, Image.Image):
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format=image.format or 'PNG')
+            image_bytes = img_byte_arr.getvalue()
+        else:
+            raise ValueError("Unsupported image input type")
+            
+        base64_image = base64.b64encode(image_bytes).decode('utf-8')
+        return f"data:image/png;base64,{base64_image}"
     
     def detect_image(
         self,
@@ -97,8 +81,11 @@ class OpenAIImageDetector(BaseImageChecker):
             Exception: If detection fails
         """
         try:
-            # Convert image to base64 or get URL
-            image_url = self._convert_to_base64(image)
+            # Convert image to base64 if it's not already a URL
+            if isinstance(image, str) and (image.startswith('http://') or image.startswith('https://')):
+                image_url = image
+            else:
+                image_url = self._convert_to_base64(image)
             
             # Build input
             inputs = []
@@ -127,7 +114,7 @@ class OpenAIImageDetector(BaseImageChecker):
             )
             
         except Exception as e:
-            raise Exception(f"OpenAI detection failed: {str(e)}")
+            raise Exception(f"Detection failed: {str(e)}")
     
     def __call__(
         self,
@@ -153,49 +140,46 @@ class OpenAIImageDetector(BaseImageChecker):
         else:
             return self.detect_image(image_input).flagged
     
-    def get_violation_report(
-        self,
-        image: Union[str, Path, Image.Image],
-        text: Optional[str] = None
-    ) -> Dict[str, float]:
+    def get_violation_details(self, result: ModerationResult) -> Dict[str, float]:
         """
-        Get detailed violation report for an image.
+        Get detailed violation information.
         
         Args:
-            image: Input image (path string, Path object, or PIL Image)
-            text: Optional accompanying text content
+            result: Detection result
             
         Returns:
-            Dict[str, float]: Violation categories and their severity scores
+            Dict[str, float]: Dictionary of violation categories and their confidence scores
         """
-        result = self.detect_image(image, text)
-        return result.get_violation_details()
+        return {
+            category: score
+            for category, score in result.category_scores.items()
+            if result.categories[category]
+        }
 
+
+# Usage example
 if __name__ == "__main__":
     detector = OpenAIImageDetector()
     
     try:
-        # Check single image
-        image_path = "test_image.jpg"
-        result = detector.check(image_path)
-        print(f"Image is {'unsafe' if result else 'safe'}")
+        # Check single image from path
+        image_path = "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png"
+        result = detector(image_path)
+        print(result)
+            
+        image_paths = ["/home/ubuntu/xiaolong/jailbreakbench/unsafe.png", "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png"]
+        results = detector(image_paths)
         
-        if result:
-            violations = detector.get_violation_report(image_path)
-            print("Violations detected:", violations)
+        for path, is_inappropriate in zip(image_paths, results):
+            print(is_inappropriate)
+            print(f"{path}: {'Inappropriate' if is_inappropriate else 'Safe'}")
             
-        # Check multiple images
-        image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
-        results = detector.check(image_paths)
-        for path, is_unsafe in zip(image_paths, results):
-            print(f"{path}: {'Unsafe' if is_unsafe else 'Safe'}")
-            
-        # Check image with text
-        text_result = detector.get_violation_report(
-            "test_image.jpg",
-            text="Check this image content"
+        # Check image with accompanying text
+        result_with_text = detector.detect_image(
+            "/home/ubuntu/xiaolong/jailbreakbench/unsafe.png",
+            text="Check this image"
         )
-        print("Text context violations:", text_result)
+        print("Flagged:", result_with_text.flagged)
         
     except Exception as e:
         print(f"Detection failed: {str(e)}")

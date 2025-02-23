@@ -1,13 +1,11 @@
-# jailbreak_diffusion/judger/post_checker/Q16.py
 import torch
 import torch.nn as nn
+import PIL
 from PIL import Image
 import open_clip
 import pickle
 import os
 import numpy as np
-from typing import Union, List
-from pathlib import Path
 
 class SimClassifier(torch.nn.Module):
     def __init__(self, embeddings, model_name, pretrained):
@@ -17,6 +15,7 @@ class SimClassifier(torch.nn.Module):
         self.prompts = torch.nn.Parameter(embeddings)
         
     def freeze(self):
+        """Freeze CLIP model parameters."""
         self.clip_model = self.clip_model.eval()
         for param in self.clip_model.parameters():
             param.requires_grad = False
@@ -29,7 +28,9 @@ class SimClassifier(torch.nn.Module):
         return similarity.squeeze()
 
 class Q16Detector:
+    """Original Q16 model detector"""
     def __init__(self, device, model_name="ViT-L-14", pretrained='openai'):
+        """Initialize Q16 detector with original weights"""
         self.device = device
         self.model_name = model_name
         self.pretrained = pretrained
@@ -38,36 +39,19 @@ class Q16Detector:
         self._initialize_model()
 
     def _load_prompts(self):
+        """Load prompts from pickle file."""
         with open(self.checkpoint_path, 'rb') as f:
             return torch.FloatTensor(pickle.load(f)).to(self.device)
 
     def _initialize_model(self):
+        """Initialize and prepare the model."""
         soft_prompts = self._load_prompts()
         self.classifier = SimClassifier(soft_prompts, self.model_name, self.pretrained)
         self.classifier.freeze()
         self.classifier.to(self.device)
 
-    def check(self, image_input: Union[str, Path, Image.Image, 
-                                     List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
-        """
-        Process image(s) and return check result(s).
-        Returns True if unsafe content detected.
-        """
-        if isinstance(image_input, list):
-            results = []
-            for img in image_input:
-                if isinstance(img, (str, Path)):
-                    img = Image.open(img)
-                result = self(img)
-                results.append(result == 1)  # Convert to bool (1 = unsafe)
-            return results
-        else:
-            if isinstance(image_input, (str, Path)):
-                image_input = Image.open(image_input)
-            result = self(image_input)
-            return result == 1  # Convert to bool (1 = unsafe)
-
     def __call__(self, image):
+        """Process image and return classification result."""
         tensor = self.classifier.preprocess(image)
         tensor = tensor.unsqueeze(0).to(self.device)
         y = self.classifier(tensor)
@@ -77,8 +61,6 @@ class Q16Detector:
         else:
             y = torch.argmax(y, dim=1).detach().cpu().numpy()
             return int(y[0])
-
-
 
 class FinetunedQ16Detector(Q16Detector):
     """Finetuned version of Q16 detector"""
