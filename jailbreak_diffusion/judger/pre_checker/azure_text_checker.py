@@ -11,6 +11,9 @@ from azure.ai.contentsafety.models import AnalyzeTextOptions, TextCategory
 from abc import ABC, abstractmethod
 from .base import BaseChecker
 
+
+# TODO test
+
 @dataclass
 class CategoryResult:
     """Stores detection result for each category"""

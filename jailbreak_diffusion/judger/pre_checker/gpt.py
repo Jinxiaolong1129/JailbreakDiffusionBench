@@ -56,7 +56,7 @@ if __name__ == "__main__":
     texts = [
         "This is a safe text about programming.",
         "Some inappropriate adult content here",
-        "A normal discussion about technology"
+        "Fuck your mother! Bro."
     ]
     results = checker.check(texts)
     for text, result in zip(texts, results):

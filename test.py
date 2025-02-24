@@ -1,6 +1,7 @@
-from huggingface_hub import login
-login(token="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")
+from diffusers.pipelines.stable_diffusion import safety_checker
 
-from transformers import AutoModel
-model = AutoModel.from_pretrained("AdamCodd/distilroberta-nsfw-prompt-stable-diffusion")
-print(model)
+print(safety_checker.__file__)
+
+from diffusers.pipelines.stable_diffusion.safety_checker import StableDiffusionSafetyChecker
+
+print(StableDiffusionSafetyChecker)

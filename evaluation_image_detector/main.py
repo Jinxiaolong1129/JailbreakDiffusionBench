@@ -9,7 +9,7 @@ from jailbreak_diffusion.judger.post_checker import (
     AzureImageDetector,
     GoogleImageDetector,
     AWSImageDetector,
-    SafetyCheckerDetector
+    SD_SafetyCheckerDetector
 )
 from evaluation.data_loader import ImageDatasetLoader
 from evaluation.metric import ImageMetricsCalculator
@@ -49,7 +49,7 @@ class ImageBenchmarkRunner:
             "azure": AzureImageDetector,
             "google": GoogleImageDetector,
             "aws": AWSImageDetector,
-            "safety_checker": SafetyCheckerDetector
+            "safety_checker": SD_SafetyCheckerDetector
         }
         
         for name, config in detector_configs.items():

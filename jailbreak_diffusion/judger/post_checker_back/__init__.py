@@ -8,6 +8,6 @@ from .MultiheadDetector import MultiheadDetector
 
 from .Q16 import Q16Detector, FinetunedQ16Detector
 
-from .SD_safety_detector import SafetyCheckerDetector
+from .SD_safety_detector import SD_SafetyCheckerDetector
 
 from .openai_image_detector import OpenAIImageDetector
