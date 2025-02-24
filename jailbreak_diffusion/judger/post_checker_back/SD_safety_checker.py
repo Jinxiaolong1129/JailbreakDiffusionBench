@@ -5,7 +5,7 @@ import PIL
 from diffusers.pipelines.stable_diffusion.safety_detector import StableDiffusionSafetyChecker
 from transformers import AutoFeatureExtractor
 
-class SafetyCheckerDetector:
+class SD_SafetyCheckerDetector:
     def __init__(self, device):
         """Initialize Safety Checker detector."""
         self.device = device
