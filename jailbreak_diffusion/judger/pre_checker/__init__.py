@@ -12,7 +12,7 @@ from .google_text_checker import GoogleTextModerator
 from .gpt import GPTChecker
 from .llama_guard import LlamaGuardChecker
 from .openai_text_moderation import OpenAITextDetector
-from .perspective_api import PerspectiveChecker
+# from .perspective_api import PerspectiveChecker
 
 __all__ = [
     'BaseChecker',
@@ -27,5 +27,5 @@ __all__ = [
     'GPTChecker',
     'LlamaGuardChecker',
     'OpenAITextDetector',
-    'PerspectiveChecker',
+    # 'PerspectiveChecker',
 ]

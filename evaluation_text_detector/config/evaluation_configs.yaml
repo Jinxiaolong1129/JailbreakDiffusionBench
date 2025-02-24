@@ -1,9 +1,8 @@
 # evaluation_text_detector/config/evaluation_configs.yaml
 datasets:
-  dataset1:
-    path: "data/dataset1/dataset_info.json"
+  i2p_filtered:
+    path: "data/harmful/I2P/I2P_filtered_test.json"
     weight: 1.0
-
 
 output_dir: "results"
 batch_size: 32

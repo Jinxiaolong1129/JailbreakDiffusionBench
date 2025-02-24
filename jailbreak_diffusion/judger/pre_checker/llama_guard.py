@@ -6,7 +6,7 @@
 from typing import Union, List
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from base import BaseChecker
+from .base import BaseChecker
 
 class LlamaGuardChecker(BaseChecker):
     """Content checker using Llama Guard model."""

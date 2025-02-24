@@ -2,7 +2,7 @@
 
 from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from base import BaseChecker
+from .base import BaseChecker
 
 
 # NOTE finish testing
