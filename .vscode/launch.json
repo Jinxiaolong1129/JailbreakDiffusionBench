@@ -18,7 +18,22 @@
             "request": "launch",
             "program": "${workspaceFolder}/jailbreak_diffusion/judger/post_checker/llava_guard.py",
             "console": "integratedTerminal",
+            "env":{
+                "CUDA_VISIBLE_DEVICES": "0"
+            },
             "justMyCode": false
+        },
+        {
+            "name": "evaluation_text_detector",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/evaluation_text_detector/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         },
         {
             "name": "jailbreak_diffusion.py",

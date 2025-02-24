@@ -5,6 +5,7 @@ from typing import Union, List, Dict
 from abc import ABC, abstractmethod
 from .base import BaseChecker
 
+# TODO test
 
 class GoogleTextModerator(BaseChecker):
     """Text content moderator using Google Cloud Natural Language API."""

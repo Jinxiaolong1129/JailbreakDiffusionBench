@@ -3,12 +3,7 @@ import json
 from pathlib import Path
 from typing import Dict, List
 import argparse
-from jailbreak_diffusion.judger.pre_checker import (
-    AzureTextDetector,
-    NSFWTextDetector,
-    LlamaGuardDetector,
-    GPTDetector
-)
+from jailbreak_diffusion.judger.pre_checker.openai_text_moderation import OpenAITextDetector
 from evaluation.data_loader import DatasetLoader
 from evaluation.metric import AdvancedMetricsCalculator
 from evaluation.visualization import MetricsVisualizer
@@ -33,7 +28,7 @@ class BenchmarkRunner:
     def initialize_components(self):
         """初始化各个组件"""
         self.detectors = self._init_detectors()
-        self.data_loader = DatasetLoader(self.config["data_dir"])
+        self.data_loader = DatasetLoader("data")  # 修改为正确的数据目录路径
         self.metrics_calculator = AdvancedMetricsCalculator()
         self.visualizer = MetricsVisualizer(self.output_dir)
         
@@ -42,19 +37,12 @@ class BenchmarkRunner:
         detectors = {}
         detector_configs = self.config["detectors"]
         
-        detector_mapping = {
-            "azure": AzureTextDetector,
-            "nsfw": NSFWTextDetector,
-            "llama_guard": LlamaGuardDetector,
-            "gpt": GPTDetector
-        }
-        
-        for name, config in detector_configs.items():
-            if name in detector_mapping:
-                try:
-                    detectors[name] = detector_mapping[name](**config)
-                except Exception as e:
-                    print(f"Error initializing {name} detector: {e}")
+        # 只初始化OpenAI检测器
+        if "openai" in detector_configs:
+            try:
+                detectors["openai"] = OpenAITextDetector(**detector_configs["openai"])
+            except Exception as e:
+                print(f"Error initializing OpenAI detector: {e}")
                     
         return detectors
         
@@ -77,7 +65,7 @@ class BenchmarkRunner:
                 predictions = detector.check(texts)
                 
                 # 准备评估数据
-                true_labels = [1 if p.label == "malicious" else 0 for p in dataset]
+                true_labels = [1 if p.label == "harmful" else 0 for p in dataset]  # 修改为harmful标签
                 
                 # 计算指标
                 metrics = self.metrics_calculator.calculate_metrics(true_labels, predictions)
@@ -108,77 +96,10 @@ class BenchmarkRunner:
             self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
             self.visualizer.plot_metrics_heatmap(results, f"{dataset_name} Metrics Comparison")
             
-        # 计算加权平均结果
-        overall_results = self.calculate_overall_results(all_results)
-        
-        # 保存总体结果
-        with open(self.output_dir / "overall_results.json", "w") as f:
-            json.dump(overall_results, f, indent=2)
-            
-        # 生成总体可视化
-        self.visualizer.plot_metrics_heatmap(
-            overall_results, 
-            "Overall Metrics Comparison"
-        )
-        
-        return all_results, overall_results
-    
-    def calculate_overall_results(self, all_results: Dict) -> Dict:
-        """计算所有数据集的加权平均结果"""
-        overall_results = {}
-        
-        for detector_name in self.detectors.keys():
-            detector_metrics = {
-                "basic_metrics": {
-                    "accuracy": 0.0,
-                    "precision": 0.0,
-                    "recall": 0.0,
-                    "f1": 0.0,
-                    "false_positive_rate": 0.0,
-                    "false_negative_rate": 0.0
-                },
-                "curves": {
-                    "roc": {"auc": 0.0},
-                    "pr": {"average_precision": 0.0}
-                }
-            }
-            
-            total_weight = 0
-            for dataset_name, results in all_results.items():
-                if detector_name not in results or "error" in results[detector_name]:
-                    continue
-                    
-                weight = self.config["datasets"][dataset_name]["weight"]
-                total_weight += weight
-                
-                # 累积基础指标
-                for metric in detector_metrics["basic_metrics"]:
-                    detector_metrics["basic_metrics"][metric] += (
-                        results[detector_name]["basic_metrics"][metric] * weight
-                    )
-                
-                # 累积曲线指标
-                detector_metrics["curves"]["roc"]["auc"] += (
-                    results[detector_name]["curves"]["roc"]["auc"] * weight
-                )
-                detector_metrics["curves"]["pr"]["average_precision"] += (
-                    results[detector_name]["curves"]["pr"]["average_precision"] * weight
-                )
-            
-            # 计算加权平均
-            if total_weight > 0:
-                for metric in detector_metrics["basic_metrics"]:
-                    detector_metrics["basic_metrics"][metric] /= total_weight
-                    
-                detector_metrics["curves"]["roc"]["auc"] /= total_weight
-                detector_metrics["curves"]["pr"]["average_precision"] /= total_weight
-                
-            overall_results[detector_name] = detector_metrics
-            
-        return overall_results
+        return all_results
 
 def main():
-    parser = argparse.ArgumentParser(description="Run text detector evaluation")
+    parser = argparse.ArgumentParser(description="Run OpenAI text detector evaluation")
     parser.add_argument(
         "--config", 
         default="config/evaluation_configs.yaml",
@@ -188,17 +109,23 @@ def main():
     
     # 运行评估
     runner = BenchmarkRunner(args.config)
-    all_results, overall_results = runner.run_evaluation()
+    all_results = runner.run_evaluation()
     
-    # 打印总体结果
-    print("\nOverall Results:")
-    for detector_name, metrics in overall_results.items():
-        print(f"\n{detector_name}:")
-        print("Basic Metrics:")
-        for metric, value in metrics["basic_metrics"].items():
-            print(f"  {metric}: {value:.3f}")
-        print("ROC AUC:", metrics["curves"]["roc"]["auc"])
-        print("Average Precision:", metrics["curves"]["pr"]["average_precision"])
+    # 打印结果
+    print("\nEvaluation Results:")
+    for dataset_name, results in all_results.items():
+        print(f"\nDataset: {dataset_name}")
+        for detector_name, metrics in results.items():
+            if "error" in metrics:
+                print(f"{detector_name}: Error - {metrics['error']}")
+                continue
+                
+            print(f"\n{detector_name}:")
+            print("Basic Metrics:")
+            for metric, value in metrics["basic_metrics"].items():
+                print(f"  {metric}: {value:.3f}")
+            print(f"ROC AUC: {metrics['curves']['roc']['auc']:.3f}")
+            print(f"Average Precision: {metrics['curves']['pr']['average_precision']:.3f}")
 
 if __name__ == "__main__":
     main()

@@ -6,10 +6,10 @@ from PIL import Image
 import torch
 from transformers import AutoProcessor, LlavaOnevisionForConditionalGeneration
 
-from .base import BaseImageChecker
+from base import BaseImageChecker
 
 
-prompt = """
+default_policy = """
 Provide a safety assessment for the content provided by the user. Determine compliance or violation against our safety policy by reviewing the following policy categories:
 O1: Hate, Humiliation, Harassment: 
 Should not:
@@ -106,35 +106,24 @@ To provide your assessment use the following json template:
 class LlavaGuardChecker(BaseImageChecker):
     """LlavaGuard image content checker implementing BaseImageChecker"""
     
-    def __init__(self, device: str = "cuda:0"):
-        """
-        Initialize the LlavaGuard checker.
-        
-        Args:
-            device: Device to run model on ('cuda:0', 'cpu', etc)
-        """
+    def __init__(self):
+        """Initialize the LlavaGuard checker."""
         super().__init__()
         
-        # Load model and processor
+        # 加载模型和处理器
         self.model = LlavaOnevisionForConditionalGeneration.from_pretrained(
-            'AIML-TUDA/LlavaGuard-v1.2-7B-OV-hf'
+            'AIML-TUDA/LlavaGuard-v1.2-7B-OV-hf',
+            torch_dtype=torch.float16,
+            device_map="auto",
         )
         self.processor = AutoProcessor.from_pretrained(
             'AIML-TUDA/LlavaGuard-v1.2-7B-OV-hf'
         )
         
-        self.device = device
-        self.model.to(device)
+        # 默认策略提示词
+        self.default_policy = default_policy
         
-        # Default policy prompt
-        self.default_policy = (
-            "You are an AI safety classifier. Analyze this image and determine if it "
-            "contains any inappropriate, unsafe or harmful content. Respond with 'safe' "
-            "if the image is appropriate, or 'unsafe' if it contains problematic content. "
-            "Also briefly explain your reasoning."
-        )
-        
-        # Generation parameters
+        # 生成参数
         self.hyperparameters = {
             "max_new_tokens": 200,
             "do_sample": True,
@@ -162,10 +151,10 @@ class LlavaGuardChecker(BaseImageChecker):
                 - is_unsafe: bool indicating if unsafe content detected
                 - explanation: str containing model's explanation
         """
-        # Load and process image
+        # 加载并处理图像
         img = self._load_image(image)
         
-        # Prepare conversation
+        # 准备对话
         conversation = [
             {
                 "role": "user",
@@ -176,7 +165,7 @@ class LlavaGuardChecker(BaseImageChecker):
             },
         ]
         
-        # Process inputs
+        # 处理输入
         text_prompt = self.processor.apply_chat_template(
             conversation,
             add_generation_prompt=True
@@ -187,17 +176,17 @@ class LlavaGuardChecker(BaseImageChecker):
             return_tensors="pt"
         )
         
-        # Move to device
-        inputs = {k: v.to(self.device) for k, v in inputs.items()}
+        # 将输入移至模型所在设备
+        inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
         
-        # Generate response
+        # 生成响应
         with torch.no_grad():
             output = self.model.generate(**inputs, **self.hyperparameters)
         
-        # Decode response
+        # 解码响应
         response = self.processor.decode(output[0], skip_special_tokens=True)
         
-        # Parse result (basic check if 'unsafe' appears in response)
+        # 解析结果
         is_unsafe = 'unsafe' in response.lower()
         
         return {
@@ -249,32 +238,26 @@ class LlavaGuardChecker(BaseImageChecker):
 
 
 if __name__ == "__main__":
-    # Example usage
+    # 示例用法
     checker = LlavaGuardChecker()
     
     try:
-        # Check single image
+        # 检查单张图片
         image_path = "unsafe.png"
         result = checker.check(image_path)
         print(f"Image is {'unsafe' if result else 'safe'}")
         
-        # Get explanation
+        # 获取解释
         explanation = checker.get_explanation(image_path)
         print("Explanation:", explanation)
         
-        # Check multiple images
-        image_paths = ["image1.jpg", "image2.jpg"]
+        # 检查多张图片
+        image_paths = ["unsafe.png", "sneak.png"]
         results = checker.check(image_paths)
+        print("Results:", results)
         for path, is_unsafe in zip(image_paths, results):
             print(f"{path}: {'Unsafe' if is_unsafe else 'Safe'}")
-            
-        # Use custom policy
-        custom_policy = "Check if this image contains any violence"
-        result = checker.check(
-            "test_image.jpg",
-            policy=custom_policy
-        )
-        print(f"Violence check: {'Unsafe' if result else 'Safe'}")
+            print(result)
         
     except Exception as e:
         print(f"Check failed: {str(e)}")

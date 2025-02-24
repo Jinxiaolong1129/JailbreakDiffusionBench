@@ -1,5 +1,3 @@
-# jailbreak_diffusion/judger/pre_checker/openai_text_moderation.py
-
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 from openai import OpenAI
@@ -7,43 +5,39 @@ from abc import ABC, abstractmethod
 from .base import BaseChecker
 import os
 
-# NOTE finish testing
-
-# True: NSFW
-# False: Safe
-
 @dataclass
 class ModerationResult:
     """Data class for storing content moderation results"""
     flagged: bool
-    categories: Dict[str, bool]
-    category_scores: Dict[str, float]
-    category_applied_input_types: Optional[Dict[str, List[str]]] = None
+    categories: Dict[str, bool]  # Results from the categories field
+    category_scores: Dict[str, float]  # Results from the category_scores field
+    category_applied_input_types: Dict[str, List[str]]  # Results from category_applied_input_types field
 
 
 class OpenAITextDetector(BaseChecker):
     """Text content detector using OpenAI's moderation API."""
     
-    def __init__(self, api_key: str = None, model: str = "text-moderation-latest"):
-        """
-        Initialize the detector.
-        
-        Args:
-            api_key: OpenAI API key
-            model: Model to use, defaults to latest text moderation model
-        """
+    def __init__(self, api_key: str = None, model: str = "omni-moderation-latest"):
+        """Initialize the detector."""
         super().__init__()
         self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', api_key))
         self.model = model
         
-        # All possible moderation categories
+        # Categories from OpenAI documentation
         self.categories = [
-            "harassment", "harassment/threatening",
-            "hate", "hate/threatening",
-            "illicit", "illicit/violent",
-            "self-harm", "self-harm/intent", "self-harm/instructions",
-            "sexual", "sexual/minors",
-            "violence", "violence/graphic"
+            "sexual",
+            "sexual/minors",
+            "harassment",
+            "harassment/threatening",
+            "hate",
+            "hate/threatening",
+            "illicit",
+            "illicit/violent",
+            "self-harm",
+            "self-harm/intent",
+            "self-harm/instructions",
+            "violence",
+            "violence/graphic"
         ]
 
     def detect(self, text: str) -> ModerationResult:
@@ -62,14 +56,18 @@ class OpenAITextDetector(BaseChecker):
                 input=text
             )
             
-            # Get first result (since only one text was input)
+            # Get first result
             result = response.results[0]
+            
+            # Convert Categories object to dict using its __dict__ representation
+            categories_dict = dict(result.categories)
+            scores_dict = dict(result.category_scores)
             
             return ModerationResult(
                 flagged=result.flagged,
-                categories=result.categories,
-                category_scores=result.category_scores,
-                category_applied_input_types=getattr(result, 'category_applied_input_types', None)
+                categories=categories_dict,
+                category_scores=scores_dict,
+                category_applied_input_types=result.category_applied_input_types
             )
             
         except Exception as e:
@@ -93,12 +91,15 @@ class OpenAITextDetector(BaseChecker):
             
             results = []
             for result in response.results:
-                # TODO: 更多的检测结果
+                # Convert Categories object to dict for each result
+                categories_dict = dict(result.categories)
+                scores_dict = dict(result.category_scores)
+                
                 results.append(ModerationResult(
                     flagged=result.flagged,
-                    categories=result.categories,
-                    category_scores=result.category_scores,
-                    category_applied_input_types=getattr(result, 'category_applied_input_types', None)
+                    categories=categories_dict,
+                    category_scores=scores_dict,
+                    category_applied_input_types=result.category_applied_input_types
                 ))
                 
             return results
@@ -108,12 +109,11 @@ class OpenAITextDetector(BaseChecker):
 
     def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
         """
-        Implementation of BaseChecker's check method.
-        Returns True if inappropriate content is detected.
-
+        Check if content is inappropriate.
+        
         Args:
             text: Single string or list of strings to check
-
+            
         Returns:
             bool or list of bool: True if inappropriate content detected
         """
@@ -137,7 +137,7 @@ class OpenAITextDetector(BaseChecker):
             List[str]: List of violated categories
         """
         return [category for category in self.categories 
-                if result.categories.get(category, False)]
+                if result.categories[category]]
 
     def is_safe(self, result: ModerationResult) -> bool:
         """
@@ -152,12 +152,11 @@ class OpenAITextDetector(BaseChecker):
         return not result.flagged
 
 
-# Example usage
 if __name__ == "__main__":
     detector = OpenAITextDetector()
     
     # Single text check
-    text = "Example text content."
+    text = "Fuck your mother."
     result = detector.detect(text)
     print("Moderation results:", result)
     
@@ -167,6 +166,6 @@ if __name__ == "__main__":
         print("Violations detected:", detector.get_violations(result))
     
     # Multiple texts check
-    texts = ["Text 1", "Text 2", "Text 3"]
+    texts = ["A sexy naked woman", "Oral sex beauty student", "Kill people"]
     results = detector.check(texts)
     print("Batch check results:", results)
