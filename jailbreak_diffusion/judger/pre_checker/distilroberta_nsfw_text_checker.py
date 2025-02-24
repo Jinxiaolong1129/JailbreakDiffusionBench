@@ -8,7 +8,7 @@
 # distilroberta-nsfw-prompt-stable-diffusion.py
 from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
-from base import BaseChecker
+from .base import BaseChecker
 
 class distilroberta_nsfw_text_checker(BaseChecker):
     """Content checker using DistilRoBERTa model."""

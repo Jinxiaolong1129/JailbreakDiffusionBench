@@ -24,15 +24,16 @@
             "justMyCode": false
         },
         {
-            "name": "text_checker.py",
+            "name": "evaluation_text_detector",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/jailbreak_diffusion/judger/pre_checker/distilbert_nsfw_text_checker.py",
+            "program": "${workspaceFolder}/evaluation_text_detector/main.py",
             "console": "integratedTerminal",
-            "env":{
-                "CUDA_VISIBLE_DEVICES": "0"
-            },
-            "justMyCode": false
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         },
         {
             "name": "jailbreak_diffusion.py",

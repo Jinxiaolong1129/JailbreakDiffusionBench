@@ -3,7 +3,7 @@
 import os
 from typing import Union, List
 import openai
-from base import BaseChecker
+from .base import BaseChecker
 
 class GPTChecker(BaseChecker):
     """Content checker using GPT API."""

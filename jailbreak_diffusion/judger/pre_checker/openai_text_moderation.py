@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 from openai import OpenAI
 from abc import ABC, abstractmethod
-from base import BaseChecker
+from .base import BaseChecker
 import os
 
 @dataclass
