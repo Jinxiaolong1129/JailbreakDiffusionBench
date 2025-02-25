@@ -10,6 +10,10 @@ from .models.T2I_model.api.stability import StabilityModel
 from .models.T2I_model.cogview import CogViewModel
 from .models.T2I_model.flux import FluxModel
 from .models.T2I_model.stable_diffusion import StableDiffusionModel
+from .models.T2I_model.stable_diffusion_3 import StableDiffusion3Model
+from .models.T2I_model.pixart_alpha import PixArtAlphaModel
+from .models.T2I_model.pixart_sigma import PixArtSigmaModel
+from .models.T2I_model.hunyuan_dit import HunyuanDiTModel
 
 
 __all__ = [
@@ -35,4 +39,8 @@ __all__ = [
     "CogViewModel",
     "FluxModel",
     "StableDiffusionModel",
+    "StableDiffusion3Model",
+    "PixArtAlphaModel",
+    "PixArtSigmaModel",
+    "HunyuanDiTModel",
 ]

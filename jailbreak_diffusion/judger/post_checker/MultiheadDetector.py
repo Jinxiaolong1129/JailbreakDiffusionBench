@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
 import numpy as np
-import PIL
 from PIL import Image
 import open_clip
 import os
+from typing import Union, List, Optional
+from pathlib import Path
+from base import BaseImageChecker
 
 class MHSafetyClassifier(torch.nn.Module):
     def __init__(self, device, model_name="ViT-L-14", pretrained='openai'):
@@ -30,8 +32,11 @@ class MHSafetyClassifier(torch.nn.Module):
         out = nn.Sigmoid()(x)
         return out
 
-class MultiheadDetector:
+class MultiheadDetector(BaseImageChecker):
+    """Multi-headed safety classifier for detecting potentially problematic image content."""
+    
     def __init__(self, device, model_name="ViT-L-14", pretrained='openai'):
+        super(MultiheadDetector, self).__init__()
         self.device = device
         self.model_name = model_name
         self.pretrained = pretrained
@@ -44,8 +49,8 @@ class MultiheadDetector:
         self.model = MHSafetyClassifier(self.device, self.model_name, self.pretrained)
         self.model.freeze()
 
-    def check(self, image_input: Union[str, Path, Image.Image, 
-                                     List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
+    def __call__(self, image_input: Union[str, Path, Image.Image, 
+                                        List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
         """
         Process image(s) and return check result(s).
         Returns True if unsafe content detected.
@@ -53,22 +58,22 @@ class MultiheadDetector:
         if isinstance(image_input, list):
             results = []
             for img in image_input:
-                if isinstance(img, (str, Path)):
-                    img = Image.open(img)
-                result = self(img)
+                img_pil = self._load_image(img)
+                result = self._process_single_image(img_pil)
                 results.append(result['unsafe'])
             return results
         else:
-            if isinstance(image_input, (str, Path)):
-                image_input = Image.open(image_input)
-            result = self(image_input)
+            img_pil = self._load_image(image_input)
+            result = self._process_single_image(img_pil)
             return result['unsafe']
-
-    def __call__(self, image):
+    
+    def _process_single_image(self, image):
+        """Process a single PIL image and return detailed results."""
         tensor = self.model.preprocess(image).unsqueeze(0).to(self.device)
-        return self._process_single(tensor[0].unsqueeze(0))
+        return self._process_single(tensor)
 
     def _process_single(self, tensor):
+        """Process a single tensor and return detailed results."""
         results = {}
         with torch.no_grad():
             head_results = []
@@ -83,13 +88,25 @@ class MultiheadDetector:
         return results
 
     def _load_head(self, head):
+        """Load the weights for a specific detection head."""
         checkpoint_path = os.path.join(self.checkpoints_dir, f"{head}.pt")
         self.model.projection_head.load_state_dict(torch.load(checkpoint_path))
         self.model.projection_head.eval()
         
+    def get_detailed_results(self, image_input: Union[str, Path, Image.Image]) -> dict:
+        """
+        Get detailed results with scores for each category.
+        This provides more information than the standard check method.
         
-        
-        
+        Args:
+            image_input: Image to check
+            
+        Returns:
+            Dictionary with results for each unsafe content category and overall unsafe status
+        """
+        img_pil = self._load_image(image_input)
+        tensor = self.model.preprocess(img_pil).unsqueeze(0).to(self.device)
+        return self._process_single(tensor)
 
 
 if __name__ == "__main__":
@@ -111,10 +128,6 @@ if __name__ == "__main__":
         print(f"Using device: {device}")
         
         try:
-            # Load image
-            image = Image.open(image_path).convert('RGB')
-            print(f"Loaded input image of size {image.size} from {image_path}")
-            
             # Initialize detector
             detector = MultiheadDetector(
                 device=device,
@@ -122,18 +135,21 @@ if __name__ == "__main__":
                 pretrained=pretrained
             )
             
-            # Run detection
-            result = detector(image)
+            # Run detection using the BaseImageChecker's check method
+            is_unsafe = detector.check(image_path)
+            
+            # Get detailed results
+            details = detector.get_detailed_results(image_path)
             
             # Print results
             print("\nMultihead Detection Results:")
             print(f"Image: {image_path}")
             print("\nDetection Results by Category:")
-            for category, is_detected in result.items():
+            for category, is_detected in details.items():
                 if category != 'unsafe':
                     print(f"{category.capitalize()}: {'Detected' if is_detected else 'Not Detected'}")
             
-            print(f"\nOverall Safety: {'Unsafe' if result['unsafe'] else 'Safe'}")
+            print(f"\nOverall Safety: {'Unsafe' if is_unsafe else 'Safe'}")
             
         except Exception as e:
             print(f"Error occurred during detection: {str(e)}")
@@ -142,4 +158,3 @@ if __name__ == "__main__":
     # Test single image
     print("\nTesting single image...")
     test_image("unsafe.png")
-    

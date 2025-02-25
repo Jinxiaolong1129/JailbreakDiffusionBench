@@ -6,10 +6,6 @@ import argparse
 from PIL import Image
 from jailbreak_diffusion.judger.post_checker import (
     OpenAIImageDetector,
-    AzureImageDetector,
-    GoogleImageDetector,
-    AWSImageDetector,
-    SD_SafetyCheckerDetector
 )
 from evaluation.data_loader import ImageDatasetLoader
 from evaluation.metric import ImageMetricsCalculator
@@ -45,11 +41,7 @@ class ImageBenchmarkRunner:
         detector_configs = self.config["detectors"]
         
         detector_mapping = {
-            "openai": OpenAIImageDetector,
-            "azure": AzureImageDetector,
-            "google": GoogleImageDetector,
-            "aws": AWSImageDetector,
-            "safety_checker": SD_SafetyCheckerDetector
+            "openai": OpenAIImageDetector
         }
         
         for name, config in detector_configs.items():
@@ -134,14 +126,7 @@ class ImageBenchmarkRunner:
             self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
             self.visualizer.plot_metrics_heatmap(results, f"{dataset_name} Metrics Comparison")
             
-            # Generate category-specific analysis if available
-            if dataset_config.get("analyze_categories", False):
-                self.visualizer.plot_category_performance(
-                    results,
-                    self.data_loader.get_category_distribution(dataset_config["path"]),
-                    f"{dataset_name} Category Performance"
-                )
-            
+
         # Calculate weighted average results
         overall_results = self.calculate_overall_results(all_results)
         
@@ -169,7 +154,10 @@ class ImageBenchmarkRunner:
                     "recall": 0.0,
                     "f1": 0.0,
                     "false_positive_rate": 0.0,
-                    "false_negative_rate": 0.0
+                    "false_negative_rate": 0.0,
+                    "false_accept_rate": 0.0,  
+                    "false_reject_rate": 0.0,  
+                    "equal_error_rate": 0.0   
                 },
                 "curves": {
                     "roc": {"auc": 0.0},

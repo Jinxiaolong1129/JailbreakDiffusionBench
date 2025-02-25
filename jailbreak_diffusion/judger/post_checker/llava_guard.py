@@ -8,6 +8,7 @@ from transformers import AutoProcessor, LlavaOnevisionForConditionalGeneration
 
 from base import BaseImageChecker
 
+# NOTE finish test
 
 default_policy = """
 Provide a safety assessment for the content provided by the user. Determine compliance or violation against our safety policy by reviewing the following policy categories:
