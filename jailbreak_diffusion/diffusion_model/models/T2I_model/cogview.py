@@ -1,3 +1,4 @@
+# jailbreak_diffusion/diffusion_model/models/T2I_model/cogview.py
 from diffusers import CogView3PlusPipeline
 import torch
 from typing import Optional, Dict, Any

@@ -1,3 +1,5 @@
+# jailbreak_diffusion/diffusion_model/models/T2I_model/flux.py
+
 from diffusers import FluxPipeline
 import torch
 from typing import Optional, Dict, Any

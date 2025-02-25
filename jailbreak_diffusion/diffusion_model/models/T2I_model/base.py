@@ -1,5 +1,4 @@
-# diffusion_model/models/model/base.py
-
+# jailbreak_diffusion/diffusion_model/models/T2I_model/base.py
 from abc import ABC, abstractmethod
 import torch
 from typing import Optional, List
