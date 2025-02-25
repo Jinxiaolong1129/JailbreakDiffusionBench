@@ -272,7 +272,7 @@ class DiffusionFactory(DiffusionWrapper):
     def _create_local_model(self, **kwargs):
         """Create a local model instance."""
         if self.model_arch == ModelArchitecture.STABLE_DIFFUSION:
-            from ..models.model.stable_diffusion import StableDiffusionModel
+            from ..models.T2I_model.stable_diffusion import StableDiffusionModel
             model_path = self.MODEL_REGISTRY[self.model_name]['model_id'] # BUG
             return StableDiffusionModel(
                 model_name=model_path,
@@ -280,21 +280,21 @@ class DiffusionFactory(DiffusionWrapper):
                 **kwargs
             )
         elif self.model_arch == ModelArchitecture.FLUX:
-            from ..models.model.flux import FluxModel
+            from ..models.T2I_model.flux import FluxModel
             return FluxModel(
                 model_name=self.model_config["model_id"],
                 device=self.device,
                 **kwargs
             )
         elif self.model_arch == ModelArchitecture.COGVIEW:
-            from ..models.model.cogview import CogViewModel
+            from ..models.T2I_model.cogview import CogViewModel
             return CogViewModel(
                 model_name=self.model_config["model_id"],
                 device=self.device,
                 **kwargs
             )
         elif self.model_arch == ModelArchitecture.PROTEUS:
-            from ..models.model.proteus_rundiffusion import ProteusModel
+            from ..models.T2I_model.proteus_rundiffusion import ProteusModel
             return ProteusModel(
                 model_name=self.model_config["model_id"],
                 device=self.device,

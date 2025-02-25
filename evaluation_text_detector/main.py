@@ -62,8 +62,9 @@ class BenchmarkRunner:
             try:
                 # 获取检测结果
                 texts = [prompt.text for prompt in dataset]
-                predictions = detector.check(texts)
+                raw_predictions = detector.check(texts)
                 
+                predictions = [1 if pred else 0 for pred in raw_predictions]
                 # 准备评估数据
                 true_labels = [1 if p.label == "harmful" else 0 for p in dataset]  # 修改为harmful标签
                 
@@ -102,7 +103,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run OpenAI text detector evaluation")
     parser.add_argument(
         "--config", 
-        default="config/evaluation_configs.yaml",
+        default="evaluation_text_detector/config/evaluation_configs.yaml",
         help="Path to evaluation config file"
     )
     args = parser.parse_args()
