@@ -9,12 +9,12 @@ from .diffusion_model.core.model_types import ModelType
 from .diffusion_model.core.outputs import GenerationOutput, GenerationInput
 from .diffusion_model.core.wrapper import DiffusionWrapper
 
-from .diffusion_model.models.api.dalle import DallEModel 
-from .diffusion_model.models.api.stability import StabilityModel
+from .diffusion_model.models.T2I_model.api.dalle import DallEModel 
+from .diffusion_model.models.T2I_model.api.stability import StabilityModel
 
-from .diffusion_model.models.model.cogview import CogViewModel
-from .diffusion_model.models.model.flux import FluxModel
-from .diffusion_model.models.model.stable_diffusion import StableDiffusionModel
+from .diffusion_model.models.T2I_model.cogview import CogViewModel
+from .diffusion_model.models.T2I_model.flux import FluxModel
+from .diffusion_model.models.T2I_model.stable_diffusion import StableDiffusionModel
 
 __all__ = [
     # diffusion_model

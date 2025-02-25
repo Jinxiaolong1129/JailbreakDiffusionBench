@@ -121,7 +121,7 @@ class OpenAITextDetector(BaseChecker):
             result = self.detect(text)
             return result.flagged
         elif isinstance(text, list):
-            results = self.detect_batch(text)
+            results = self.detect_batch(text) # TODO save all results here
             return [result.flagged for result in results]
         else:
             raise TypeError("Input must be string or list of strings")

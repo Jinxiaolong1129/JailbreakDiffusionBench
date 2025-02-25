@@ -4,12 +4,12 @@ from .core.model_types import ModelType, ModelArchitecture, ModelProvider
 from .core.outputs import GenerationInput, GenerationOutput
 from .core.wrapper import DiffusionWrapper
 
-from .models.api.dalle import DallEModel 
-from .models.api.stability import StabilityModel
+from .models.T2I_model.api.dalle import DallEModel 
+from .models.T2I_model.api.stability import StabilityModel
 
-from .models.model.cogview import CogViewModel
-from .models.model.flux import FluxModel
-from .models.model.stable_diffusion import StableDiffusionModel
+from .models.T2I_model.cogview import CogViewModel
+from .models.T2I_model.flux import FluxModel
+from .models.T2I_model.stable_diffusion import StableDiffusionModel
 
 
 __all__ = [

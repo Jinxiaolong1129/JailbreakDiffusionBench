@@ -1,7 +1,7 @@
 # evaluation_text_detector/config/evaluation_configs.yaml
 datasets:
   i2p_filtered:
-    path: "data/harmful/I2P/I2P_filtered_test.json"
+    path: "evaluation_text_detector/data/harmful/I2P/I2P_filtered_test.json"
     weight: 1.0
 
 output_dir: "results"
@@ -15,3 +15,8 @@ metrics:
   - f1
   - auc
   - average_precision
+
+
+detectors:
+  openai:
+    model: "omni-moderation-latest"
