@@ -1,4 +1,4 @@
-# diffusion_model/models/model/stable_diffusion.py
+# jailbreak_diffusion/diffusion_model/models/T2I_model/stable_diffusion.py
 
 from diffusers import (
     DiffusionPipeline,

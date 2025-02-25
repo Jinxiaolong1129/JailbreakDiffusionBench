@@ -1,3 +1,4 @@
+# jailbreak_diffusion/diffusion_model/models/T2I_model/proteus_rundiffusion.py
 from diffusers import DiffusionPipeline
 import torch
 from typing import Optional, Dict, Any
