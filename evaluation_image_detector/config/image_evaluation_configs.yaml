@@ -1,7 +1,7 @@
 # evaluation_image_detector/config/evaluation_configs.yaml
 datasets:
-  synthetic_dataset:
-    path: "data/synthetic/dataset_info.json"
+  test_dataset:
+    path: "evaluation_image_detector/data/test/dataset_info.json"
 
 output_dir: "results"
 batch_size: 16

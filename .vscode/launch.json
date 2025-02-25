@@ -13,6 +13,18 @@
             "justMyCode": false
         },
         {
+            "name": "evaluation_image_detector",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/evaluation_image_detector/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "cwd": "${workspaceFolder}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "llava_guard.py",
             "type": "debugpy",
             "request": "launch",
