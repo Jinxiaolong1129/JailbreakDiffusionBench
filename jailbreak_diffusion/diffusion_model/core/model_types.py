@@ -14,6 +14,7 @@ class ModelArchitecture(str, Enum):
     """Supported model architectures"""
     STABLE_DIFFUSION = "stable_diffusion"
     STABLE_DIFFUSION_XL = "stable_diffusion_xl"
+    STABLE_DIFFUSION_3 = "stable_diffusion_3"
     FLUX = "flux"
     DALLE = "dalle"
     ANIMATED_DIFF = "animated_diff"
@@ -21,6 +22,9 @@ class ModelArchitecture(str, Enum):
     MODELSCOPE = "modelscope"
     COGVIEW = "cogview"
     PROTEUS = "proteus"
+    PIXART_ALPHA = "pixart_alpha"
+    PIXART_SIGMA = "pixart_sigma"
+    HUNYUAN_DIT = "hunyuan_dit"
     
     
 class ModelProvider(str, Enum):
@@ -29,4 +33,5 @@ class ModelProvider(str, Enum):
     STABILITY = "stability"
     LEONARDO = "leonardo"
     ANTHROPIC = "anthropic"
+    TENCENT = "tencent"
     LOCAL = "local"  # For local models

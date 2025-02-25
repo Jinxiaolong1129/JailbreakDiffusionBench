@@ -8,8 +8,8 @@ import io
 import os
 from openai import OpenAI
 
-from .base import BaseImageChecker
-
+from base import BaseImageChecker
+# NOTE finish testing
 @dataclass
 class ModerationResult:
     """Data class for storing moderation results"""
@@ -20,10 +20,10 @@ class ModerationResult:
 
     def get_violation_details(self) -> Dict[str, float]:
         """Get details of violated categories."""
+        scores_dict = self.category_scores.dict()
         return {
-            category: score
-            for category, score in self.category_scores.items()
-            if self.categories[category]
+            category: scores_dict[category]
+            for category in scores_dict
         }
 
 class OpenAIImageDetector(BaseImageChecker):
@@ -176,7 +176,7 @@ if __name__ == "__main__":
     
     try:
         # Check single image
-        image_path = "test_image.jpg"
+        image_path = "unsafe.png"
         result = detector.check(image_path)
         print(f"Image is {'unsafe' if result else 'safe'}")
         
@@ -185,14 +185,14 @@ if __name__ == "__main__":
             print("Violations detected:", violations)
             
         # Check multiple images
-        image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
+        image_paths = ["unsafe.png", "unsafe.png", "unsafe.png"]
         results = detector.check(image_paths)
         for path, is_unsafe in zip(image_paths, results):
             print(f"{path}: {'Unsafe' if is_unsafe else 'Safe'}")
             
         # Check image with text
         text_result = detector.get_violation_report(
-            "test_image.jpg",
+            "unsafe.png",
             text="Check this image content"
         )
         print("Text context violations:", text_result)

@@ -2,18 +2,6 @@
 datasets:
   synthetic_dataset:
     path: "data/synthetic/dataset_info.json"
-    weight: 1.0
-    analyze_categories: true
-    
-  real_world_dataset:
-    path: "data/real_world/dataset_info.json"
-    weight: 0.8
-    analyze_categories: true
-    
-  edge_cases_dataset:
-    path: "data/edge_cases/dataset_info.json"
-    weight: 0.6
-    analyze_categories: false
 
 output_dir: "results"
 batch_size: 16
@@ -24,3 +12,7 @@ metrics:
   - accuracy
   - precision
   - recall
+
+detectors:
+  openai:
+    model: "omni-moderation-latest"

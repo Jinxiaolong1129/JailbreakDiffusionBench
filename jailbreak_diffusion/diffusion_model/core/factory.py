@@ -6,7 +6,7 @@ import logging
 from .wrapper import DiffusionWrapper
 from .model_types import ModelType, ModelArchitecture, ModelProvider
 from .outputs import GenerationInput, GenerationOutput
-from ..models.api import DallEModel, StabilityModel
+from ..models import DallEModel, StabilityModel
 
 class DiffusionFactory(DiffusionWrapper):
     """
@@ -134,6 +134,88 @@ class DiffusionFactory(DiffusionWrapper):
             }
         },
         
+        # New Model: PixArt Alpha
+        "pixart-alpha": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "PixArt-alpha/PixArt-XL-2-512x512",
+            "arch": ModelArchitecture.PIXART_ALPHA,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "width": 512,
+            "height": 512,
+            "num_inference_steps": 50,
+            "guidance_scale": 7.5
+            }
+        },
+        
+        # New Model: PixArt Sigma
+        "pixart-sigma": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "PixArt-alpha/PixArt-Sigma-XL-2-1024-MS",
+            "arch": ModelArchitecture.PIXART_SIGMA,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "width": 1024,
+            "height": 1024,
+            "num_inference_steps": 50,
+            "guidance_scale": 7.5
+            }
+        },
+        
+        # New Model: Stable Diffusion 3.5 Large
+        "stable-diffusion-3.5-large": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "stabilityai/stable-diffusion-3.5-large",
+            "arch": ModelArchitecture.STABLE_DIFFUSION_3,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "width": 1024,
+            "height": 1024,
+            "num_inference_steps": 28,
+            "guidance_scale": 4.5,
+            "max_sequence_length": 512
+            }
+        },
+        
+        # New Model: Stable Diffusion 3.5 Large Turbo
+        "stable-diffusion-3.5-large-turbo": {
+            "provider": ModelProvider.LOCAL,
+            "model_id": "stabilityai/stable-diffusion-3.5-large-turbo",
+            "arch": ModelArchitecture.STABLE_DIFFUSION_3,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "width": 1024,
+            "height": 1024,
+            "num_inference_steps": 4,
+            "guidance_scale": 0.0,
+            "max_sequence_length": 512
+            }
+        },
+        
+        # New Model: HunyuanDiT v1.2
+        "hunyuan-dit-v1.2": {
+            "provider": ModelProvider.TENCENT,
+            "model_id": "Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers",
+            "arch": ModelArchitecture.HUNYUAN_DIT,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "num_inference_steps": 50,
+            "guidance_scale": 7.5
+            }
+        },
+        
+        # New Model: HunyuanDiT v1.2 Distilled
+        "hunyuan-dit-v1.2-distilled": {
+            "provider": ModelProvider.TENCENT,
+            "model_id": "Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers-Distilled",
+            "arch": ModelArchitecture.HUNYUAN_DIT,
+            "type": ModelType.TEXT_TO_IMAGE,
+            "default_params": {
+            "num_inference_steps": 30,
+            "guidance_scale": 6.0
+            }
+        },
+        
         # NOTE close source models
         # DALL-E Models
         "dalle-3": {
@@ -197,6 +279,10 @@ class DiffusionFactory(DiffusionWrapper):
             "height": 1024,
             "negative_prompt": "",
             "num_images": 1,
+        },
+        ModelProvider.TENCENT: {
+            "num_inference_steps": 50,
+            "guidance_scale": 7.5,
         }
     }
 
@@ -248,6 +334,8 @@ class DiffusionFactory(DiffusionWrapper):
         """Get default generation parameters for the current model."""
         if self.is_api_model:
             return self.DEFAULT_PARAMS[self.provider].copy()
+        elif "default_params" in self.model_config:
+            return self.model_config["default_params"].copy()
         return {}
 
     def _create_model(self, **kwargs):
@@ -264,9 +352,9 @@ class DiffusionFactory(DiffusionWrapper):
             return DallEModel(self.api_key, model_id)
         elif self.provider == ModelProvider.STABILITY:
             return StabilityModel(self.api_key, model_id)
-        elif self.provider == ModelProvider.LEONARDO:
-            return LeonardoModel(self.api_key, model_id)
-        
+        # Google Cloud Vertex AI  Imagen 2 
+        # Dalle 2
+        # Dalle 3
         raise ValueError(f"Unsupported API provider: {self.provider}")
 
     def _create_local_model(self, **kwargs):
@@ -276,6 +364,13 @@ class DiffusionFactory(DiffusionWrapper):
             model_path = self.MODEL_REGISTRY[self.model_name]['model_id'] # BUG
             return StableDiffusionModel(
                 model_name=model_path,
+                device=self.device,
+                **kwargs
+            )
+        elif self.model_arch == ModelArchitecture.STABLE_DIFFUSION_3:
+            from ..models.T2I_model.stable_diffusion_3 import StableDiffusion3Model
+            return StableDiffusion3Model(
+                model_name=self.model_config["model_id"],
                 device=self.device,
                 **kwargs
             )
@@ -296,6 +391,27 @@ class DiffusionFactory(DiffusionWrapper):
         elif self.model_arch == ModelArchitecture.PROTEUS:
             from ..models.T2I_model.proteus_rundiffusion import ProteusModel
             return ProteusModel(
+                model_name=self.model_config["model_id"],
+                device=self.device,
+                **kwargs
+            )
+        elif self.model_arch == ModelArchitecture.PIXART_ALPHA:
+            from ..models.T2I_model.pixart_alpha import PixArtAlphaModel
+            return PixArtAlphaModel(
+                model_name=self.model_config["model_id"],
+                device=self.device,
+                **kwargs
+            )
+        elif self.model_arch == ModelArchitecture.PIXART_SIGMA:
+            from ..models.T2I_model.pixart_sigma import PixArtSigmaModel
+            return PixArtSigmaModel(
+                model_name=self.model_config["model_id"],
+                device=self.device,
+                **kwargs
+            )
+        elif self.model_arch == ModelArchitecture.HUNYUAN_DIT:
+            from ..models.T2I_model.hunyuan_dit import HunyuanDiTModel
+            return HunyuanDiTModel(
                 model_name=self.model_config["model_id"],
                 device=self.device,
                 **kwargs
@@ -372,4 +488,3 @@ class DiffusionFactory(DiffusionWrapper):
         if self.model_type == ModelType.IMAGE_TO_IMAGE:
             if "input_image" not in kwargs:
                 raise ValueError("input_image required for image-to-image generation")
-            
