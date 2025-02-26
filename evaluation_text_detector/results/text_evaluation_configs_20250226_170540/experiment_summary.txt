@@ -1,0 +1,12 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/text_evaluation_configs.yaml
+Date: 2025-02-26T17:06:42.407406
+
+
+Dataset: i2p_filtered
+----------------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+openai | ERROR |  |  |  |  | 
+

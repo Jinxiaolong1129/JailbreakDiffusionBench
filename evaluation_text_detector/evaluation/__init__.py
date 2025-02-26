@@ -10,12 +10,12 @@ This package provides tools for:
 """
 
 from .data_loader import DatasetLoader, Prompt
-from .metric import AdvancedMetricsCalculator
+from .metric import TextMetricsCalculator
 from .visualization import MetricsVisualizer
 
 __all__ = [
     'DatasetLoader',
     'Prompt',
-    'AdvancedMetricsCalculator',
+    'TextMetricsCalculator',
     'MetricsVisualizer'
 ]
