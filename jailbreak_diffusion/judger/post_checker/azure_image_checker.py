@@ -9,9 +9,7 @@ from azure.ai.contentsafety import ContentSafetyClient
 from azure.ai.contentsafety.models import (
     AnalyzeImageOptions,
     ImageData,
-    ImageCategory,
-    ImageAnalysisResult,
-    CategoryAnalysis
+    ImageCategory
 )
 from azure.core.credentials import AzureKeyCredential
 from azure.core.exceptions import HttpResponseError
@@ -102,7 +100,7 @@ class AzureImageDetector(BaseImageChecker):
     
     def _get_category_severity(
         self,
-        categories_analysis: List[CategoryAnalysis],
+        categories_analysis: List,  # Updated to use generic List type
         category: ImageCategory
     ) -> float:
         """
@@ -238,17 +236,17 @@ if __name__ == "__main__":
     # Check single image
     try:
         # Using path
-        result = detector("/home/ubuntu/xiaolong/jailbreakbench/unsafe.png")
+        result = detector("unsafe.png")
         if result:
             print("Inappropriate content detected")
             # Get violation details
-            violations = detector.get_violation_report("/home/ubuntu/xiaolong/jailbreakbench/unsafe.png")
+            violations = detector.get_violation_report("unsafe.png")
             print("Violations detected:", violations)
         else:
             print("Image is safe")
             
         # Check multiple images
-        image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]
+        image_paths = ["unsafe.png", "unsafe.png"]
         results = detector(image_paths)
         for path, is_inappropriate in zip(image_paths, results):
             print(f"{path}: {'Inappropriate' if is_inappropriate else 'Safe'}")

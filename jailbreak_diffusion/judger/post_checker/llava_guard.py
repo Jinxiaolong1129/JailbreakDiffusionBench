@@ -6,7 +6,7 @@ from PIL import Image
 import torch
 from transformers import AutoProcessor, LlavaOnevisionForConditionalGeneration
 
-from base import BaseImageChecker
+from .base import BaseImageChecker
 
 # NOTE finish test
 

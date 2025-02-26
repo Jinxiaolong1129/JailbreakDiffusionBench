@@ -9,7 +9,8 @@ class ImageMetricsVisualizer:
     def __init__(self, output_dir: str):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        plt.style.use('seaborn')
+        sns.set_style("whitegrid")  
+
         
     def plot_roc_curves(self, metrics_results: Dict[str, Dict], title: str):
         """Plot ROC curves for all detectors"""

@@ -6,7 +6,7 @@ import open_clip
 import os
 from typing import Union, List, Optional
 from pathlib import Path
-from base import BaseImageChecker
+from .base import BaseImageChecker
 
 class MHSafetyClassifier(torch.nn.Module):
     def __init__(self, device, model_name="ViT-L-14", pretrained='openai'):

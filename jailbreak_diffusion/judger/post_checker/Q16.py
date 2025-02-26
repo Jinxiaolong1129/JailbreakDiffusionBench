@@ -7,7 +7,7 @@ import os
 import numpy as np
 from typing import Union, List
 from pathlib import Path
-from base import BaseImageChecker
+from .base import BaseImageChecker
 
 class SimClassifier(torch.nn.Module):
     def __init__(self, embeddings, model_name, pretrained):

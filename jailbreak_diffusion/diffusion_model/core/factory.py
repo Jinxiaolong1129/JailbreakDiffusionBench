@@ -6,7 +6,8 @@ import logging
 from .wrapper import DiffusionWrapper
 from .model_types import ModelType, ModelArchitecture, ModelProvider
 from .outputs import GenerationInput, GenerationOutput
-from ..models import DallEModel, StabilityModel
+from ..models.T2I_model.api.dalle import DallEModel 
+from ..models.T2I_model.api.stability import StabilityModel
 
 class DiffusionFactory(DiffusionWrapper):
     """
