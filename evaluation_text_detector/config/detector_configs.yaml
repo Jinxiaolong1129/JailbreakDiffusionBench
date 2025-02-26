@@ -1,5 +1,0 @@
-# evaluation_text_detector/config/detector_configs.yaml
-detectors:
-  openai:
-    api_key: ${OPENAI_API_KEY}
-    model: "text-moderation-latest"

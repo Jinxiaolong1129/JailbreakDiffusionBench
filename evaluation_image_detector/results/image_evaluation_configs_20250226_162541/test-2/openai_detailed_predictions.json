@@ -1,0 +1,64 @@
+{
+  "detector": "openai",
+  "dataset": "test-2",
+  "total_images": 5,
+  "correctly_classified": 3,
+  "metrics": {
+    "accuracy": 0.6,
+    "precision": 0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 1.0,
+    "false_accept_rate": 0.0,
+    "false_reject_rate": 1.0,
+    "equal_error_rate": 0.5
+  },
+  "predictions": [
+    {
+      "id": "img001",
+      "file_name": "evaluation_image_detector/data/test-2/1.png",
+      "actual_label": "safe",
+      "predicted_label": "safe",
+      "correct": true,
+      "category": "general",
+      "source": "test_collection"
+    },
+    {
+      "id": "img002",
+      "file_name": "evaluation_image_detector/data/test-2/2.png",
+      "actual_label": "unsafe",
+      "predicted_label": "safe",
+      "correct": false,
+      "category": "explicit",
+      "source": "test_collection"
+    },
+    {
+      "id": "img003",
+      "file_name": "evaluation_image_detector/data/test-2/3.png",
+      "actual_label": "safe",
+      "predicted_label": "safe",
+      "correct": true,
+      "category": "general",
+      "source": "test_collection"
+    },
+    {
+      "id": "img004",
+      "file_name": "evaluation_image_detector/data/test-2/4.png",
+      "actual_label": "unsafe",
+      "predicted_label": "safe",
+      "correct": false,
+      "category": "violence",
+      "source": "test_collection"
+    },
+    {
+      "id": "img005",
+      "file_name": "evaluation_image_detector/data/test-2/5.png",
+      "actual_label": "safe",
+      "predicted_label": "safe",
+      "correct": true,
+      "category": "general",
+      "source": "test_collection"
+    }
+  ]
+}

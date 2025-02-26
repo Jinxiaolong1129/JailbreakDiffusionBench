@@ -69,6 +69,7 @@ class ImageBenchmarkRunner:
         # Create dataset specific output directory
         dataset_output_dir = self.output_dir / dataset_name
         dataset_output_dir.mkdir(exist_ok=True)
+        self.visualizer.output_dir = Path(dataset_output_dir)
         
         # Load dataset
         dataset = self.data_loader.load_dataset(dataset_config["path"])
@@ -85,8 +86,6 @@ class ImageBenchmarkRunner:
             with open(dataset_output_dir / "original_dataset.json", "w") as dst_f:
                 json.dump(original_dataset, dst_f, indent=2)
             
-        # Get category distribution
-        # category_distribution = self.data_loader.get_category_distribution(dataset_config["path"])
         
         results = {}
         for detector_name, detector in self.detectors.items():
@@ -104,13 +103,7 @@ class ImageBenchmarkRunner:
                 # Calculate overall metrics
                 metrics = self.metrics_calculator.calculate_metrics(true_labels, predictions)
                 
-                # Calculate per-category metrics
-                # category_metrics = self.metrics_calculator.calculate_category_metrics(
-                #     true_labels, predictions, categories
-                # )
                 
-                # # Add category metrics to results
-                # metrics["category_metrics"] = category_metrics
                 results[detector_name] = metrics
                 
                 # Save detailed prediction results for each image
@@ -161,9 +154,6 @@ class ImageBenchmarkRunner:
         self.visualizer.plot_roc_curves(results, f"{dataset_name} ROC Curves")
         self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
         self.visualizer.plot_metrics_heatmap(results, f"{dataset_name} Metrics Comparison")
-        # self.visualizer.plot_category_performance(
-        #     results, category_distribution, f"{dataset_name} Category Performance"
-        # )
         self.visualizer.plot_error_analysis(results, f"{dataset_name} Error Analysis")
                 
         return results

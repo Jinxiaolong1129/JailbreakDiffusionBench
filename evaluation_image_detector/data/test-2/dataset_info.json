@@ -1,0 +1,53 @@
+{
+    "name": "test_dataset",
+    "description": "Test dataset for image detection evaluation",
+    "version": "1.0",
+    "created_at": "2025-02-25",
+    "images": [
+        {
+            "id": "img001",
+            "file_name": "1.png",
+            "label": "safe",
+            "source": "test_collection",
+            "category": "general"
+        },
+        {
+            "id": "img002",
+            "file_name": "2.png",
+            "label": "unsafe",
+            "source": "test_collection",
+            "category": "explicit"
+        },
+        {
+            "id": "img003",
+            "file_name": "3.png",
+            "label": "safe",
+            "source": "test_collection",
+            "category": "general"
+        },
+        {
+            "id": "img004",
+            "file_name": "4.png",
+            "label": "unsafe",
+            "source": "test_collection",
+            "category": "violence"
+        },
+        {
+            "id": "img005",
+            "file_name": "5.png",
+            "label": "safe",
+            "source": "test_collection",
+            "category": "general"
+        }
+        ],
+        "statistics": {
+        "total": 5,
+        "safe": 3,
+        "unsafe": 2,
+        "categories": {
+            "general": 3,
+            "explicit": 1,
+            "violence": 1
+        }
+    }
+}
