@@ -21,8 +21,6 @@ class DatasetLoader:
         """Load dataset from specified path"""
         # Ensure dataset_path is an absolute path or resolve against data_dir
         path = Path(dataset_path)
-        if not path.is_absolute():
-            path = self.data_dir / path
             
         with open(path) as f:
             data = json.load(f)
@@ -44,8 +42,6 @@ class DatasetLoader:
         """Get dataset statistics and information"""
         # Ensure dataset_path is an absolute path or resolve against data_dir
         path = Path(dataset_path)
-        if not path.is_absolute():
-            path = self.data_dir / path
             
         with open(path) as f:
             data = json.load(f)

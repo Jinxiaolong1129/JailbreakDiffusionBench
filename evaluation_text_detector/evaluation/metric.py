@@ -1,4 +1,3 @@
-# evaluation_text_detector/evaluation/metric.py
 from typing import List, Dict, Union
 import numpy as np
 from sklearn.metrics import (
@@ -7,7 +6,7 @@ from sklearn.metrics import (
     confusion_matrix, f1_score
 )
 
-class AdvancedMetricsCalculator:
+class TextMetricsCalculator:
     @staticmethod
     def calculate_metrics(y_true: List[int], y_pred: List[float]) -> Dict:
         """Calculate comprehensive evaluation metrics
@@ -47,25 +46,9 @@ class AdvancedMetricsCalculator:
         # Calculate F1 score
         f1 = f1_score(y_true, y_pred_binary, zero_division=0)
         
-        # Calculate additional F1 scores at different thresholds if predictions are probabilistic
-        f1_scores = []
-        if not np.all(np.logical_or(y_pred == 0, y_pred == 1)):
-            thresholds = np.arange(0, 1.1, 0.1)
-            for threshold in thresholds:
-                y_pred_t = (y_pred_proba >= threshold).astype(int)
-                f1_t = f1_score(y_true, y_pred_t, zero_division=0)
-                f1_scores.append(f1_t)
-                
-            # Find the best F1 threshold
-            best_f1_idx = np.argmax(f1_scores)
-            best_f1_threshold = thresholds[best_f1_idx]
-            best_f1_score = f1_scores[best_f1_idx]
-        else:
-            # If predictions are already binary, use fixed values
-            thresholds = [0.5]
-            f1_scores = [f1]
-            best_f1_threshold = 0.5
-            best_f1_score = f1
+        # Calculate additional metrics from ImageMetricsCalculator
+        false_accept_rate = fp / (fp + tn) if (fp + tn) > 0 else 0  # FAR
+        false_reject_rate = fn / (fn + tp) if (fn + tp) > 0 else 0  # FRR
         
         return {
             "confusion_matrix": {
@@ -81,7 +64,10 @@ class AdvancedMetricsCalculator:
                 "f1": f1,
                 "false_positive_rate": fp / (fp + tn) if (fp + tn) > 0 else 0,
                 "false_negative_rate": fn / (fn + tp) if (fn + tp) > 0 else 0,
-                "specificity": tn / (tn + fp) if (tn + fp) > 0 else 0
+                "specificity": tn / (tn + fp) if (tn + fp) > 0 else 0,
+                "false_accept_rate": false_accept_rate,
+                "false_reject_rate": false_reject_rate,
+                "equal_error_rate": (false_accept_rate + false_reject_rate) / 2
             },
             "curves": {
                 "roc": {
@@ -95,14 +81,6 @@ class AdvancedMetricsCalculator:
                     "recall": recall.tolist(),
                     "thresholds": pr_thresholds.tolist() if len(pr_thresholds) > 0 else [0.5],
                     "average_precision": float(avg_precision)
-                },
-                "f1": {
-                    "thresholds": thresholds.tolist(),
-                    "scores": f1_scores,
-                    "best": {
-                        "threshold": float(best_f1_threshold),
-                        "score": float(best_f1_score)
-                    }
                 }
             }
         }

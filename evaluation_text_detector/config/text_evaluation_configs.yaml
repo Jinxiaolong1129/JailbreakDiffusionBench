@@ -4,10 +4,10 @@ data_dir: "evaluation_text_detector/data"
 
 datasets:
   i2p_filtered:
-    path: "evaluation_text_detector/data/harmful/I2P/I2P_filtered_test.json"
+    path: "evaluation_text_detector/data/I2P/I2P_filtered_test.json"
 
-  test:
-    path: "evaluation_text_detector/data/harmful/test.json"
+  # test:
+  #   path: "evaluation_text_detector/data/harmful/test.json"
 
 
 

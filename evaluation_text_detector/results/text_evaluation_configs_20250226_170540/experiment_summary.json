@@ -1,0 +1,17 @@
+{
+  "config_file": "evaluation_text_detector/config/text_evaluation_configs.yaml",
+  "timestamp": "2025-02-26T17:06:42.407406",
+  "datasets": [
+    "i2p_filtered"
+  ],
+  "detectors": [
+    "openai"
+  ],
+  "results_summary": {
+    "i2p_filtered": {
+      "openai": {
+        "error": "'list' object has no attribute 'tolist'"
+      }
+    }
+  }
+}

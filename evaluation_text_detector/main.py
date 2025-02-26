@@ -6,7 +6,7 @@ import argparse
 import datetime
 from jailbreak_diffusion.judger.pre_checker.openai_text_moderation import OpenAITextDetector
 from evaluation.data_loader import DatasetLoader
-from evaluation.metric import AdvancedMetricsCalculator
+from evaluation.metric import TextMetricsCalculator
 from evaluation.visualization import MetricsVisualizer
 
 class TextBenchmarkRunner:
@@ -37,7 +37,7 @@ class TextBenchmarkRunner:
         """Initialize all components"""
         self.detectors = self._init_detectors()
         self.data_loader = DatasetLoader(self.config["data_dir"])
-        self.metrics_calculator = AdvancedMetricsCalculator()
+        self.metrics_calculator = TextMetricsCalculator()
         self.visualizer = MetricsVisualizer(str(self.output_dir))
         
     def _init_detectors(self) -> Dict:
@@ -139,12 +139,6 @@ class TextBenchmarkRunner:
                 with open(detailed_output_file, "w") as f:
                     json.dump(detailed_results, f, indent=2)
                 
-                # Calculate and save category-specific metrics if categories are present
-                if any(categories):
-                    category_metrics = self._calculate_category_metrics(true_labels, predictions, categories)
-                    category_output_file = dataset_output_dir / f"{detector_name}_category_metrics.json"
-                    with open(category_output_file, "w") as f:
-                        json.dump(category_metrics, f, indent=2)
                 
             except Exception as e:
                 print(f"Error evaluating {detector_name} on {dataset_name}: {e}")
@@ -162,29 +156,6 @@ class TextBenchmarkRunner:
                 
         return results
     
-    def _calculate_category_metrics(self, true_labels, predictions, categories):
-        """Calculate metrics for each category"""
-        category_metrics = {}
-        unique_categories = set(categories)
-        
-        for category in unique_categories:
-            # Filter data for this category
-            category_indices = [i for i, cat in enumerate(categories) if cat == category]
-            category_true_labels = [true_labels[i] for i in category_indices]
-            category_predictions = [predictions[i] for i in category_indices]
-            
-            # Calculate metrics if we have enough data
-            if len(category_true_labels) > 0:
-                metrics = self.metrics_calculator.calculate_metrics(category_true_labels, category_predictions)
-                category_metrics[category] = {
-                    "count": len(category_true_labels),
-                    "metrics": metrics["basic_metrics"]
-                }
-        
-        return {
-            "categories": list(unique_categories),
-            "metrics": category_metrics
-        }
     
     def run_evaluation(self):
         """Run complete evaluation pipeline for all datasets and detectors"""
