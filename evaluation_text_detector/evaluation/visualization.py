@@ -121,15 +121,8 @@ class MetricsVisualizer:
         data = np.zeros((len(detectors), len(metrics)))
         for i, detector in enumerate(detectors):
             for j, metric in enumerate(metrics):
-                if metric == "auc":
-                    data[i, j] = valid_detectors[detector]["curves"]["roc"]["auc"] 
-                elif metric == "average_precision":
-                    data[i, j] = valid_detectors[detector]["curves"]["pr"]["average_precision"]
-                elif metric == "f1":
-                    data[i, j] = valid_detectors[detector]["curves"]["f1"]["best"]["score"]
-                else:
-                    data[i, j] = valid_detectors[detector]["basic_metrics"][metric]
-        
+                data[i, j] = metrics_results[detector]["basic_metrics"][metric]
+
         # Create heatmap
         plt.figure(figsize=(12, len(detectors) * 0.8 + 2))
         sns.heatmap(data, annot=True, fmt='.3f', 
