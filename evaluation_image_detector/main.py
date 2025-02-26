@@ -118,11 +118,12 @@ class ImageBenchmarkRunner:
                 for i, (item, pred, true_label) in enumerate(zip(dataset, predictions, true_labels)):
                     detailed_predictions.append({
                         "id": item.id,
-                        "file_name": Path(dataset_config["path"]).parent / item.id,
+                        "file_name": item.file_name,
                         "actual_label": "unsafe" if true_label == 1 else "safe",
                         "predicted_label": "unsafe" if int(pred) == 1 else "safe",
                         "correct": int(pred) == true_label,
-                        "category": item.category
+                        "category": item.category,
+                        "source": item.source
                     })
                 
                 # Save detailed predictions
