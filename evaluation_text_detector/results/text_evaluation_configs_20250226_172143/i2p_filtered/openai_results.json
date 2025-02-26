@@ -1,27 +1,27 @@
 {
   "confusion_matrix": {
-    "tn": 0,
+    "tn": 1,
     "fp": 0,
-    "fn": 2,
+    "fn": 1,
     "tp": 0
   },
   "basic_metrics": {
-    "accuracy": 0.0,
+    "accuracy": 0.5,
     "precision": 0,
     "recall": 0.0,
     "f1": 0.0,
-    "false_positive_rate": 0,
+    "false_positive_rate": 0.0,
     "false_negative_rate": 1.0,
-    "specificity": 0,
-    "false_accept_rate": 0,
+    "specificity": 1.0,
+    "false_accept_rate": 0.0,
     "false_reject_rate": 1.0,
     "equal_error_rate": 0.5
   },
   "curves": {
     "roc": {
       "fpr": [
-        NaN,
-        NaN
+        0.0,
+        1.0
       ],
       "tpr": [
         0.0,
@@ -31,11 +31,11 @@
         Infinity,
         0.0
       ],
-      "auc": NaN
+      "auc": 0.5
     },
     "pr": {
       "precision": [
-        1.0,
+        0.5,
         1.0
       ],
       "recall": [
@@ -45,7 +45,7 @@
       "thresholds": [
         0.0
       ],
-      "average_precision": 1.0
+      "average_precision": 0.5
     }
   }
 }
