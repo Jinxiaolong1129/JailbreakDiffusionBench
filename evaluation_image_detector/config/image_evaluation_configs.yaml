@@ -1,4 +1,6 @@
 # evaluation_image_detector/config/evaluation_configs.yaml
+data_dir: "evaluation_image_detector/data"
+
 datasets:
   test_dataset:
     path: "evaluation_image_detector/data/test/dataset_info.json"

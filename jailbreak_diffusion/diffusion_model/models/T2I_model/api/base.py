@@ -5,7 +5,7 @@ import time
 import requests
 import logging
 from typing import Dict, Any, Optional
-from ...core.outputs import GenerationOutput
+from ....core.outputs import GenerationOutput
 
 class BaseAPIModel(ABC):
     """Base class for API-based models"""

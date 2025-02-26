@@ -8,7 +8,7 @@ import io
 import os
 from openai import OpenAI
 
-from base import BaseImageChecker
+from .base import BaseImageChecker
 # NOTE finish testing
 @dataclass
 class ModerationResult:
@@ -29,7 +29,7 @@ class ModerationResult:
 class OpenAIImageDetector(BaseImageChecker):
     """OpenAI image content moderation detector implementing BaseImageChecker"""
     
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, model: str = "omni-moderation-latest"):
         """
         Initialize the detector.
         

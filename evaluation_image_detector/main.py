@@ -111,7 +111,7 @@ class ImageBenchmarkRunner:
         """Run complete evaluation pipeline"""
         all_results = {}
         
-        # Evaluate each dataset
+        # Evaluate each dataset否
         for dataset_name, dataset_config in self.config["datasets"].items():
             results = self.evaluate_dataset(dataset_name, dataset_config)
             all_results[dataset_name] = results
@@ -164,7 +164,7 @@ class ImageBenchmarkRunner:
                     "pr": {"average_precision": 0.0}
                 }
             }
-            
+            # TODO change weight here
             total_weight = 0
             for dataset_name, results in all_results.items():
                 if detector_name not in results or "error" in results[detector_name]:
@@ -203,7 +203,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run image detector evaluation")
     parser.add_argument(
         "--config", 
-        default="config/image_evaluation_configs.yaml",
+        default="evaluation_image_detector/config/image_evaluation_configs.yaml",
         help="Path to evaluation config file"
     )
     args = parser.parse_args()

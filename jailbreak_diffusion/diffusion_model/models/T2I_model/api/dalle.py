@@ -2,7 +2,7 @@ from openai import OpenAI
 from PIL import Image
 import requests
 from io import BytesIO
-from ...core.outputs import GenerationOutput
+from ....core.outputs import GenerationOutput
 
 class DallEModel:
     """DALL-E API implementation using the OpenAI SDK"""

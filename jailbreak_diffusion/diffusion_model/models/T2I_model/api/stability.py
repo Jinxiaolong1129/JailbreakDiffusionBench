@@ -4,7 +4,7 @@ import requests
 from PIL import Image
 import io
 from .base import BaseAPIModel
-from ...core.outputs import GenerationOutput
+from ....core.outputs import GenerationOutput
 from typing import Optional, List, Dict, Any
 
 class StabilityModel:

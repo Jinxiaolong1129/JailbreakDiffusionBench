@@ -1,6 +1,6 @@
 # diffusion_model/models/T2I_model/stable_diffusion_3.py
-
-from diffusers import BitsAndBytesConfig, SD3Transformer2DModel, StableDiffusion3Pipeline, T5EncoderModel
+from transformers import T5EncoderModel
+from diffusers import BitsAndBytesConfig, SD3Transformer2DModel, StableDiffusion3Pipeline
 import torch
 from typing import Optional, Dict, Any
 from ...core.outputs import GenerationInput, GenerationOutput
