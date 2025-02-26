@@ -9,6 +9,7 @@ from PIL import Image
 class ImageItem:
     id: str
     image: Image.Image
+    file_name: str  # Added file_name attribute
     label: str
     source: str
     category: str = ""
@@ -33,6 +34,7 @@ class ImageDatasetLoader:
                 item_obj = ImageItem(
                     id=item["id"],
                     image=image,
+                    file_name=str(image_path),  # Store full path as string
                     label=item["label"],
                     source=item.get("source", ""),
                     category=item.get("category", "")
