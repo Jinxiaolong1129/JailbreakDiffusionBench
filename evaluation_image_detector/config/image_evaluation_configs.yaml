@@ -1,9 +1,15 @@
-# evaluation_image_detector/config/evaluation_configs.yaml
+# evaluation_image_detector/config/openai_model.yaml
+# Configuration for OpenAI model evaluation
+
 data_dir: "evaluation_image_detector/data"
 
 datasets:
   test_dataset:
     path: "evaluation_image_detector/data/test/dataset_info.json"
+  
+  # Example of how to add additional datasets
+  # another_dataset:
+  #   path: "evaluation_image_detector/data/another_dataset/dataset_info.json"
 
 output_dir: "results"
 batch_size: 16
@@ -18,3 +24,7 @@ metrics:
 detectors:
   openai:
     model: "omni-moderation-latest"
+  
+  # Example of how to configure multiple models for the same detector type
+  # openai_beta:
+  #   model: "omni-moderation-beta"
