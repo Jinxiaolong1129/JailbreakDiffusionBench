@@ -1,11 +1,23 @@
-# evaluation_text_detector/config/evaluation_configs.yaml
+# evaluation_text_detector/config/text_evaluation_configs.yaml
+
+data_dir: "evaluation_text_detector/data"
+
 datasets:
   i2p_filtered:
     path: "evaluation_text_detector/data/harmful/I2P/I2P_filtered_test.json"
 
-output_dir: "results"
+  test:
+    path: "evaluation_text_detector/data/harmful/test.json"
+
+
+
+output_dir: "evaluation_text_detector/results"
+
 batch_size: 32
 num_workers: 4
+
+save_misclassified: true
+
 
 metrics:
   - accuracy
@@ -14,7 +26,6 @@ metrics:
   - f1
   - auc
   - average_precision
-
 
 detectors:
   openai:
