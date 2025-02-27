@@ -25,7 +25,7 @@ for i in "${!MODELS[@]}"; do
   
   # Set CUDA_VISIBLE_DEVICES to use only one specific GPU
   # Run the script with nohup to keep it running after terminal closes
-  nohup env CUDA_VISIBLE_DEVICES=${GPU_ID} python exp_no_attack \
+  nohup env CUDA_VISIBLE_DEVICES=${GPU_ID} python exp_no_attack.py \
     --config_path "${MODEL}" > "logs/benign_diffusion_db/${MODEL_NAME}.log" 2>&1 &
   
   # Print the process ID for reference
@@ -36,3 +36,6 @@ for i in "${!MODELS[@]}"; do
 done
 
 echo "All experiments launched. Check logs in logs/benign_diffusion_db/ directory."
+
+
+# CUDA_VISIBLE_DEVICES=3 nohup python exp_no_attack.py --config_path config/no_attack/benign/diffusion_db/flux-1-dev.yaml > logs/benign_diffusion_db/flux-1-dev.log 2>&1 &
