@@ -173,7 +173,7 @@ class DiffusionFactory(DiffusionWrapper):
         
         # New Model: HunyuanDiT v1.2
         "hunyuan-dit-v1.2": {
-            "provider": ModelProvider.TENCENT,
+            "provider": ModelProvider.LOCAL,
             "model_id": "Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers",
             "arch": ModelArchitecture.HUNYUAN_DIT,
             "type": ModelType.TEXT_TO_IMAGE,
@@ -185,12 +185,12 @@ class DiffusionFactory(DiffusionWrapper):
         
         # New Model: HunyuanDiT v1.2 Distilled
         "hunyuan-dit-v1.2-distilled": {
-            "provider": ModelProvider.TENCENT,
+            "provider": ModelProvider.LOCAL,
             "model_id": "Tencent-Hunyuan/HunyuanDiT-v1.2-Diffusers-Distilled",
             "arch": ModelArchitecture.HUNYUAN_DIT,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "num_inference_steps": 30,
+            "num_inference_steps": 25,
             "guidance_scale": 6.0
             }
         },
@@ -259,10 +259,6 @@ class DiffusionFactory(DiffusionWrapper):
             "negative_prompt": "",
             "num_images": 1,
         },
-        ModelProvider.TENCENT: {
-            "num_inference_steps": 25,
-            "guidance_scale": 7.5,
-        }
     }
 
     def __init__(
