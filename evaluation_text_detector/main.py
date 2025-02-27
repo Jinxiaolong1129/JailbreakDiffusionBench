@@ -149,7 +149,6 @@ class TextBenchmarkRunner:
         # Generate visualizations for this dataset
         self.visualizer.plot_roc_curves(results, f"{dataset_name} ROC Curves")
         self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
-        self.visualizer.plot_metrics_heatmap(results, f"{dataset_name} Metrics Comparison")
                 
         return results
     
