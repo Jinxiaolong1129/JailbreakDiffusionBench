@@ -1,5 +1,5 @@
 experiment_name: "jailbreak_cogview_noattack"
-output_dir: "/home/xiaolong/JailbreakDiffusionBench/benchmark_results"
+output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
 
 save_images: true
 save_prompts: true
@@ -18,4 +18,4 @@ model:
 attack_method: "no_attack"
 
 datasets:
-  - data/harmful/I2P/i2p.json
+  - "data/benign/discord/stable-diffusion-discord-2000.json"

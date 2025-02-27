@@ -33,5 +33,4 @@ class ModelProvider(str, Enum):
     STABILITY = "stability"
     LEONARDO = "leonardo"
     ANTHROPIC = "anthropic"
-    TENCENT = "tencent"
     LOCAL = "local"  # For local models

@@ -1,6 +1,5 @@
-experiment_name: "jailbreak_cogview_noattack"
-output_dir: "/home/xiaolong/JailbreakDiffusionBench/benchmark_results"
-
+experiment_name: "jailbreak_flux_noattack"
+output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
 log_level: "INFO"
@@ -9,13 +8,15 @@ num_workers: 1
 
 # Single model configuration
 model:
-  name: "cogview3"
+  name: "flux-1-dev"
   params:
-    model_name: "cogview3"
+    model_name: "flux-1-dev"
     device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
 
 # Attack method
 attack_method: "no_attack"
 
+# List of dataset paths
 datasets:
-  - data/harmful/I2P/i2p.json
+  - data/harmful/VBCDE/VBCDE.json
+

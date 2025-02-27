@@ -1,6 +1,6 @@
 # config_stable-diffusion-2_noattack.yaml
 experiment_name: "jailbreak_stable-diffusion-2_noattack"
-output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
+output_dir: "/home/xiaolong/JailbreakDiffusionBench/benchmark_results"
 save_images: true
 save_prompts: true
 log_level: "INFO"

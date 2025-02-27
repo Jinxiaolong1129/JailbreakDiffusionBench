@@ -1,6 +1,6 @@
-# config_stable-diffusion-3.5-large-turbo_noattack.yaml
-experiment_name: "jailbreak_stable-diffusion-3.5-large-turbo_noattack"
-output_dir: "/home/xiaolong/JailbreakDiffusionBench/benchmark_results"
+# config_stable-diffusion-2_noattack.yaml
+experiment_name: "jailbreak_stable-diffusion-2_noattack"
+output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
 log_level: "INFO"
@@ -8,23 +8,23 @@ batch_size: 1
 num_workers: 1
 
 model:
-  name: "stable-diffusion-3.5-large-turbo"
+  name: "stable-diffusion-2"
   params:
-    model_name: "stable-diffusion-3.5-large-turbo"
+    model_name: "stable-diffusion-2"
     device: "cuda"  
 
 
 attack_method: "no_attack"
 
 datasets:
-  - data/harmful/I2P/i2p.json
+  - "data/benign/discord/stable-diffusion-discord-2000.json"
 
 
 
 
 # stable-diffusion-v1-5
 # stable-diffusion-2
-# stable-diffusion-3.5-large-turbo
+# stable-diffusion-2
 # stable-diffusion-xl-base-0.9
 # stable-diffusion-3.5-medium
 # stable-diffusion-safe
