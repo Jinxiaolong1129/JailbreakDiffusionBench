@@ -15,7 +15,7 @@ from typing import Any
 from PIL import Image
 from transformers import CLIPTextModel, CLIPTokenizer, pipeline, AutoTokenizer, AutoModelForSequenceClassification
 from torch.distributions.categorical import Categorical
-from torchmetrics.multimodal import CLIPScore
+# from torchmetrics.multimodal import CLIPScore
 from diffusers import StableDiffusionPipeline, LMSDiscreteScheduler
 
 
@@ -28,8 +28,8 @@ torch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 text_encoder = CLIPTextModel.from_pretrained(
     "openai/clip-vit-base-patch32").to(torch_device)
-metric = CLIPScore(
-    model_name_or_path="openai/clip-vit-base-patch32").to(torch_device)
+# metric = CLIPScore(
+#     model_name_or_path="openai/clip-vit-base-patch32").to(torch_device)
 
 # NOTE 基本完成。没有加入checker。没有调通 pipeline。没有修改 self.NSFW 的逻辑
 def get_dictionary(len_subword, en):
@@ -580,11 +580,8 @@ class robot():
             log_p_combo = torch.cat(log_p_combo, dim=1)
 
             return combo, log_p_combo
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
 class MPA_agent(robot):
 
     def __init__(self, pipe, nsfw_word, num_word, word_index, num_subword, len_subword,  mode, threshold, target_prompt, query_limit, query, query_online, prompt_record, en):
@@ -602,11 +599,7 @@ class MPA_agent(robot):
         self.len_subword = len_subword
         self.num_word = num_word
         self.num_subword = num_subword
-<<<<<<< HEAD
-        self.space = self.create_searching_space(num_word,num_subword)
-=======
         self.space = self.create_searching_space(num_word, num_subword)
->>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         # specific reward param
         self.total_count = 0
         self.threshold = threshold
@@ -621,13 +614,9 @@ class MPA_agent(robot):
         self.flag_add_word = False
         self.prompt_record = prompt_record
 
-<<<<<<< HEAD
-        self.perturb_rate = self.num_word/len(re.sub(fr'([{string.punctuation}])\B', r' \1', target_prompt[0]).split())
-=======
         self.perturb_rate = self.num_word / \
             len(re.sub(fr'([{string.punctuation}])\B',
                 r' \1', target_prompt[0]).split())
->>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
         print(f'The current perturb rate is {self.perturb_rate}')
 
         # print('remember to build robot')
@@ -646,13 +635,8 @@ class MPA_agent(robot):
 
         return list(search_space)
 
-<<<<<<< HEAD
-
-    # @staticmethod
-=======
     # @staticmethod
 
->>>>>>> 03fa87a2bb1ed68a2f9f704918a2093242638892
     def get_score(self, combo, target_tensor):
         '''
         input:
