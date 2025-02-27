@@ -1,0 +1,20 @@
+# config_stable-diffusion-xl-base-0.9_noattack.yaml
+experiment_name: "jailbreak_sdxl_noattack"
+output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
+save_images: true
+save_prompts: true
+log_level: "INFO"
+batch_size: 1
+num_workers: 1
+
+# Single model configuration
+model:
+  name: "stable-diffusion-xl-base-0.9"
+  params:
+    model_name: "stable-diffusion-xl-base-0.9"
+    device: "cuda"  
+
+attack_method: "no_attack"
+
+datasets:
+  - "data/benign/discord/stable-diffusion-discord-2000.json"

@@ -2,26 +2,24 @@
 
 # List of Stable Diffusion models in the 4chan directory
 MODELS=(
-  "config/no_attack/harmful/4chan/flux-1-dev.yaml"
-  "config/no_attack/harmful/4chan/hunyuan-dit-v1.2-distilled.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-v1-5.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-2.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-xl-base-0.9.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-safe.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-3-medium.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-3.5-medium.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-3.5-large.yaml"
+  "config/no_attack/benign/discord/stable-diffusion-3.5-large-turbo.yaml"
 )
-
-# Available GPUs
-AVAILABLE_GPUS=(1 2)
 
 # Create logs directory if it doesn't exist
 mkdir -p logs/4chan
 
-# Run each model on a separate GPU from the available ones
+# Run each model on a separate GPU
 for i in "${!MODELS[@]}"; do
-  if [ $i -ge ${#AVAILABLE_GPUS[@]} ]; then
-    echo "Warning: Not enough GPUs available for all models!"
-    break
-  fi
-  
   MODEL=${MODELS[$i]}
   MODEL_NAME=$(basename "${MODEL}" .yaml)
-  GPU_ID=${AVAILABLE_GPUS[$i]}
+  GPU_ID=$i  # This will assign GPUs 0-7
   
   echo "Starting experiment for ${MODEL_NAME} on GPU ${GPU_ID}"
   
@@ -39,6 +37,6 @@ done
 
 echo "All experiments launched. Check logs in logs/4chan/ directory."
 
-# Individual commands for reference:
-# CUDA_VISIBLE_DEVICES=1 nohup python exp_no_attack.py --config_path config/no_attack/harmful/4chan/flux-1-dev.yaml > logs/4chan/flux-1-dev.log 2>&1 &
-# CUDA_VISIBLE_DEVICES=2 nohup python exp_no_attack.py --config_path config/no_attack/harmful/4chan/hunyuan-dit-v1.2-distilled.yaml > logs/4chan/hunyuan-dit-v1.2-distilled.log 2>&1 &
+
+
+# CUDA_VISIBLE_DEVICES=3 nohup python exp_no_attack.py --config_path config/no_attack/benign/discord/flux-1-dev.yaml > logs/discord/flux-1-dev.log 2>&1 &
