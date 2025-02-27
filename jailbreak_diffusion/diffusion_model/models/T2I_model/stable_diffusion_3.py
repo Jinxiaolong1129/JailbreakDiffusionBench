@@ -23,7 +23,9 @@ class StableDiffusion3Model:
             self.torch_dtype = torch.float16
         elif model_name == "stabilityai/stable-diffusion-3-turbo":
             self.torch_dtype = torch.float16
-        elif model_name == "stable-diffusion-3.5-large-turbo":
+        elif "stable-diffusion-3.5-large-turbo" in model_name:
+            self.torch_dtype = torch.float16
+        elif "stabilityai/stable-diffusion-3.5-large" in model_name:
             self.torch_dtype = torch.float16
         else:
             self.torch_dtype = torch_dtype

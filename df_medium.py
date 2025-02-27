@@ -1,7 +1,7 @@
 import torch
 from diffusers import StableDiffusion3Pipeline
 
-pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3.5-medium", torch_dtype=torch.bfloat16)
+pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3.5-large", torch_dtype=torch.float16)
 pipe = pipe.to("cuda")
 
 image = pipe(
