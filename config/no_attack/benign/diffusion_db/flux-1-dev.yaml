@@ -18,5 +18,5 @@ attack_method: "no_attack"
 
 # List of dataset paths
 datasets:
-  - "data/benign/diffusion_db/diffusion_db.json"
+  - data/benign/diffusion_db/diffusion_db_benign_6000.json
 
