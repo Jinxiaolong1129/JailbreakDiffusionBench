@@ -460,7 +460,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run benchmark experiments')
     parser.add_argument('--config_path', 
                         type=str, 
-                        default='config/stable-diffusion-3.5-medium_noattack.yaml',
+                        default='config/no_attack/stable-diffusion-3.5-medium_noattack.yaml',
                         help='Path to YAML config file')
     args = parser.parse_args()
     
