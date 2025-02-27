@@ -156,7 +156,6 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "num_inference_steps": 28,
             "guidance_scale": 3.5,
-            "max_sequence_length": 512
             }
         },
         
@@ -169,7 +168,6 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "num_inference_steps": 25,
             "guidance_scale": 0.0,
-            "max_sequence_length": 512
             }
         },
         
