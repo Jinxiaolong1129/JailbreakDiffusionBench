@@ -40,4 +40,4 @@ echo "All experiments launched. Check logs in logs/4chan/ directory."
 
 # CUDA_VISIBLE_DEVICES=7 nohup python exp_no_attack.py --config_path config/no_attack/harmful/4chan/stable-diffusion-3.5-large-turbo.yaml > logs/4chan/stable-diffusion-3.5-large-turbo.log 2>&1 &
 
-# CUDA_VISIBLE_DEVICES=6 nohup python exp_no_attack.py --config_path config/no_attack/harmful/4chan/stable-diffusion-3.5-large.yaml > logs/4chan/stable-diffusion-3.5-large.log 2>&1 &
+# CUDA_VISIBLE_DEVICES=0 nohup python exp_no_attack.py --config_path config/no_attack/harmful/4chan/flux-1-dev.yaml > logs/4chan/stable-diffusion-3.5-large-turbo.log 2>&1 &
