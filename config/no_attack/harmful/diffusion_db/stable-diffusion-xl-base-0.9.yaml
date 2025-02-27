@@ -1,4 +1,5 @@
-experiment_name: "jailbreak_flux_noattack"
+# config_stable-diffusion-xl-base-0.9_noattack.yaml
+experiment_name: "jailbreak_sdxl_noattack"
 output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
@@ -8,15 +9,12 @@ num_workers: 1
 
 # Single model configuration
 model:
-  name: "flux-1-dev"
+  name: "stable-diffusion-xl-base-0.9"
   params:
-    model_name: "flux-1-dev"
-    device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
+    model_name: "stable-diffusion-xl-base-0.9"
+    device: "cuda"  
 
-# Attack method
 attack_method: "no_attack"
 
-# List of dataset paths
 datasets:
-  - "data/benign/diffusion_db/diffusion_db.json"
-
+  - "data/harmful/4chan/4chan.json"

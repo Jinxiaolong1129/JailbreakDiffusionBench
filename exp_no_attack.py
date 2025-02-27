@@ -1,3 +1,4 @@
+# exp_no_attack.py
 import os
 import pandas as pd
 import logging
@@ -170,7 +171,7 @@ class BenchmarkExperiment:
         exp_dir = Path(self.config.output_dir) / \
                  self.config.attack_method / \
                  self.config.model.name / \
-                 f"{dataset_category}_{dataset_source}"
+                 dataset_category / dataset_source
         exp_dir.mkdir(parents=True, exist_ok=True)
         return exp_dir
 
@@ -447,7 +448,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run benchmark experiments')
     parser.add_argument('--config_path', 
                         type=str, 
-                        default='config/no_attack/stable-diffusion-3.5-medium_noattack.yaml',
+                        default='config/no_attack/stable-diffusion-3-medium_noattack.yaml',
                         help='Path to YAML config file')
     args = parser.parse_args()
     

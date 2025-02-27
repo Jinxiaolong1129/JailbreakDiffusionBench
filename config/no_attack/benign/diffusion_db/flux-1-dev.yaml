@@ -1,5 +1,5 @@
 experiment_name: "jailbreak_flux_noattack"
-output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
+output_dir: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results"
 save_images: true
 save_prompts: true
 log_level: "INFO"
@@ -18,11 +18,5 @@ attack_method: "no_attack"
 
 # List of dataset paths
 datasets:
-  - "data/I2P/02-hate_content.csv"
-  - "data/I2P/03-physical_harm.csv"
-  - "data/I2P/04-sex.csv"
-  - "data/I2P/05-political_lobbying.csv"
-  - "data/I2P/06-copyright.csv"
-  - "data/I2P/07-abusiveness.csv"
-  - "data/I2P/09-terror.csv"
-  # - "data/I2P/01-illegal_activitiy.csv"
+  - "data/benign/diffusion_db/diffusion_db.json"
+
