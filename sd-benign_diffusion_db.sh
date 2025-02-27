@@ -29,3 +29,6 @@ echo "Experiment launched. Check logs in logs/harmful_diffusion_db/ directory."
 
 # For reference:
 # CUDA_VISIBLE_DEVICES=1 nohup python exp_no_attack.py --config_path config/no_attack/harmful/diffusion_db/hunyuan-dit-v1.2-distilled.yaml > logs/harmful_diffusion_db/hunyuan-dit-v1.2-distilled.log 2>&1 &
+
+# CUDA_VISIBLE_DEVICES=1 nohup python exp_no_attack.py --config_path config/no_attack/harmful/diffusion_db/cogview.yaml > logs/harmful_diffusion_db/cogview.log 2>&1 &
+

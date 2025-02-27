@@ -46,3 +46,6 @@ echo "All experiments launched. Check logs in logs/harmful_diffusion_db/ directo
 # CUDA_VISIBLE_DEVICES=2 nohup python exp_no_attack.py --config_path config/no_attack/harmful/diffusion_db/stable-diffusion-3.5-large.yaml > logs/harmful_diffusion_db/stable-diffusion-3.5-large.log 2>&1 &
 # CUDA_VISIBLE_DEVICES=4 nohup python exp_no_attack.py --config_path config/no_attack/harmful/diffusion_db/flux-1-dev.yaml > logs/harmful_diffusion_db/flux-1-dev.log 2>&1 &
 # CUDA_VISIBLE_DEVICES=7 nohup python exp_no_attack.py --config_path config/no_attack/harmful/diffusion_db/hunyuan-dit-v1.2-distilled.yaml > logs/harmful_diffusion_db/hunyuan-dit-v1.2-distilled.log 2>&1 &
+
+
+# CUDA_VISIBLE_DEVICES=7 nohup python exp_no_attack.py --config_path config/no_attack/harmful/diffusion_db/cogview.yaml > logs/harmful_diffusion_db/cogview.log 2>&1 &
