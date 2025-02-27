@@ -34,18 +34,18 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 1024,
             "height": 1024,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5
             }
         },   
         "stable-diffusion-3-medium": {
             "provider": ModelProvider.LOCAL,
-            "model_id": "stabilityai/stable-diffusion-3-medium",
+            "model_id": "stabilityai/stable-diffusion-3-medium-diffusers",
             "arch": ModelArchitecture.STABLE_DIFFUSION_3,
             "type": ModelType.TEXT_TO_IMAGE,
-            "default_params": {
-            "num_inference_steps": 40,
-            "guidance_scale": 4.5,
+                "default_params": {
+                "num_inference_steps": 25,
+                "guidance_scale": 4.5,
             }
         },
         "stable-diffusion-xl-base-0.9": {
@@ -54,11 +54,8 @@ class DiffusionFactory(DiffusionWrapper):
             "arch": ModelArchitecture.STABLE_DIFFUSION,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "width": 1024,
-            "height": 1024,
-            "num_inference_steps": 40,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5,
-            "refiner_steps": 20
             }
         },
         "stable-diffusion-3.5-medium": {
@@ -69,7 +66,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 1024,
             "height": 1024,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5,
             }
         },
@@ -81,7 +78,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 512,
             "height": 512,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5,
             "safety_detector": True
             }
@@ -94,7 +91,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 1024,
             "height": 1024,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5
             }
         },
@@ -106,18 +103,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 1024,
             "height": 1024,
-            "num_inference_steps": 50
-            }
-        },
-        "min-dalle": {
-            "provider": ModelProvider.LOCAL,
-            "model_id": "kuprel/min-dalle",
-            "arch": ModelArchitecture.DALLE,
-            "type": ModelType.TEXT_TO_IMAGE,
-            "default_params": {
-            "width": 256,
-            "height": 256,
-            "supercondition_factor": 16
+            "num_inference_steps": 25
             }
         },
         "proteus-rundiffusion": {
@@ -128,7 +114,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 512,
             "height": 512,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5
             }
         },
@@ -142,7 +128,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 512,
             "height": 512,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5
             }
         },
@@ -156,7 +142,7 @@ class DiffusionFactory(DiffusionWrapper):
             "default_params": {
             "width": 1024,
             "height": 1024,
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5
             }
         },
@@ -181,7 +167,7 @@ class DiffusionFactory(DiffusionWrapper):
             "arch": ModelArchitecture.STABLE_DIFFUSION_3,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "num_inference_steps": 4,
+            "num_inference_steps": 25,
             "guidance_scale": 0.0,
             "max_sequence_length": 512
             }
@@ -194,7 +180,7 @@ class DiffusionFactory(DiffusionWrapper):
             "arch": ModelArchitecture.HUNYUAN_DIT,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5
             }
         },
@@ -276,7 +262,7 @@ class DiffusionFactory(DiffusionWrapper):
             "num_images": 1,
         },
         ModelProvider.TENCENT: {
-            "num_inference_steps": 50,
+            "num_inference_steps": 25,
             "guidance_scale": 7.5,
         }
     }

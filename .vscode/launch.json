@@ -19,6 +19,13 @@
             "program": "${workspaceFolder}/exp_no_attack.py",
             "console": "integratedTerminal",
             "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/no_attack/stable-diffusion-xl-base-0.9_noattack.yaml",
+                
+                // "config/no_attack/flux-1-dev_noattack.yaml"
+                // "config/no_attack/cogview_noattack.yaml"
+            ],
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0"
             }
