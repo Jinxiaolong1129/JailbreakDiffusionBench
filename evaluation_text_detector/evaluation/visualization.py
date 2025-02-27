@@ -97,45 +97,7 @@ class MetricsVisualizer:
         plt.savefig(self.output_dir / f"{title.lower().replace(' ', '_')}_pr.png", dpi=300, bbox_inches='tight')
         plt.close()
         
-    def plot_metrics_heatmap(self, metrics_results: Dict[str, Dict], title: str):
-        """Plot heatmap comparing different metrics across detectors
-        
-        Args:
-            metrics_results: Dictionary mapping detector names to their metrics
-            title: Title for the plot
-        """
-        # Define metrics to display
-        metrics = ["accuracy", "precision", "recall", "f1", "auc", "average_precision"]
-        
-        # Filter out detectors with errors
-        valid_detectors = {name: results for name, results in metrics_results.items() 
-                         if "error" not in results}
-        
-        if not valid_detectors:
-            print(f"No valid detector results to create heatmap for {title}")
-            return
-            
-        detectors = list(valid_detectors.keys())
-        
-        # Prepare data for heatmap
-        data = np.zeros((len(detectors), len(metrics)))
-        for i, detector in enumerate(detectors):
-            for j, metric in enumerate(metrics):
-                data[i, j] = metrics_results[detector]["basic_metrics"][metric]
 
-        # Create heatmap
-        plt.figure(figsize=(12, len(detectors) * 0.8 + 2))
-        sns.heatmap(data, annot=True, fmt='.3f', 
-                    xticklabels=metrics, 
-                    yticklabels=detectors,
-                    cmap='YlOrRd')
-        plt.title(title)
-        plt.tight_layout()
-        
-        # Save figure
-        plt.savefig(self.output_dir / f"{title.lower().replace(' ', '_')}_heatmap.png", dpi=300, bbox_inches='tight')
-        plt.close()
-        
     def plot_confusion_matrices(self, metrics_results: Dict[str, Dict], title: str):
         """Plot confusion matrices for all detectors
         
