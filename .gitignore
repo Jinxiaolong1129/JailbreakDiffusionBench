@@ -390,3 +390,5 @@ benchmark_results/
 benchmark_results_back/
 unsafe-diffusion-main
 unsafe-diffusion-main.zip
+
+.logs/
