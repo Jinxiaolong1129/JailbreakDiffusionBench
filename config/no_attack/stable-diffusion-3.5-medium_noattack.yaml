@@ -1,10 +1,10 @@
 # config_stable-diffusion-3.5-medium_noattack.yaml
 experiment_name: "jailbreak_sd35_noattack"
-output_dir: "/data4/xiaolong/jailbreak_diffusion/benchmark_results"
+output_dir: "/data3/user/jin509/data_diffusion_benchmark"
 save_images: true
 save_prompts: true
 log_level: "INFO"
-batch_size: 1
+batch_size: 2
 num_workers: 1
 
 # Single model configuration
@@ -12,14 +12,16 @@ model:
   name: "stable-diffusion-3.5-medium"
   params:
     model_name: "stable-diffusion-3.5-medium"
-    device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
+    device: "cuda"  
 
 # Attack method
 attack_method: "no_attack"
 
-# List of dataset paths - updated to use JSON format
 datasets:
   - "data/benign/diffusion_db/diffusion_db.json"
 
   # - "data/malicious/I2P/I2P.json"
   # - "data/benign/coco/coco.json"
+
+
+  

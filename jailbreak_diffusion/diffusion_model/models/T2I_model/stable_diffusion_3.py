@@ -1,6 +1,8 @@
-# diffusion_model/models/T2I_model/stable_diffusion_3.py
-from transformers import T5EncoderModel
-from diffusers import BitsAndBytesConfig, SD3Transformer2DModel, StableDiffusion3Pipeline
+# jailbreak_diffusion/diffusion_model/models/T2I_model/stable_diffusion.py
+
+from diffusers import (
+    StableDiffusion3Pipeline,
+)
 import torch
 from typing import Optional, Dict, Any
 from ...core.outputs import GenerationInput, GenerationOutput
@@ -12,68 +14,24 @@ class StableDiffusion3Model:
         model_name: str,
         device: str = "cuda",
         torch_dtype: torch.dtype = torch.bfloat16,
-        use_4bit: bool = True,
     ):
         self.model_name = model_name
         self.device = device
         self.torch_dtype = torch_dtype
-        self.use_4bit = use_4bit
-        
-        print(f"Loading Stable Diffusion 3 model {self.model_name}")
+        print(f"Loading model {self.model_name}")
         print(f"Device: {self.device}")
         print(f"torch_dtype: {self.torch_dtype}")
-        print(f"use_4bit: {self.use_4bit}")
         
         self.model = self.load_model()
         
     def load_model(self):
-        """Load StableDiffusion3 model with quantization"""
-        
-        # Configure quantization if enabled
-        if self.use_4bit:
-            nf4_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=self.torch_dtype
-            )
-            
-            # Load transformer with quantization
-            transformer = SD3Transformer2DModel.from_pretrained(
+        """Load model using DiffusionPipeline"""
+        pipeline = StableDiffusion3Pipeline.from_pretrained(
                 self.model_name,
-                subfolder="transformer",
-                quantization_config=nf4_config,
-                torch_dtype=self.torch_dtype
+                torch_dtype=self.torch_dtype,
+                use_safetensors=True,
+                device_map="balanced"
             )
-            
-            # For turbo models, we need to load the T5 encoder separately
-            if "turbo" in self.model_name:
-                t5_encoder = T5EncoderModel.from_pretrained(
-                    "diffusers/t5-nf4", 
-                    torch_dtype=self.torch_dtype
-                )
-                
-                pipeline = StableDiffusion3Pipeline.from_pretrained(
-                    self.model_name,
-                    transformer=transformer,
-                    text_encoder_3=t5_encoder,
-                    torch_dtype=self.torch_dtype
-                )
-            else:
-                pipeline = StableDiffusion3Pipeline.from_pretrained(
-                    self.model_name,
-                    transformer=transformer,
-                    torch_dtype=self.torch_dtype
-                )
-        else:
-            # Load without quantization (requires more VRAM)
-            pipeline = StableDiffusion3Pipeline.from_pretrained(
-                self.model_name,
-                torch_dtype=self.torch_dtype
-            )
-            
-        # Enable memory optimization
-        pipeline.enable_model_cpu_offload()
-            
         return pipeline
         
     def generate(self, input_data: GenerationInput) -> GenerationOutput:

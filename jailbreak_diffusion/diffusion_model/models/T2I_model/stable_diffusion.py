@@ -43,10 +43,10 @@ class StableDiffusionModel:
         generation_params = {
             "prompt": None,  
             "negative_prompt": input_data.negative_prompt,
-            "num_inference_steps": params.get("num_inference_steps", 50),
-            # "guidance_scale": params.get("guidance_scale", 7.5),
-            "width": params.get("width", 1024),
-            "height": params.get("height", 1024),
+            "num_inference_steps": params.get("num_inference_steps", 20),
+            "guidance_scale": params.get("guidance_scale", 7.5),
+            # "width": params.get("width", 1024),
+            # "height": params.get("height", 1024),
         }
         
         for prompt in input_data.prompts:

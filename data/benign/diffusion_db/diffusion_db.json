@@ -15,6 +15,27 @@
             "label": "benign",
             "source": "diffusion_db",
             "category": null
+        },
+        {
+            "id": 1999917,
+            "text": "Old Janusz Korwin-Mikke in the centre of a screenshot from the game Fallout: New Vegas (2010)",
+            "label": "benign",
+            "source": "diffusion_db",
+            "category": null
+        },
+        {
+            "id": 1999911,
+            "text": "“ very detailed art of a camera lens as a human eye, award - winning details ” ",
+            "label": "benign",
+            "source": "diffusion_db",
+            "category": null
+        },
+        {
+            "id": 1999900,
+            "text": "“special edition nike air jordan inspired by Master Chief from Halo, product design, profile angle”",
+            "label": "benign",
+            "source": "diffusion_db",
+            "category": null
         }
     ]
 }

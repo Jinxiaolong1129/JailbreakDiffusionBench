@@ -307,13 +307,10 @@ class BenchmarkExperiment:
         # For now, we'll still process sequentially but batched
         # In the future, this could be parallelized if the attacker supports it
         for prompt in prompts:
-            try:
-                result = self.attacker(prompt)
-                results.append(result)
-                errors.append(None)
-            except Exception as e:
-                results.append(None)
-                errors.append(e)
+            result = self.attacker(prompt)
+            results.append(result)
+            errors.append(None)
+
                 
         return results, errors
     
@@ -339,60 +336,53 @@ class BenchmarkExperiment:
         total_batches = len(data_loader)
         self.logger.info(f"Total batches: {total_batches}")
         
-        try:
-            for batch_idx, batch in enumerate(tqdm(data_loader, desc="Processing batches")):
-                indices = batch['indices']
-                prompts = batch['prompts']
-                original_data = batch['original_data']
-                
-                self.logger.debug(f"Processing batch {batch_idx+1}/{total_batches} with {len(prompts)} prompts")
-                
-                # Check if images already exist for all prompts in batch
-                skip_batch = True
-                for prompt_index in indices:
-                    prompt_image_save_path = self._save_image(None, prompt_index, save=False)
-                    if not os.path.exists(prompt_image_save_path):
-                        skip_batch = False
-                        break
-                
-                if skip_batch:
-                    self.logger.info(f"Images for all prompts in batch {batch_idx+1} already exist, skipping.")
-                    continue
-                
-                # Execute batch of attacks
-                batch_results, batch_errors = self._batch_attack(prompts)
-                
-                # Log errors if any
-                for i, error in enumerate(batch_errors):
-                    if error is not None:
-                        prompt_index = indices[i] if i < len(indices) else "unknown"
-                        self.logger.error(f"Error processing prompt {prompt_index}: {str(error)}")
-                
-                # Process successful results
-                valid_results = [r for r in batch_results if r is not None]
-                valid_indices = [indices[i] for i, r in enumerate(batch_results) if r is not None]
-                valid_original_data = [original_data[i] for i, r in enumerate(batch_results) if r is not None]
-                
-                if valid_results:
-                    processed_results = self._process_attack_results(valid_results, valid_indices, valid_original_data)
-                    self.results.extend(processed_results)
-                
-                # Save intermediate results every 10 batches
-                if (batch_idx + 1) % 10 == 0:
-                    self._save_results()
-                    self.logger.info(f"Saved intermediate results after batch {batch_idx+1}/{total_batches}")
-                    
-            # Save final results
-            self._save_results()
-            self.logger.info("Experiment completed successfully")
+        for batch_idx, batch in enumerate(tqdm(data_loader, desc="Processing batches")):
+            indices = batch['indices']
+            prompts = batch['prompts']
+            original_data = batch['original_data']
             
-        except Exception as e:
-            self.logger.error(f"Experiment failed: {str(e)}")
-            # Still save any results we have so far
-            if self.results:
+            self.logger.debug(f"Processing batch {batch_idx+1}/{total_batches} with {len(prompts)} prompts")
+            
+            # Check if images already exist for all prompts in batch
+            skip_batch = True
+            for prompt_index in indices:
+                prompt_image_save_path = self._save_image(None, prompt_index, save=False)
+                if not os.path.exists(prompt_image_save_path):
+                    skip_batch = False
+                    break
+            
+            if skip_batch:
+                self.logger.info(f"Images for all prompts in batch {batch_idx+1} already exist, skipping.")
+                continue
+            
+            # Execute batch of attacks
+            batch_results, batch_errors = self._batch_attack(prompts)
+            
+            # Log errors if any
+            for i, error in enumerate(batch_errors):
+                if error is not None:
+                    prompt_index = indices[i] if i < len(indices) else "unknown"
+                    self.logger.error(f"Error processing prompt {prompt_index}: {str(error)}")
+            
+            # Process successful results
+            valid_results = [r for r in batch_results if r is not None]
+            valid_indices = [indices[i] for i, r in enumerate(batch_results) if r is not None]
+            valid_original_data = [original_data[i] for i, r in enumerate(batch_results) if r is not None]
+            
+            if valid_results:
+                processed_results = self._process_attack_results(valid_results, valid_indices, valid_original_data)
+                self.results.extend(processed_results)
+            
+            # Save intermediate results every 10 batches
+            if (batch_idx + 1) % 10 == 0:
                 self._save_results()
-                self.logger.info(f"Saved partial results before failure ({len(self.results)} prompts processed)")
-            raise
+                self.logger.info(f"Saved intermediate results after batch {batch_idx+1}/{total_batches}")
+                
+        # Save final results
+        self._save_results()
+        self.logger.info("Experiment completed successfully")
+        
+
             
     def get_summary(self) -> Dict:
         """Return summary statistics of the experiment"""
@@ -426,18 +416,15 @@ def run_benchmark(config_path: str):
     all_summaries = []
     
     for dataset_path in config.datasets:
-        try:
-            experiment = BenchmarkExperiment(
-                config=config,
-                dataset_path=dataset_path
-            )
-            experiment.run()
-            summary = experiment.get_summary()
-            all_summaries.append(summary)
-        except Exception as e:
-            print(f"Error running experiment with dataset={dataset_path}: {str(e)}")
-            continue
-    
+        experiment = BenchmarkExperiment(
+            config=config,
+            dataset_path=dataset_path
+        )
+        experiment.run()
+        summary = experiment.get_summary()
+        all_summaries.append(summary)
+
+
     if all_summaries:
         summary_df = pd.DataFrame(all_summaries)
         summary_path = Path(config.output_dir) / \
