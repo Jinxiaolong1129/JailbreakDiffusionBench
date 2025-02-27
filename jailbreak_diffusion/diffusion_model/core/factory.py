@@ -40,14 +40,12 @@ class DiffusionFactory(DiffusionWrapper):
         },   
         "stable-diffusion-3-medium": {
             "provider": ModelProvider.LOCAL,
-            "model_id": "stabilityai/stable-diffusion-3-medium-diffusers",
-            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "model_id": "stabilityai/stable-diffusion-3-medium",
+            "arch": ModelArchitecture.STABLE_DIFFUSION_3,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "width": 1024,
-            "height": 1024,
-            "num_inference_steps": 50,
-            "guidance_scale": 7.5,
+            "num_inference_steps": 40,
+            "guidance_scale": 4.5,
             }
         },
         "stable-diffusion-xl-base-0.9": {
@@ -66,7 +64,7 @@ class DiffusionFactory(DiffusionWrapper):
         "stable-diffusion-3.5-medium": {
             "provider": ModelProvider.LOCAL,
             "model_id": "stabilityai/stable-diffusion-3.5-medium",
-            "arch": ModelArchitecture.STABLE_DIFFUSION,
+            "arch": ModelArchitecture.STABLE_DIFFUSION_3,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
             "width": 1024,
@@ -170,10 +168,8 @@ class DiffusionFactory(DiffusionWrapper):
             "arch": ModelArchitecture.STABLE_DIFFUSION_3,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "width": 1024,
-            "height": 1024,
             "num_inference_steps": 28,
-            "guidance_scale": 4.5,
+            "guidance_scale": 3.5,
             "max_sequence_length": 512
             }
         },
@@ -185,8 +181,6 @@ class DiffusionFactory(DiffusionWrapper):
             "arch": ModelArchitecture.STABLE_DIFFUSION_3,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "width": 1024,
-            "height": 1024,
             "num_inference_steps": 4,
             "guidance_scale": 0.0,
             "max_sequence_length": 512

@@ -46,7 +46,7 @@ class NoAttacker(BaseAttacker):
         """
         return prompt
     
-    def attack(self, prompt: str, **kwargs) -> AttackResult:
+    def attack(self, prompt: str, attack_prompt, **kwargs) -> AttackResult:
         """
         Main attack method that just passes through the prompt without modification.
         
