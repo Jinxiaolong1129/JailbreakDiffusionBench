@@ -19,6 +19,12 @@ class StableDiffusion3Model:
         self.device = device
         if model_name ==  "stabilityai/stable-diffusion-3-medium-diffusers":
             self.torch_dtype = torch.float16
+        elif model_name == "stabilityai/stable-diffusion-3.5-medium":
+            self.torch_dtype = torch.float16
+        elif model_name == "stabilityai/stable-diffusion-3-turbo":
+            self.torch_dtype = torch.float16
+        elif model_name == "stable-diffusion-3.5-large-turbo":
+            self.torch_dtype = torch.float16
         else:
             self.torch_dtype = torch_dtype
         print(f"Loading model {self.model_name}")
