@@ -13,6 +13,17 @@
             "justMyCode": false
         },
         {
+            "name": "exp_no_attack.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_no_attack.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
             "name": "evaluation_image_detector",
             "type": "debugpy",
             "request": "launch",

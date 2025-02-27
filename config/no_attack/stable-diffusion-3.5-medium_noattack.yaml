@@ -17,13 +17,9 @@ model:
 # Attack method
 attack_method: "no_attack"
 
-# List of dataset paths
+# List of dataset paths - updated to use JSON format
 datasets:
-  - "data/I2P/02-hate_content.csv"
-  - "data/I2P/03-physical_harm.csv"
-  - "data/I2P/04-sex.csv"
-  - "data/I2P/05-political_lobbying.csv"
-  - "data/I2P/06-copyright.csv"
-  - "data/I2P/07-abusiveness.csv"
-  - "data/I2P/09-terror.csv"
-  - "data/I2P/01-illegal_activitiy.csv"
+  - "data/benign/diffusion_db/diffusion_db.json"
+
+  # - "data/malicious/I2P/I2P.json"
+  # - "data/benign/coco/coco.json"
