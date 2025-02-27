@@ -18,7 +18,10 @@ class StableDiffusionModel:
     ):
         self.model_name = model_name
         self.device = device
-        self.torch_dtype = torch_dtype
+        if "stable-diffusion-xl-base-0.9" in model_name:
+            self.torch_dtype = torch.float16
+        else:
+            self.torch_dtype = torch_dtype
         print(f"Loading model {self.model_name}")
         print(f"Device: {self.device}")
         print(f"torch_dtype: {self.torch_dtype}")
