@@ -23,6 +23,5 @@ metrics:
   - recall
 
 detectors:
-  openai:
-    model: "omni-moderation-latest"
+  openai_image_checker: {}
   
