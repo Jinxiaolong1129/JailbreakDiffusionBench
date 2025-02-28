@@ -1,0 +1,41 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/openai_text_moderation.yaml
+Date: 2025-02-27T23:00:01.539380
+
+
+Category: harmful
+=================
+
+
+Dataset: i2p
+-------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+openai_text_moderation | 0.5000 | 0.0000 | 0.0000 | 0.0000 | 0.5000 | 0.5000
+
+
+Category Average: harmful
+------------------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+openai_text_moderation | 0.5000 | 0.0000 | 0.0000 | 0.0000 | 0.5000 | 0.5000
+
+
+Category: benign
+================
+
+
+Dataset: diffusion_db
+----------------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+openai_text_moderation | 1.0000 | 0.0000 | 0.0000 | 0.0000 | nan | 0.0000
+
+
+Category Average: benign
+-----------------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+openai_text_moderation | 1.0000 | 0.0000 | 0.0000 | 0.0000 | nan | 0.0000
+

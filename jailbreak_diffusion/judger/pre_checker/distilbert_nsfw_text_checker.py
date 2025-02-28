@@ -1,7 +1,3 @@
-# jailbreak_diffusion/judger/pre_checker/distilbert-nsfw-text-classifier.py
-# eliasalbouzidi/distilbert-nsfw-text-classifier
-
-
 from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from .base import BaseChecker
@@ -26,10 +22,27 @@ class distilbert_nsfw_text_checker(BaseChecker):
             return False
             
     def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
-        """Check text(s) for inappropriate content."""
+        """
+        Check text(s) for inappropriate content.
+        
+        Args:
+            text: Either a single text string or a list of text strings to check
+            
+        Returns:
+            Either a single boolean or a list of booleans indicating NSFW content
+        """
         if isinstance(text, str):
             return self._check_single_text(text)
-        return [self._check_single_text(t) for t in text]
+        
+        # Batch processing for list inputs
+        try:
+            # Use the pipeline's batch processing capability
+            results = self.classifier(text)
+            return [result['label'] == 'NSFW' for result in results]
+        except Exception as e:
+            print(f"Batch processing error: {str(e)}")
+            # Fall back to processing individually if batch fails
+            return [self._check_single_text(t) for t in text]
     
     
 # Usage example
@@ -42,5 +55,5 @@ if __name__ == "__main__":
     print("Inappropriate content detected:", result)
     
     # Check multiple texts
-    results = checker.check(["This is a test message.", "This is another message."])
+    results = checker.check(["This is a test message.", "This is another message with explicit content."])
     print("Results:", results)
