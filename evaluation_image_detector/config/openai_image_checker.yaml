@@ -1,25 +1,31 @@
 # evaluation_image_detector/config/openai_model.yaml
 
-data_dir: "evaluation_image_detector/data"
-
-datasets:
-  test-1:
-    path: "evaluation_image_detector/data/test-1/dataset_info.json"
-  
-  test-2:
-    path: "evaluation_image_detector/data/test-2/dataset_info.json"
-  
-
-
-output_dir: "results"
+data_dir: "no_attack"
+output_dir: "evaluation_image_detector/results"
 batch_size: 16
 num_workers: 4
 save_misclassified: true
+
+datasets:
+  benign:
+    discord-test:
+      path: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results/no_attack/flux-1-dev/benign/discord-test/images/"
+  
+  harmful:
+    4chan:
+      path: "/data3/user/jin509/data_diffusion_benchmark/jailbreak_diffusion/benchmark_results/no_attack/flux-1-dev/harmful/4chan/images/"
+
+
+model_name: "openai_image_checker"
 
 metrics:
   - accuracy
   - precision
   - recall
+  - f1
+  - auc
+  - average_precision
+
 
 detectors:
   openai_image_checker: {}

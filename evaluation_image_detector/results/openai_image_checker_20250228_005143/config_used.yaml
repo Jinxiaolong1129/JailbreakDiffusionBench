@@ -1,0 +1,22 @@
+batch_size: 16
+data_dir: no_attack
+datasets:
+  benign:
+    discord-test:
+      path: no_attack/flux-1-dev/benign/discord-test/images
+  harmful:
+    4chan:
+      path: no_attack/flux-1-dev/harmful/4chan/images
+detectors:
+  openai_image_checker: {}
+metrics:
+- accuracy
+- precision
+- recall
+- f1
+- auc
+- average_precision
+model_name: openai_image_checker
+num_workers: 4
+output_dir: evaluation_image_detector/results
+save_misclassified: true

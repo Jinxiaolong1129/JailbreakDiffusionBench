@@ -129,7 +129,7 @@ class OpenAIImageDetector(BaseImageChecker):
         except Exception as e:
             raise Exception(f"OpenAI detection failed: {str(e)}")
     
-    def __call__(
+    def check(
         self,
         image_input: Union[str, Path, Image.Image, List[Union[str, Path, Image.Image]]]
     ) -> Union[bool, List[bool]]:
