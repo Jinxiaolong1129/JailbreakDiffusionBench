@@ -31,5 +31,4 @@ metrics:
   - average_precision
 
 detectors:
-  openai:
-    model: "omni-moderation-latest"
+  distilbert_nsfw_text_checker: {}

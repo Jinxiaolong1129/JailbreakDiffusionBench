@@ -123,7 +123,11 @@ class TextBenchmarkRunner:
         # Copy the original dataset JSON file for reference
         with open(dataset_config["path"], "r") as src_f:
             original_dataset = json.load(src_f)
-            with open(dataset_output_dir / "original_dataset.json", "w") as dst_f:
+            dataset_path = Path(dataset_config["path"])
+            data_filename = dataset_path.name
+            data_name = dataset_path.stem
+            print(f"Extracted filename: {data_filename}")
+            with open(dataset_output_dir / data_filename, "w") as dst_f:
                 json.dump(original_dataset, dst_f, indent=2)
         
         results = {}
@@ -134,34 +138,18 @@ class TextBenchmarkRunner:
                 # Get detection results
                 texts = [prompt.text for prompt in dataset]
                 
-                # Process in batches if needed
-                if hasattr(detector, 'batch_check') and callable(getattr(detector, 'batch_check')):
-                    batch_size = self.config.get("batch_size", 32)
-                    raw_predictions = []
-                    for i in range(0, len(texts), batch_size):
-                        batch_texts = texts[i:i+batch_size]
-                        batch_preds = detector.batch_check(batch_texts)
-                        raw_predictions.extend(batch_preds)
-                        print(f"Processed batch {i//batch_size + 1}/{(len(texts) + batch_size - 1)//batch_size}")
-                else:
-                    # Use single item processing
-                    raw_predictions = []
-                    for text in texts:
-                        try:
-                            pred = detector.check(text)
-                            raw_predictions.append(pred)
-                        except Exception as e:
-                            print(f"Error processing text with {detector_name}: {e}")
-                            # 在出错时使用默认值（保守策略，假设为良性）
-                            raw_predictions.append(0.0)
-                
-                # 确保raw_predictions和texts长度相同
+                batch_size = self.config.get("batch_size", 32)
+                raw_predictions = []
+                for i in range(0, len(texts), batch_size):
+                    batch_texts = texts[i:i+batch_size]
+                    batch_preds = detector.check(batch_texts)
+                    raw_predictions.extend(batch_preds)
+                    print(f"Processed batch {i//batch_size + 1}/{(len(texts) + batch_size - 1)//batch_size}")
+            
                 if len(raw_predictions) != len(texts):
-                    print(f"Warning: raw_predictions length ({len(raw_predictions)}) doesn't match texts length ({len(texts)})")
-                    # 填充缺失的预测
+                    print(f"ERROR: raw_predictions length ({len(raw_predictions)}) doesn't match texts length ({len(texts)})")
                     while len(raw_predictions) < len(texts):
                         raw_predictions.append(0.0)
-                    # 截断多余的预测
                     raw_predictions = raw_predictions[:len(texts)]
                 
                 # Convert to binary predictions if needed
@@ -241,8 +229,8 @@ class TextBenchmarkRunner:
                 }
                 
                 # Save detector results to its own file
-                detector_output_file = dataset_output_dir / f"{detector_name}_results.json"
-                detailed_output_file = dataset_output_dir / f"{detector_name}_detailed_predictions.json"
+                detector_output_file = dataset_output_dir / f"{data_name}_{detector_name}_results.json"
+                detailed_output_file = dataset_output_dir / f"{data_name}_{detector_name}_detailed_predictions.json"
                 
                 with open(detector_output_file, "w") as f:
                     json.dump(metrics, f, indent=2)
@@ -259,10 +247,10 @@ class TextBenchmarkRunner:
                 
         # Generate visualizations for this dataset
         try:
-            self.visualizer.plot_roc_curves(results, f"{category}/{dataset_name} ROC Curves")
-            self.visualizer.plot_pr_curves(results, f"{category}/{dataset_name} PR Curves")
+            self.visualizer.plot_roc_curves(results, f"{dataset_name} ROC Curves")
+            self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
         except Exception as e:
-            print(f"Error generating visualizations for {category}/{dataset_name}: {e}")
+            print(f"Error generating visualizations for {dataset_name}: {e}")
             import traceback
             traceback.print_exc()
                 
@@ -430,7 +418,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run text detector evaluation")
     parser.add_argument(
         "--config", 
-        default="evaluation_text_detector/config/text_evaluation_configs.yaml",
+        default="evaluation_text_detector/config/openai_text_moderation.yaml",
         help="Path to evaluation config file"
     )
     parser.add_argument(
@@ -529,6 +517,8 @@ def main():
                         print(f"        {metric_name}: {value:.4f}")
                     print(f"      ROC AUC: {metrics['curves']['roc']['auc']:.4f}")
                     print(f"      Average Precision: {metrics['curves']['pr']['average_precision']:.4f}")
+
+
 
 def filter_config(runner, args):
     """应用命令行参数过滤配置"""
