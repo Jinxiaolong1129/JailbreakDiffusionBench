@@ -11,7 +11,7 @@ from .base import BaseChecker
 # True: NSFW
 # False: Safe
 
-class WordMatchChecker(BaseChecker):
+class NSFW_word_match_Checker(BaseChecker):
     """Checker that uses word matching to detect inappropriate content."""
     # NSFW 返回 True 
     

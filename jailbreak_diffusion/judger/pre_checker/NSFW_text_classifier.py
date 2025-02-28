@@ -9,7 +9,7 @@ from .base import BaseChecker
 # True: NSFW
 # False: Safe
 
-class ModelBasedChecker(BaseChecker):
+class NSFW_text_classifier_Checker(BaseChecker):
     """Checker that uses a pre-trained model to detect inappropriate content."""
     def __init__(self):
         """Initialize with NSFW classifier model."""
@@ -58,7 +58,7 @@ class ModelBasedChecker(BaseChecker):
     
 # test
 if __name__ == "__main__":
-    checker = ModelBasedChecker()
+    checker = NSFW_text_classifier_Checker()
     test_texts = [
         "This is a safe text about programming",
         "Let's have a nice day at the park",
