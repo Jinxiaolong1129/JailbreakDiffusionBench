@@ -17,7 +17,7 @@ model:
 attack_method: "no_attack"
 
 datasets:
-  - data/harmful/I2P/i2p.json
+  - "data/harmful/civitai/civitai_nsfw_prompts_2000.json"
 
 
 
