@@ -3,14 +3,14 @@
 data_dir: "evaluation_text_detector/data"
 
 datasets:
-  i2p_filtered:
-    path: "data/harmful/I2P/I2P_filtered_test.json"
+  harmful:
+    i2p:
+      path: "data/harmful/I2P/I2P_filtered_test.json"
 
-  # i2p_filtered:
-  #   path: "evaluation_text_detector/data/I2P/I2P_filtered_test.json"
+  benign:
+    diffusion_db:
+      path: data/benign/diffusion_db/diffusion_db-back.json
 
-  # test:
-  #   path: "evaluation_text_detector/data/harmful/test.json"
 
 
 
@@ -31,5 +31,4 @@ metrics:
   - average_precision
 
 detectors:
-  openai:
-    model: "omni-moderation-latest"
+  openai_text_moderation: {}

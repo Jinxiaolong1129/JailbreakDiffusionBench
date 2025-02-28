@@ -1,19 +1,18 @@
+import yaml
+import json
+from pathlib import Path
+from typing import Dict, List, Union, Tuple
+import argparse
+import datetime
+import importlib
+import sys
 import argparse
 from pathlib import Path
 import yaml
 import sys
 import os
-import yaml
-import json
-from pathlib import Path
-from typing import Dict, List, Union
-import argparse
-import datetime
-import importlib
-import sys
 
-from jailbreak_diffusion.judger.pre_checker.openai_text_moderation import OpenAITextDetector
-from jailbreak_diffusion.judger.pre_checker import OpenAITextDetector, AzureTextDetector, GoogleTextModerator, GPTChecker, LlamaGuardChecker, NSFW_text_classifier_Checker, NSFW_word_match_Checker, DistilBERTChecker, DistilRoBERTaChecker, NvidiaAegisChecker
+from jailbreak_diffusion.judger.pre_checker import OpenAITextDetector, AzureTextDetector, GoogleTextModerator, GPTChecker, LlamaGuardChecker, NSFW_text_classifier_Checker, NSFW_word_match_Checker, distilbert_nsfw_text_checker, distilroberta_nsfw_text_checker, NvidiaAegisChecker
 
 from evaluation.data_loader import DatasetLoader
 from evaluation.metric import TextMetricsCalculator
@@ -39,6 +38,11 @@ class TextBenchmarkRunner:
         self.output_dir = Path(self.config["output_dir"]) / f"{config_name}_{timestamp}"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
+        # Create category directories (benign/harmful)
+        for category in self.config["datasets"].keys():
+            category_dir = self.output_dir / category
+            category_dir.mkdir(exist_ok=True)
+        
         # Save a copy of the config file used
         with open(self.output_dir / "config_used.yaml", "w") as f:
             yaml.dump(self.config, f)
@@ -60,32 +64,49 @@ class TextBenchmarkRunner:
             "openai_text_moderation": OpenAITextDetector,
             "NSFW_text_classifier": NSFW_text_classifier_Checker,
             "NSFW_word_match": NSFW_word_match_Checker,
-            "distilbert_nsfw_text_checker": DistilBERTChecker,
-            "distilroberta_nsfw_text_checker": DistilRoBERTaChecker,
+            "distilbert_nsfw_text_checker": distilbert_nsfw_text_checker,
+            "distilroberta_nsfw_text_checker": distilroberta_nsfw_text_checker,
             "gpt_4o_mini": GPTChecker,
             "llama_guard": LlamaGuardChecker,
-            "nvidia_aegis": AzureTextDetector,
-            "openai_text_moderation": OpenAITextDetector,
+            "azure_text_moderation": AzureTextDetector,
+            "google_text_moderation": GoogleTextModerator,
             "nvidia_aegis": NvidiaAegisChecker
         }
         
         for name, config in detector_configs.items():
             if name in detector_mapping:
                 try:
+                    # 处理不需要参数的检测器（空字典）
+                    if not config:
+                        config = {}
+                    
                     detectors[name] = detector_mapping[name](**config)
                     print(f"Successfully initialized {name} detector")
                 except Exception as e:
                     print(f"Error initializing {name} detector: {e}")
+                    import traceback
+                    traceback.print_exc()
                     
         return detectors
+    
+    def _get_flattened_datasets(self) -> List[Tuple[str, str, Dict]]:
+        """
+        将嵌套的数据集结构转换为展平的列表
+        返回: [(category, dataset_name, dataset_config), ...]
+        """
+        flattened_datasets = []
+        for category, datasets in self.config["datasets"].items():
+            for dataset_name, dataset_config in datasets.items():
+                flattened_datasets.append((category, dataset_name, dataset_config))
+        return flattened_datasets
         
-    def evaluate_dataset(self, dataset_name: str, dataset_config: Dict) -> Dict:
+    def evaluate_dataset(self, category: str, dataset_name: str, dataset_config: Dict) -> Dict:
         """Evaluate a single dataset with all detectors"""
-        print(f"\nEvaluating dataset: {dataset_name}")
+        print(f"\nEvaluating dataset: {category}/{dataset_name}")
         
-        # Create dataset specific output directory
-        dataset_output_dir = self.output_dir / dataset_name
-        dataset_output_dir.mkdir(exist_ok=True)
+        # Create dataset specific output directory (under the category)
+        dataset_output_dir = self.output_dir / category / dataset_name
+        dataset_output_dir.mkdir(parents=True, exist_ok=True)
         
         # Set visualizer output directory
         self.visualizer.output_dir = dataset_output_dir
@@ -107,7 +128,7 @@ class TextBenchmarkRunner:
         
         results = {}
         for detector_name, detector in self.detectors.items():
-            print(f"Running {detector_name} on {dataset_name}...")
+            print(f"Running {detector_name} on {category}/{dataset_name}...")
             
             try:
                 # Get detection results
@@ -124,24 +145,65 @@ class TextBenchmarkRunner:
                         print(f"Processed batch {i//batch_size + 1}/{(len(texts) + batch_size - 1)//batch_size}")
                 else:
                     # Use single item processing
-                    raw_predictions = detector.check(texts)
+                    raw_predictions = []
+                    for text in texts:
+                        try:
+                            pred = detector.check(text)
+                            raw_predictions.append(pred)
+                        except Exception as e:
+                            print(f"Error processing text with {detector_name}: {e}")
+                            # 在出错时使用默认值（保守策略，假设为良性）
+                            raw_predictions.append(0.0)
+                
+                # 确保raw_predictions和texts长度相同
+                if len(raw_predictions) != len(texts):
+                    print(f"Warning: raw_predictions length ({len(raw_predictions)}) doesn't match texts length ({len(texts)})")
+                    # 填充缺失的预测
+                    while len(raw_predictions) < len(texts):
+                        raw_predictions.append(0.0)
+                    # 截断多余的预测
+                    raw_predictions = raw_predictions[:len(texts)]
                 
                 # Convert to binary predictions if needed
-                if isinstance(raw_predictions[0], bool):
-                    predictions = [1 if pred else 0 for pred in raw_predictions]
-                elif isinstance(raw_predictions[0], dict) and "flagged" in raw_predictions[0]:
-                    # Handle case where output is a dict with a 'flagged' field
-                    predictions = [1 if pred["flagged"] else 0 for pred in raw_predictions]
-                elif isinstance(raw_predictions[0], dict) and "harmful" in raw_predictions[0]:
-                    # Handle case where output is a dict with a 'harmful' field
-                    predictions = [1 if pred["harmful"] else 0 for pred in raw_predictions]
-                else:
-                    # Assume numeric scores between 0 and 1
-                    predictions = [float(pred) for pred in raw_predictions]
+                predictions = []
+                for pred in raw_predictions:
+                    if pred is None:
+                        predictions.append(0)  # 处理None值
+                    elif isinstance(pred, bool):
+                        predictions.append(1 if pred else 0)
+                    elif isinstance(pred, dict):
+                        if "flagged" in pred:
+                            predictions.append(1 if pred["flagged"] else 0)
+                        elif "harmful" in pred:
+                            predictions.append(1 if pred["harmful"] else 0)
+                        elif "score" in pred:
+                            # 将分数转换为二进制预测
+                            predictions.append(1 if float(pred["score"]) >= 0.5 else 0)
+                        else:
+                            print(f"Warning: Unknown dict format in prediction: {pred.keys()}")
+                            predictions.append(0)
+                    elif isinstance(pred, (int, float)):
+                        # 确保数值是有效的
+                        try:
+                            score = float(pred)
+                            if 0 <= score <= 1:
+                                predictions.append(score)
+                            else:
+                                print(f"Warning: Score out of range [0,1]: {score}")
+                                predictions.append(0.5)
+                        except (ValueError, TypeError):
+                            print(f"Warning: Could not convert {pred} to float")
+                            predictions.append(0.5)
+                    else:
+                        print(f"Warning: Unknown prediction type: {type(pred)}")
+                        predictions.append(0)
                 
                 # Prepare evaluation data
                 true_labels = [1 if p.label == "harmful" else 0 for p in dataset]
                 categories = [p.category for p in dataset]
+                
+                # Ensure binary predictions for metrics calculation
+                binary_predictions = [1 if float(p) >= 0.5 else 0 for p in predictions]
                 
                 # Calculate metrics
                 metrics = self.metrics_calculator.calculate_metrics(true_labels, predictions)
@@ -171,7 +233,7 @@ class TextBenchmarkRunner:
                 # Save detailed results
                 detailed_results = {
                     "detector": detector_name,
-                    "dataset": dataset_name,
+                    "dataset": f"{category}/{dataset_name}",
                     "total_prompts": len(detailed_predictions),
                     "correctly_classified": sum(1 for p in detailed_predictions if p["correct"]),
                     "metrics": metrics["basic_metrics"],
@@ -190,17 +252,17 @@ class TextBenchmarkRunner:
                 
                 
             except Exception as e:
-                print(f"Error evaluating {detector_name} on {dataset_name}: {e}")
+                print(f"Error evaluating {detector_name} on {category}/{dataset_name}: {e}")
                 import traceback
                 traceback.print_exc()
                 results[detector_name] = {"error": str(e)}
                 
         # Generate visualizations for this dataset
         try:
-            self.visualizer.plot_roc_curves(results, f"{dataset_name} ROC Curves")
-            self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
+            self.visualizer.plot_roc_curves(results, f"{category}/{dataset_name} ROC Curves")
+            self.visualizer.plot_pr_curves(results, f"{category}/{dataset_name} PR Curves")
         except Exception as e:
-            print(f"Error generating visualizations for {dataset_name}: {e}")
+            print(f"Error generating visualizations for {category}/{dataset_name}: {e}")
             import traceback
             traceback.print_exc()
                 
@@ -211,10 +273,18 @@ class TextBenchmarkRunner:
         """Run complete evaluation pipeline for all datasets and detectors"""
         all_results = {}
         
-        # Evaluate each dataset
-        for dataset_name, dataset_config in self.config["datasets"].items():
-            dataset_results = self.evaluate_dataset(dataset_name, dataset_config)
-            all_results[dataset_name] = dataset_results
+        # 获取展平的数据集列表
+        flattened_datasets = self._get_flattened_datasets()
+        
+        # 按类别/数据集组织结果
+        for category, dataset_name, dataset_config in flattened_datasets:
+            # 确保类别存在于结果字典中
+            if category not in all_results:
+                all_results[category] = {}
+                
+            # 运行评估
+            dataset_results = self.evaluate_dataset(category, dataset_name, dataset_config)
+            all_results[category][dataset_name] = dataset_results
         
         # Create overall summary
         self._create_experiment_summary(all_results)
@@ -226,31 +296,60 @@ class TextBenchmarkRunner:
         summary = {
             "config_file": self.config_path,
             "timestamp": datetime.datetime.now().isoformat(),
-            "datasets": list(self.config["datasets"].keys()),
+            "categories": list(self.config["datasets"].keys()),
             "detectors": list(self.config["detectors"].keys()),
             "results_summary": {}
         }
         
         # Create a summary table of key metrics for all detectors across all datasets
-        for dataset_name, dataset_results in all_results.items():
-            summary["results_summary"][dataset_name] = {}
+        for category, datasets in all_results.items():
+            summary["results_summary"][category] = {}
             
-            for detector_name, metrics in dataset_results.items():
-                if "error" in metrics:
-                    summary["results_summary"][dataset_name][detector_name] = {
-                        "error": metrics["error"]
+            for dataset_name, detector_results in datasets.items():
+                summary["results_summary"][category][dataset_name] = {}
+                
+                for detector_name, metrics in detector_results.items():
+                    if "error" in metrics:
+                        summary["results_summary"][category][dataset_name][detector_name] = {
+                            "error": metrics["error"]
+                        }
+                        continue
+                        
+                    # Extract key metrics
+                    summary["results_summary"][category][dataset_name][detector_name] = {
+                        "accuracy": metrics["basic_metrics"]["accuracy"],
+                        "precision": metrics["basic_metrics"]["precision"],
+                        "recall": metrics["basic_metrics"]["recall"],
+                        "f1": metrics["basic_metrics"].get("f1", 0.0),
+                        "roc_auc": metrics["curves"]["roc"]["auc"],
+                        "average_precision": metrics["curves"]["pr"]["average_precision"]
                     }
-                    continue
-                    
-                # Extract key metrics
-                summary["results_summary"][dataset_name][detector_name] = {
-                    "accuracy": metrics["basic_metrics"]["accuracy"],
-                    "precision": metrics["basic_metrics"]["precision"],
-                    "recall": metrics["basic_metrics"]["recall"],
-                    "f1": metrics["basic_metrics"].get("f1", 0.0),
-                    "roc_auc": metrics["curves"]["roc"]["auc"],
-                    "average_precision": metrics["curves"]["pr"]["average_precision"]
-                }
+        
+        # 为每个类别计算平均指标
+        category_averages = {}
+        for category, datasets in summary["results_summary"].items():
+            category_averages[category] = {}
+            
+            for detector_name in summary["detectors"]:
+                detector_metrics = []
+                
+                for dataset_name, detector_results in datasets.items():
+                    if detector_name in detector_results and "error" not in detector_results[detector_name]:
+                        detector_metrics.append(detector_results[detector_name])
+                
+                if detector_metrics:
+                    # 计算平均值
+                    category_averages[category][detector_name] = {
+                        "accuracy": sum(m["accuracy"] for m in detector_metrics) / len(detector_metrics),
+                        "precision": sum(m["precision"] for m in detector_metrics) / len(detector_metrics),
+                        "recall": sum(m["recall"] for m in detector_metrics) / len(detector_metrics),
+                        "f1": sum(m["f1"] for m in detector_metrics) / len(detector_metrics),
+                        "roc_auc": sum(m["roc_auc"] for m in detector_metrics) / len(detector_metrics),
+                        "average_precision": sum(m["average_precision"] for m in detector_metrics) / len(detector_metrics)
+                    }
+        
+        # 添加类别平均指标到摘要
+        summary["category_averages"] = category_averages
         
         # Save summary to file
         with open(self.output_dir / "experiment_summary.json", "w") as f:
@@ -263,43 +362,75 @@ class TextBenchmarkRunner:
             f.write(f"Config: {self.config_path}\n")
             f.write(f"Date: {summary['timestamp']}\n\n")
             
-            for dataset_name in summary["datasets"]:
-                f.write(f"\nDataset: {dataset_name}\n")
-                f.write("-" * (len(dataset_name) + 10) + "\n")
+            for category in summary["categories"]:
+                f.write(f"\nCategory: {category}\n")
+                f.write("=" * (len(category) + 10) + "\n\n")
+                
+                # 对每个类别下的数据集
+                for dataset_name in summary["results_summary"][category].keys():
+                    f.write(f"\nDataset: {dataset_name}\n")
+                    f.write("-" * (len(dataset_name) + 10) + "\n")
+                    
+                    # Create header
+                    metrics_header = ["Detector", "Accuracy", "Precision", "Recall", "F1", "ROC AUC", "AP"]
+                    f.write(" | ".join(metrics_header) + "\n")
+                    f.write("-" * 80 + "\n")
+                    
+                    # Add data rows
+                    for detector_name in summary["detectors"]:
+                        if detector_name in summary["results_summary"][category][dataset_name]:
+                            detector_metrics = summary["results_summary"][category][dataset_name][detector_name]
+                            
+                            if "error" in detector_metrics:
+                                row = [detector_name, "ERROR", "", "", "", "", ""]
+                            else:
+                                row = [
+                                    detector_name,
+                                    f"{detector_metrics['accuracy']:.4f}",
+                                    f"{detector_metrics['precision']:.4f}",
+                                    f"{detector_metrics['recall']:.4f}",
+                                    f"{detector_metrics['f1']:.4f}",
+                                    f"{detector_metrics['roc_auc']:.4f}",
+                                    f"{detector_metrics['average_precision']:.4f}"
+                                ]
+                            
+                            f.write(" | ".join(row) + "\n")
+                    
+                    f.write("\n")
+                
+                # 打印类别平均指标
+                f.write(f"\nCategory Average: {category}\n")
+                f.write("-" * (len(category) + 17) + "\n")
                 
                 # Create header
                 metrics_header = ["Detector", "Accuracy", "Precision", "Recall", "F1", "ROC AUC", "AP"]
                 f.write(" | ".join(metrics_header) + "\n")
                 f.write("-" * 80 + "\n")
                 
-                # Add data rows
+                # Add category average rows
                 for detector_name in summary["detectors"]:
-                    if detector_name in summary["results_summary"][dataset_name]:
-                        detector_metrics = summary["results_summary"][dataset_name][detector_name]
-                        
-                        if "error" in detector_metrics:
-                            row = [detector_name, "ERROR", "", "", "", "", ""]
-                        else:
-                            row = [
-                                detector_name,
-                                f"{detector_metrics['accuracy']:.4f}",
-                                f"{detector_metrics['precision']:.4f}",
-                                f"{detector_metrics['recall']:.4f}",
-                                f"{detector_metrics['f1']:.4f}",
-                                f"{detector_metrics['roc_auc']:.4f}",
-                                f"{detector_metrics['average_precision']:.4f}"
-                            ]
-                        
+                    if detector_name in category_averages[category]:
+                        avg_metrics = category_averages[category][detector_name]
+                        row = [
+                            detector_name,
+                            f"{avg_metrics['accuracy']:.4f}",
+                            f"{avg_metrics['precision']:.4f}",
+                            f"{avg_metrics['recall']:.4f}",
+                            f"{avg_metrics['f1']:.4f}",
+                            f"{avg_metrics['roc_auc']:.4f}",
+                            f"{avg_metrics['average_precision']:.4f}"
+                        ]
                         f.write(" | ".join(row) + "\n")
                 
                 f.write("\n")
                 
                 
+                            
 def main():
     parser = argparse.ArgumentParser(description="Run text detector evaluation")
     parser.add_argument(
         "--config", 
-        default="evaluation_text_detector/config/openai_config.yaml",
+        default="evaluation_text_detector/config/text_evaluation_configs.yaml",
         help="Path to evaluation config file"
     )
     parser.add_argument(
@@ -308,59 +439,124 @@ def main():
         help="Run evaluation on all config files in the config directory"
     )
     parser.add_argument(
+        "--categories",
+        nargs="+",
+        help="Specify categories to evaluate (e.g., harmful, benign)"
+    )
+    parser.add_argument(
         "--datasets",
         nargs="+",
-        help="Specify datasets to evaluate (overrides config file)"
+        help="Specify datasets to evaluate (e.g., i2p, civitai)"
     )
+    parser.add_argument(
+        "--detectors",
+        nargs="+",
+        help="Specify detectors to evaluate (e.g., openai_text_moderation, llama_guard)"
+    )
+    parser.add_argument(
+        "--list-datasets",
+        action="store_true",
+        help="List available datasets in the config"
+    )
+    parser.add_argument(
+        "--list-detectors",
+        action="store_true",
+        help="List available detectors in the config"
+    )
+    
     args = parser.parse_args()
+    
+    # 如果只是列出数据集和检测器，处理后直接返回
+    if args.list_datasets or args.list_detectors:
+        with open(args.config) as f:
+            config = yaml.safe_load(f)
+            
+        if args.list_datasets:
+            print("\nAvailable Categories and Datasets:")
+            for category, datasets in config["datasets"].items():
+                print(f"\n{category.upper()}:")
+                for dataset_name, dataset_config in datasets.items():
+                    print(f"  - {dataset_name}: {dataset_config['path']}")
+                    
+        if args.list_detectors:
+            print("\nAvailable Detectors:")
+            for detector_name, detector_config in config["detectors"].items():
+                if detector_config:
+                    # 如果有参数，显示参数
+                    params = ", ".join(f"{k}={v}" for k, v in detector_config.items())
+                    print(f"  - {detector_name}: {params}")
+                else:
+                    print(f"  - {detector_name}")
+                    
+        return
     
     if args.all_configs:
         # Run all config files in the config directory
         config_dir = Path("evaluation_text_detector/config")
-        config_files = list(config_dir.glob("*_config.yaml"))
+        config_files = list(config_dir.glob("*.yaml"))
         
         for config_file in config_files:
             print(f"\n\nRunning evaluation with config: {config_file}")
             runner = TextBenchmarkRunner(str(config_file))
             
-            # Override datasets if specified
-            if args.datasets:
-                filtered_datasets = {k: v for k, v in runner.config["datasets"].items() if k in args.datasets}
-                if not filtered_datasets:
-                    print(f"Warning: None of the specified datasets found in config {config_file}")
-                    continue
-                runner.config["datasets"] = filtered_datasets
+            # 应用过滤条件
+            filter_config(runner, args)
                 
             runner.run_evaluation()
     else:
         # Run evaluation with specified config
         runner = TextBenchmarkRunner(args.config)
         
-        # Override datasets if specified
-        if args.datasets:
-            filtered_datasets = {k: v for k, v in runner.config["datasets"].items() if k in args.datasets}
-            if not filtered_datasets:
-                print(f"Warning: None of the specified datasets found in config")
-                return
-            runner.config["datasets"] = filtered_datasets
+        # 应用过滤条件
+        filter_config(runner, args)
         
         all_results = runner.run_evaluation()
         
         # Print high-level results summary
         print("\nEvaluation Results Summary:")
-        for dataset_name, results in all_results.items():
-            print(f"\nDataset: {dataset_name}")
-            for detector_name, metrics in results.items():
-                if "error" in metrics:
-                    print(f"{detector_name}: Error - {metrics['error']}")
-                    continue
-                    
-                print(f"\n{detector_name}:")
-                print("Basic Metrics:")
-                for metric_name, value in metrics["basic_metrics"].items():
-                    print(f"  {metric_name}: {value:.4f}")
-                print(f"ROC AUC: {metrics['curves']['roc']['auc']:.4f}")
-                print(f"Average Precision: {metrics['curves']['pr']['average_precision']:.4f}")
+        for category, datasets in all_results.items():
+            print(f"\nCategory: {category}")
+            for dataset_name, detector_results in datasets.items():
+                print(f"\n  Dataset: {dataset_name}")
+                for detector_name, metrics in detector_results.items():
+                    if "error" in metrics:
+                        print(f"    {detector_name}: Error - {metrics['error']}")
+                        continue
+                        
+                    print(f"\n    {detector_name}:")
+                    print("      Basic Metrics:")
+                    for metric_name, value in metrics["basic_metrics"].items():
+                        print(f"        {metric_name}: {value:.4f}")
+                    print(f"      ROC AUC: {metrics['curves']['roc']['auc']:.4f}")
+                    print(f"      Average Precision: {metrics['curves']['pr']['average_precision']:.4f}")
+
+def filter_config(runner, args):
+    """应用命令行参数过滤配置"""
+    
+    # 过滤类别
+    if args.categories:
+        filtered_categories = {k: v for k, v in runner.config["datasets"].items() if k in args.categories}
+        if not filtered_categories:
+            print(f"Warning: None of the specified categories found in config")
+            filtered_categories = runner.config["datasets"]
+        runner.config["datasets"] = filtered_categories
+    
+    # 过滤数据集（在每个类别内）
+    if args.datasets:
+        for category in runner.config["datasets"]:
+            filtered_datasets = {k: v for k, v in runner.config["datasets"][category].items() if k in args.datasets}
+            if not filtered_datasets:
+                print(f"Warning: None of the specified datasets found in category '{category}'")
+            else:
+                runner.config["datasets"][category] = filtered_datasets
+    
+    # 过滤检测器
+    if args.detectors:
+        filtered_detectors = {k: v for k, v in runner.config["detectors"].items() if k in args.detectors}
+        if not filtered_detectors:
+            print(f"Warning: None of the specified detectors found in config")
+            filtered_detectors = runner.config["detectors"]
+        runner.config["detectors"] = filtered_detectors
 
 if __name__ == "__main__":
     main()
