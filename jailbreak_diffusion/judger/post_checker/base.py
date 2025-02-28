@@ -16,7 +16,7 @@ class BaseImageChecker(ABC):
     def __call__(self, image_input: Union[str, Path, Image.Image, 
                                         List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
         """Process image(s) and return check result(s)."""
-        pass
+        self.check(image_input)
         
     def check(self, image_input: Union[str, Path, Image.Image, 
                                      List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
@@ -24,7 +24,7 @@ class BaseImageChecker(ABC):
         Unified check method for all detectors.
         Returns True if unsafe content detected.
         """
-        return self(image_input)
+        pass
 
     def _load_image(self, image: Union[str, Path, Image.Image]) -> Image.Image:
         """Helper method to load image from various input types."""

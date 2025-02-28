@@ -49,6 +49,14 @@ class MultiheadDetector(BaseImageChecker):
         self.model = MHSafetyClassifier(self.device, self.model_name, self.pretrained)
         self.model.freeze()
 
+    def check(self, image_input: Union[str, Path, Image.Image, 
+                                      List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
+        """
+        Unified check method for all detectors.
+        Returns True if unsafe content detected.
+        """
+        return self.__call__(image_input)
+
     def __call__(self, image_input: Union[str, Path, Image.Image, 
                                         List[Union[str, Path, Image.Image]]]) -> Union[bool, List[bool]]:
         """
@@ -56,12 +64,17 @@ class MultiheadDetector(BaseImageChecker):
         Returns True if unsafe content detected.
         """
         if isinstance(image_input, list):
-            results = []
-            for img in image_input:
-                img_pil = self._load_image(img)
-                result = self._process_single_image(img_pil)
-                results.append(result['unsafe'])
-            return results
+            if not image_input:
+                return []
+                
+            # Batch processing
+            pil_images = [self._load_image(img) for img in image_input]
+            tensors = [self.model.preprocess(img).unsqueeze(0) for img in pil_images]
+            batch_tensor = torch.cat(tensors, dim=0).to(self.device)
+            
+            # Process batch efficiently
+            batch_results = self._process_batch(batch_tensor)
+            return [result['unsafe'] for result in batch_results]
         else:
             img_pil = self._load_image(image_input)
             result = self._process_single_image(img_pil)
@@ -71,6 +84,36 @@ class MultiheadDetector(BaseImageChecker):
         """Process a single PIL image and return detailed results."""
         tensor = self.model.preprocess(image).unsqueeze(0).to(self.device)
         return self._process_single(tensor)
+    
+    def _process_batch(self, batch_tensor):
+        """Process a batch of image tensors and return detailed results for each."""
+        batch_results = []
+        batch_size = batch_tensor.shape[0]
+        
+        with torch.no_grad():
+            for head in self.unsafe_contents:
+                self._load_head(head)
+                logits = self.model(batch_tensor).squeeze()
+                
+                # Handle both single image and batch cases
+                if batch_size == 1:
+                    preds = [(logits.detach().cpu() > 0.5).to(dtype=torch.int64)]
+                else:
+                    preds = [(logit > 0.5).to(dtype=torch.int64) for logit in logits.detach().cpu()]
+                
+                # Initialize results list if this is the first head
+                if len(batch_results) == 0:
+                    batch_results = [{head: bool(pred.item())} for pred in preds]
+                else:
+                    # Add results for this head to each image's result dictionary
+                    for i, pred in enumerate(preds):
+                        batch_results[i][head] = bool(pred.item())
+        
+        # Determine overall safety for each image
+        for result in batch_results:
+            result['unsafe'] = any(result[key] for key in self.unsafe_contents)
+            
+        return batch_results
 
     def _process_single(self, tensor):
         """Process a single tensor and return detailed results."""
@@ -107,54 +150,3 @@ class MultiheadDetector(BaseImageChecker):
         img_pil = self._load_image(image_input)
         tensor = self.model.preprocess(img_pil).unsqueeze(0).to(self.device)
         return self._process_single(tensor)
-
-
-if __name__ == "__main__":
-    def test_image(image_path, model_name="ViT-L-14", pretrained="openai"):
-        """
-        Test an image using MultiheadDetector
-        Args:
-            image_path: Path to the image file
-            model_name: Name of the CLIP model to use
-            pretrained: Name of the pretrained weights
-        """
-        # Check if image exists
-        if not os.path.exists(image_path):
-            print(f"Error: Image file {image_path} does not exist!")
-            return
-        
-        # Set device
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        print(f"Using device: {device}")
-        
-        try:
-            # Initialize detector
-            detector = MultiheadDetector(
-                device=device,
-                model_name=model_name,
-                pretrained=pretrained
-            )
-            
-            # Run detection using the BaseImageChecker's check method
-            is_unsafe = detector.check(image_path)
-            
-            # Get detailed results
-            details = detector.get_detailed_results(image_path)
-            
-            # Print results
-            print("\nMultihead Detection Results:")
-            print(f"Image: {image_path}")
-            print("\nDetection Results by Category:")
-            for category, is_detected in details.items():
-                if category != 'unsafe':
-                    print(f"{category.capitalize()}: {'Detected' if is_detected else 'Not Detected'}")
-            
-            print(f"\nOverall Safety: {'Unsafe' if is_unsafe else 'Safe'}")
-            
-        except Exception as e:
-            print(f"Error occurred during detection: {str(e)}")
-            raise
-
-    # Test single image
-    print("\nTesting single image...")
-    test_image("unsafe.png")
