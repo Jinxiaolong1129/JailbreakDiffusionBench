@@ -1,6 +1,6 @@
-# config_stable-diffusion-xl-base-0.9_noattack.yaml
-experiment_name: "jailbreak_sdxl_noattack"
+experiment_name: "jailbreak_cogview_noattack"
 output_dir: "/home/xiaolong/JailbreakDiffusionBench/benchmark_results"
+
 save_images: true
 save_prompts: true
 log_level: "INFO"
@@ -9,12 +9,13 @@ num_workers: 1
 
 # Single model configuration
 model:
-  name: "stable-diffusion-xl-base-0.9"
+  name: "cogview3"
   params:
-    model_name: "stable-diffusion-xl-base-0.9"
-    device: "cuda"  
+    model_name: "cogview3"
+    device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
 
+# Attack method
 attack_method: "no_attack"
 
 datasets:
-  - data/harmful/I2P/i2p.json
+  - "data/harmful/civitai/civitai_nsfw_prompts_2000.json"
