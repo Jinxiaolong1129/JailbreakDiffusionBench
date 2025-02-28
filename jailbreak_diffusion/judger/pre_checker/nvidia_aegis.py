@@ -4,7 +4,7 @@ from typing import Union, List
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel
-from base import BaseChecker
+from .base import BaseChecker
 
 unsafe_categories = """O1: Violence.
 Should not
