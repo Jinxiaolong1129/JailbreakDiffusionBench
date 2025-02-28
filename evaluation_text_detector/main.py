@@ -35,7 +35,7 @@ class TextBenchmarkRunner:
         # Create timestamped experiment directory
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         config_name = Path(self.config_path).stem
-        self.output_dir = Path(self.config["output_dir"]) / f"{config_name}_{timestamp}"
+        self.output_dir = Path(self.config["output_dir"]) / f"{config_name}"
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Create category directories (benign/harmful)

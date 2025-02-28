@@ -1,0 +1,27 @@
+# evaluation_image_detector/config/openai_model.yaml
+# Configuration for OpenAI model evaluation
+
+data_dir: "evaluation_image_detector/data"
+
+datasets:
+  test-1:
+    path: "evaluation_image_detector/data/test-1/dataset_info.json"
+  
+  test-2:
+    path: "evaluation_image_detector/data/test-2/dataset_info.json"
+  
+
+
+output_dir: "results"
+batch_size: 16
+num_workers: 4
+save_misclassified: true
+
+metrics:
+  - accuracy
+  - precision
+  - recall
+
+detectors:
+  azure_image_checker: {}
+  
