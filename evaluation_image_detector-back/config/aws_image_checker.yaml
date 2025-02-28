@@ -1,4 +1,5 @@
 # evaluation_image_detector/config/openai_model.yaml
+# Configuration for OpenAI model evaluation
 
 data_dir: "evaluation_image_detector/data"
 
@@ -9,7 +10,6 @@ datasets:
   test-2:
     path: "evaluation_image_detector/data/test-2/dataset_info.json"
   
-
 
 output_dir: "results"
 batch_size: 16
@@ -22,5 +22,5 @@ metrics:
   - recall
 
 detectors:
-  openai_image_checker: {}
+  aws_image_checker: {}
   

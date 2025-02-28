@@ -1,4 +1,3 @@
-# evaluation_image_detector/main.py
 import yaml
 import json
 from pathlib import Path

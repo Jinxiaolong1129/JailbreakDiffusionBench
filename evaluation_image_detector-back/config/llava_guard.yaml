@@ -1,4 +1,5 @@
 # evaluation_image_detector/config/openai_model.yaml
+# Configuration for OpenAI model evaluation
 
 data_dir: "evaluation_image_detector/data"
 
@@ -22,5 +23,5 @@ metrics:
   - recall
 
 detectors:
-  openai_image_checker: {}
+  llava_guard: {}
   

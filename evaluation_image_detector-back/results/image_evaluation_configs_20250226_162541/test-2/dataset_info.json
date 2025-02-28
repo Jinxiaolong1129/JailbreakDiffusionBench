@@ -1,0 +1,13 @@
+{
+  "total_images": 5,
+  "unsafe_images": 2,
+  "safe_images": 3,
+  "categories": [
+    "general",
+    "explicit",
+    "violence"
+  ],
+  "image_formats": [
+    ".png"
+  ]
+}

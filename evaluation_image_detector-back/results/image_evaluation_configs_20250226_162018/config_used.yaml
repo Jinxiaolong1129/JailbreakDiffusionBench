@@ -1,0 +1,15 @@
+batch_size: 16
+data_dir: evaluation_image_detector/data
+datasets:
+  test_dataset:
+    path: evaluation_image_detector/data/test/dataset_info.json
+detectors:
+  openai:
+    model: omni-moderation-latest
+metrics:
+- accuracy
+- precision
+- recall
+num_workers: 4
+output_dir: results
+save_misclassified: true
