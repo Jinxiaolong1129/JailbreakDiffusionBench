@@ -2,7 +2,7 @@ from typing import Union, List
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from .base import BaseChecker
 
-class ModelBasedChecker(BaseChecker):
+class NSFW_text_classifier_Checker(BaseChecker):
     """Checker that uses a pre-trained model to detect inappropriate content."""
     # NSFW 返回 True 
     

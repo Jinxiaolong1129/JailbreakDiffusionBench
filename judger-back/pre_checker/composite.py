@@ -1,7 +1,7 @@
 from typing import Union, List
 from .base import BaseChecker
-from .NSFW_word_match import WordMatchChecker
-from .NSFW_text_classifier import ModelBasedChecker
+from .NSFW_word_match import NSFW_word_match_Checker
+from .NSFW_text_classifier import NSFW_text_classifier_Checker
 
 class CompositeChecker(BaseChecker):
     """Checker that combines multiple checking methods."""
@@ -17,9 +17,9 @@ class CompositeChecker(BaseChecker):
         self.checkers = {}
         
         if 'word_match' in self.methods:
-            self.checkers['word_match'] = WordMatchChecker()
+            self.checkers['word_match'] = NSFW_word_match_Checker()
         if 'model' in self.methods:
-            self.checkers['model'] = ModelBasedChecker()
+            self.checkers['model'] = NSFW_text_classifier_Checker()
 
     def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
         """Check text using all specified methods.

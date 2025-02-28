@@ -1,0 +1,35 @@
+# evaluation_text_detector/config/text_evaluation_configs.yaml
+
+data_dir: "evaluation_text_detector/data"
+
+datasets:
+  i2p_filtered:
+    path: "data/harmful/I2P/I2P_filtered_test.json"
+
+  # i2p_filtered:
+  #   path: "evaluation_text_detector/data/I2P/I2P_filtered_test.json"
+
+  # test:
+  #   path: "evaluation_text_detector/data/harmful/test.json"
+
+
+
+output_dir: "evaluation_text_detector/results"
+
+batch_size: 32
+num_workers: 4
+
+save_misclassified: true
+
+
+metrics:
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - auc
+  - average_precision
+
+detectors:
+  openai:
+    model: "omni-moderation-latest"

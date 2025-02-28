@@ -5,7 +5,7 @@ from typing import Union, List, Set
 from .base import BaseChecker
 
 
-class WordMatchChecker(BaseChecker):
+class NSFW_word_match_Checker(BaseChecker):
     """Checker that uses word matching to detect inappropriate content."""
     # NSFW 返回 True 
     
