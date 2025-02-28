@@ -1,0 +1,33 @@
+{
+  "config_file": "evaluation_image_detector/config/image_evaluation_configs.yaml",
+  "timestamp": "2025-02-26T16:26:34.121792",
+  "datasets": [
+    "test-1",
+    "test-2"
+  ],
+  "detectors": [
+    "openai"
+  ],
+  "results_summary": {
+    "test-1": {
+      "openai": {
+        "accuracy": 0.6,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.5,
+        "average_precision": 0.4
+      }
+    },
+    "test-2": {
+      "openai": {
+        "accuracy": 0.6,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "roc_auc": 0.5,
+        "average_precision": 0.4
+      }
+    }
+  }
+}
