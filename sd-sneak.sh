@@ -1,19 +1,23 @@
 #!/bin/bash
 
-# "config/no_attack/harmful/sneakprompt/stable-diffusion-3-medium.yaml"
-# "config/no_attack/harmful/sneakprompt/stable-diffusion-3.5-medium.yaml"
-# "config/no_attack/harmful/sneakprompt/stable-diffusion-3.5-large.yaml"
+  # "config/no_attack/harmful/sneakprompt/stable-diffusion-v1-5.yaml"
+  # "config/no_attack/harmful/sneakprompt/stable-diffusion-2.yaml"
+  # "config/no_attack/harmful/sneakprompt/stable-diffusion-xl-base-0.9.yaml"
+  # "config/no_attack/harmful/sneakprompt/stable-diffusion-3.5-large-turbo.yaml"
+
 
 # List of Stable Diffusion models to run
 MODELS=(
-  "config/no_attack/harmful/sneakprompt/stable-diffusion-v1-5.yaml"
-  "config/no_attack/harmful/sneakprompt/stable-diffusion-2.yaml"
-  "config/no_attack/harmful/sneakprompt/stable-diffusion-xl-base-0.9.yaml"
-  "config/no_attack/harmful/sneakprompt/stable-diffusion-3.5-large-turbo.yaml"
+  "config/no_attack/harmful/sneakprompt/stable-diffusion-3-medium.yaml"
+  "config/no_attack/harmful/sneakprompt/stable-diffusion-3.5-medium.yaml"
+  "config/no_attack/harmful/sneakprompt/stable-diffusion-3.5-large.yaml"
+  "config/no_attack/harmful/sneakprompt/flux-1-dev.yaml"
+  "config/no_attack/harmful/sneakprompt/hunyuan-dit-v1.2-distilled.yaml"
+  "config/no_attack/harmful/sneakprompt/cogview.yaml"
 )
 
 # Available GPUs as specified
-AVAILABLE_GPUS=(2 4 5 7)
+AVAILABLE_GPUS=(1 2 3 4 5 6 7)
 
 # Create logs directory if it doesn't exist
 mkdir -p logs/sneakprompt

@@ -1,57 +1,61 @@
-import pandas as pd
 import json
 import os
 import time
 from openai import OpenAI
-import csv
 import pathlib
 
 # 初始化OpenAI客户端
 client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
-# 这个函数在新的process_all_files函数中被替代了，
-# 但为了保持代码完整性，仍然保留它
-def prepare_data(input_file_path):
+def prepare_json_data(input_file_path):
     """
-    读取原始CSV文件，添加ID，并转换为JSON格式
+    读取原始JSON文件，并准备数据用于翻译
     """
-    # 读取原始CSV文件
-    df = pd.read_csv(input_file_path)
-    
-    # 添加ID列 (从1开始)
-    df['id'] = range(1, len(df) + 1)
-    
-    # 确保存在prompt列
-    if 'prompt' not in df.columns:
-        # 假设第一列是prompt内容
-        df.rename(columns={df.columns[0]: 'prompt'}, inplace=True)
-    
-    # 确保有class列，如果没有，添加一个默认值
-    if 'class' not in df.columns:
-        df['class'] = 'unknown'
-    
-    # 重新排列列的顺序，把id放在最前面
-    columns = ['id']
-    for col in df.columns:
-        if col not in ['id']:
-            columns.append(col)
-    df = df[columns]
-    
-    # 转换为JSON格式
-    json_data = df.to_dict(orient='records')
-    
-    print(f"数据准备完成，共 {len(json_data)} 条记录")
-    return json_data, df.columns.tolist()
+    try:
+        with open(input_file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        # 处理不同的JSON结构
+        if 'prompts' in data:
+            prompts_data = data.get('prompts', [])
+        elif isinstance(data, list):
+            # 如果是数组格式
+            prompts_data = data
+            data = {'prompts': prompts_data}  # 重构为统一格式
+        else:
+            # 假设数据在顶层
+            prompts_data = [data]
+            data = {'prompts': prompts_data}  # 重构为统一格式
+        
+        print(f"数据准备完成，共 {len(prompts_data)} 条记录")
+        return data, prompts_data
+    except Exception as e:
+        print(f"读取文件 {input_file_path} 时出错: {e}")
+        return None, None
 
-def prepare_batch_file(json_data, output_jsonl_path):
+def prepare_batch_file(prompts_data, output_jsonl_path):
     """
     准备批处理输入文件，将JSON数据转换成批处理API所需的JSONL格式
     """
     with open(output_jsonl_path, 'w', encoding='utf-8') as f:
-        for item in json_data:
+        for item in prompts_data:
+            # 确定要翻译的文本字段
+            text_field = None
+            for field in ['text', 'prompt', 'content', 'message']:
+                if field in item and item[field]:
+                    text_field = field
+                    break
+            
+            if not text_field:
+                print(f"警告: 无法在项目中找到文本字段: {item}")
+                continue
+            
+            # 确保有ID，如果没有则创建一个
+            item_id = item.get('id', hash(json.dumps(item, sort_keys=True)))
+            
             # 为每个prompt创建一个请求
             batch_item = {
-                "custom_id": f"id_{item['id']}",
+                "custom_id": f"id_{item_id}_{text_field}",  # 包含字段名以便后续识别
                 "method": "POST",
                 "url": "/v1/chat/completions",
                 "body": {
@@ -63,7 +67,7 @@ def prepare_batch_file(json_data, output_jsonl_path):
                         },
                         {
                             "role": "user",
-                            "content": item['prompt']
+                            "content": item[text_field]
                         }
                     ],
                     "max_tokens": 1000
@@ -162,149 +166,71 @@ def download_batch_results(batch):
     
     return output_path
 
-def process_results(results_file, json_data, original_columns, output_path):
+def process_results(results_file, original_data, prompts_data, output_path):
     """
-    处理批处理结果，将翻译结果合并到最终CSV
+    处理批处理结果，将翻译结果添加到JSON中并保存
     """
-    # 创建ID到原始数据的映射
-    id_to_data = {item['id']: item for item in json_data}
+    # 创建映射字典以快速查找原始数据
+    id_map = {}
+    for i, item in enumerate(prompts_data):
+        item_id = item.get('id', hash(json.dumps(item, sort_keys=True)))
+        
+        # 查找可能的文本字段
+        for field in ['text', 'prompt', 'content', 'message']:
+            if field in item and item[field]:
+                id_map[f"id_{item_id}_{field}"] = (i, field)
     
     # 读取结果文件
     translations = {}
     with open(results_file, 'r', encoding='utf-8') as f:
         for line in f:
             result = json.loads(line)
-            # 从custom_id中提取原始ID
-            original_id = int(result['custom_id'].replace('id_', ''))
+            custom_id = result['custom_id']
             
             # 确保响应成功
             if result['response'] and result['response']['status_code'] == 200:
                 translation = result['response']['body']['choices'][0]['message']['content']
-                translations[original_id] = translation
+                translations[custom_id] = translation
     
-    # 创建最终数据
-    final_data = []
-    for item_id, item in id_to_data.items():
-        final_item = {}
-        
-        # 填充原始列，除了id列
-        for col in original_columns:
-            if col != 'id':
-                final_item[col] = item[col]
-        
-        # 添加翻译列
-        final_item['translate_prompt'] = translations.get(item_id, '翻译失败')
-        
-        final_data.append(final_item)
+    # 为原始数据添加翻译字段
+    for custom_id, translation in translations.items():
+        if custom_id in id_map:
+            index, field = id_map[custom_id]
+            prompts_data[index]['translate'] = translation
     
-    # 保存为CSV
-    with open(output_path, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=list(final_data[0].keys()))
-        writer.writeheader()
-        writer.writerows(final_data)
+    # 更新原始数据中的prompts
+    if 'prompts' in original_data:
+        original_data['prompts'] = prompts_data
+    else:
+        original_data = {'prompts': prompts_data}
     
-    print(f"翻译结果已合并并保存到 {output_path}")
-    print(f"共处理 {len(translations)} 个翻译，总数据量 {len(final_data)}")
+    # 保存为JSON
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(original_data, f, ensure_ascii=False, indent=4)
+    
+    print(f"翻译结果已添加并保存到 {output_path}")
+    print(f"共处理 {len(translations)} 个翻译，总数据量 {len(prompts_data)}")
 
-def process_all_files(directory_path, pattern="*.csv"):
+def process_json_file(input_file_path, output_file_path):
     """
-    处理指定目录下所有匹配模式的CSV文件
+    处理指定的JSON文件
     """
-    import glob
-    
-    # 获取所有匹配的文件
-    file_paths = glob.glob(os.path.join(directory_path, pattern))
-    
-    if not file_paths:
-        print(f"在 {directory_path} 中未找到匹配 {pattern} 的文件")
-        return
-    
-    print(f"找到 {len(file_paths)} 个文件需要处理")
+    print(f"开始处理文件: {input_file_path}")
     
     # 创建临时目录
     temp_dir = "temp"
     os.makedirs(temp_dir, exist_ok=True)
     
-    # 存储所有文件的数据，以及文件路径和列信息的映射
-    all_json_data = []
-    file_info = {}  # 存储每个文件的信息
-    current_id = 1  # 全局ID计数器
+    # 1. 准备数据
+    original_data, prompts_data = prepare_json_data(input_file_path)
     
-    # 1. 准备所有文件的数据
-    for file_path in file_paths:
-        print(f"正在处理文件: {file_path}")
-        
-        # 读取并处理每个文件
-        df = pd.read_csv(file_path)
-        
-        # 确保存在prompt列
-        if 'prompt' not in df.columns:
-            # 假设第一列是prompt内容
-            df.rename(columns={df.columns[0]: 'prompt'}, inplace=True)
-        
-        # 确保有class列，如果没有，添加一个默认值
-        if 'class' not in df.columns:
-            df['class'] = 'unknown'
-        
-        # 为这个文件的每条记录分配全局ID
-        df['global_id'] = range(current_id, current_id + len(df))
-        current_id += len(df)
-        
-        # 保存原始列信息
-        original_columns = df.columns.tolist()
-        
-        # 重新排列列的顺序，把global_id放在最前面
-        columns = ['global_id']
-        for col in df.columns:
-            if col not in ['global_id']:
-                columns.append(col)
-        df = df[columns]
-        
-        # 转换为JSON格式并添加到全局列表
-        json_data = df.to_dict(orient='records')
-        
-        # 存储文件信息
-        file_info[file_path] = {
-            'original_columns': original_columns,
-            'start_id': df['global_id'].min(),
-            'end_id': df['global_id'].max(),
-            'data': json_data
-        }
-        
-        all_json_data.extend(json_data)
-        
-        print(f"文件 {file_path} 处理完成，含 {len(json_data)} 条记录")
-    
-    print(f"所有文件处理完成，共 {len(all_json_data)} 条记录")
+    if not original_data or not prompts_data:
+        print(f"跳过文件 {input_file_path} 处理")
+        return False
     
     # 2. 准备批处理文件
-    batch_input_path = os.path.join(temp_dir, "all_batch_input.jsonl")
-    
-    with open(batch_input_path, 'w', encoding='utf-8') as f:
-        for item in all_json_data:
-            # 为每个prompt创建一个请求
-            batch_item = {
-                "custom_id": f"id_{item['global_id']}",
-                "method": "POST",
-                "url": "/v1/chat/completions",
-                "body": {
-                    "model": "gpt-4o-mini",
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "你是一个专业的翻译助手。请将用户输入的文本翻译成中文，保持原意并使用自然的表达。"
-                        },
-                        {
-                            "role": "user",
-                            "content": item['prompt']
-                        }
-                    ],
-                    "max_tokens": 1000
-                }
-            }
-            f.write(json.dumps(batch_item, ensure_ascii=False) + '\n')
-    
-    print(f"已成功创建批处理输入文件: {batch_input_path}")
+    batch_input_path = os.path.join(temp_dir, f"batch_input_{os.path.basename(input_file_path)}.jsonl")
+    prepare_batch_file(prompts_data, batch_input_path)
     
     # 3. 启动批处理
     batch_id = run_batch_translation(batch_input_path)
@@ -317,76 +243,81 @@ def process_all_files(directory_path, pattern="*.csv"):
     
     if not results_file:
         print("未能获取批处理结果")
-        return
+        return False
     
-    # 6. 读取并处理翻译结果
-    translations = {}
-    with open(results_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            result = json.loads(line)
-            # 从custom_id中提取原始ID
-            original_id = int(result['custom_id'].replace('id_', ''))
-            
-            # 确保响应成功
-            if result['response'] and result['response']['status_code'] == 200:
-                translation = result['response']['body']['choices'][0]['message']['content']
-                translations[original_id] = translation
+    # 6. 处理结果并保存
+    process_results(results_file, original_data, prompts_data, output_file_path)
     
-    print(f"成功获取 {len(translations)} 条翻译结果")
-    
-    # 7. 将翻译结果分配回各个文件并保存
-    for file_path, info in file_info.items():
-        start_id = info['start_id']
-        end_id = info['end_id']
-        original_columns = info['original_columns']
-        file_data = info['data']
-        
-        # 创建最终数据
-        final_data = []
-        for item in file_data:
-            global_id = item['global_id']
-            final_item = {}
-            
-            # 填充原始列，除了global_id列
-            for col in original_columns:
-                if col != 'global_id':
-                    final_item[col] = item[col]
-            
-            # 添加翻译列
-            final_item['translate_prompt'] = translations.get(global_id, '翻译失败')
-            
-            final_data.append(final_item)
-        
-        # 保存为CSV
-        with open(file_path, 'w', encoding='utf-8', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=list(final_data[0].keys()))
-            writer.writeheader()
-            writer.writerows(final_data)
-        
-        print(f"文件 {file_path} 翻译结果已保存，包含 {len(final_data)} 条记录")
-    
-    # 8. 清理临时文件
+    # 7. 清理临时文件
     print("清理临时文件...")
-    for file in [batch_input_path, results_file, "batch_translation_errors.jsonl"]:
-        if os.path.exists(file):
-            os.remove(file)
+    try:
+        os.remove(batch_input_path)
+        os.remove(results_file)
+        if os.path.exists("batch_translation_errors.jsonl"):
+            os.remove("batch_translation_errors.jsonl")
+    except Exception as e:
+        print(f"清理文件时出错: {e}")
     
-    if os.path.exists(temp_dir) and len(os.listdir(temp_dir)) == 0:
-        os.rmdir(temp_dir)
+    return True
+
+def process_all_files(file_paths):
+    """
+    处理多个JSON文件
+    """
+    # 创建临时目录
+    temp_dir = "temp"
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    results = {}
+    
+    for input_path in file_paths:
+        # 生成输出路径
+        output_dir = os.path.dirname(input_path)
+        file_name = os.path.basename(input_path)
+        name, ext = os.path.splitext(file_name)
+        output_path = os.path.join(output_dir, f"{name}_translate{ext}")
         
-    print("所有任务完成！")
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        print(f"\n--- 处理文件: {input_path} ---")
+        print(f"输出将保存到: {output_path}")
+        
+        success = process_json_file(input_path, output_path)
+        results[input_path] = {
+            'output_path': output_path,
+            'success': success
+        }
+    
+    # 清理临时目录
+    if os.path.exists(temp_dir) and len(os.listdir(temp_dir)) == 0:
+        try:
+            os.rmdir(temp_dir)
+        except Exception as e:
+            print(f"清理临时目录时出错: {e}")
+    
+    # 打印处理结果摘要
+    print("\n--- 处理结果摘要 ---")
+    for input_path, result in results.items():
+        status = "成功" if result['success'] else "失败"
+        print(f"{input_path} -> {result['output_path']}: {status}")
+    
+    print("\n所有任务完成！")
 
 def main():
-    # 处理指定目录下的CSV文件
-    directory_path = "data/VBCDE"
-    # directory_path = "data/sneakyprompt"
+    # 定义要处理的文件列表
+    file_paths = [
+        # "data/harmful/I2P/i2p.json",
+        # "data/harmful/4chan/4chan.json",
+        # "data/harmful/sneakyprompt/sneakyprompt.json",
+        # "data/harmful/VBCDE/VBCDE.json",
+        # "data/harmful/diffusion_db/diffusion_db_harm.json",
+        # "data/benign/diffusion_db/diffusion_db_benign_6000.json"
+        "data/harmful/civitai/civitai_nsfw_prompts_2000.json"
+    ]
     
-    # 可以指定具体的文件模式，例如"04-*.csv"仅处理以"04-"开头的CSV文件
-    # 或者使用"*.csv"处理所有CSV文件
-    file_pattern = "*.csv"
-    
-    # 调用处理函数
-    process_all_files(directory_path, file_pattern)
+    # 处理所有文件
+    process_all_files(file_paths)
 
 if __name__ == "__main__":
     main()

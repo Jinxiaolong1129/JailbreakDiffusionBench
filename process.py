@@ -2,12 +2,13 @@ import os
 import json
 
 file_paths = [
-    "data/harmful/4chan/4chan.json",
-    "data/harmful/civitai/civitai_nsfw_prompts_2000.json",
-    "data/harmful/I2P/i2p.json",
-    "data/harmful/sneakyprompt/sneakyprompt.json",
-    "data/harmful/VBCDE/VBCDE.json",
-    "data/harmful/diffusion_db/diffusion_db_harm.json"
+    # "data/harmful/I2P/i2p_translate.json",
+    # "data/harmful/VBCDE/VBCDE_translate.json"
+    # "data/harmful/4chan/4chan_translate.json"
+    # "data/harmful/civitai/civitai_nsfw_prompts_2000_translate.json"
+    # "data/harmful/diffusion_db/diffusion_db_harm_translate.json"
+    # "data/harmful/sneakyprompt/sneakyprompt_translate.json"
+    "data/harmful/diffusion_db/diffusion_db_harm_translate_2000.json"
 ]
 
 # 输出目录
@@ -35,7 +36,7 @@ for file_path in file_paths:
             "data": {
                 "id": item.get("id"),
                 "text": item.get("text"),
-                "translated_prompt": "",  # 这里可以填入翻译，如果有的话
+                "translated_prompt": item.get("translate"),
                 "orignal_class": item.get("label"),
                 "source": item.get("source"),
                 "category": item.get("category"),
