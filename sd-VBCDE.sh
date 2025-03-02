@@ -8,12 +8,17 @@ MODELS=(
   # "config/no_attack/harmful/VBCDE/stable-diffusion-2.yaml"
   # "config/no_attack/harmful/VBCDE/stable-diffusion-xl-base-0.9.yaml"
   # "config/no_attack/harmful/VBCDE/stable-diffusion-3.5-large-turbo.yaml"
-  "config/no_attack/harmful/VBCDE/stable-diffusion-3.5-medium.yaml"
-  "config/no_attack/harmful/VBCDE/stable-diffusion-3.5-large.yaml"
+  # "config/no_attack/harmful/VBCDE/stable-diffusion-3.5-medium.yaml"
+  # "config/no_attack/harmful/VBCDE/stable-diffusion-3.5-large.yaml"
+  
+  # "config/no_attack/harmful/VBCDE/hunyuan-dit-v1.2-distilled.yaml"
+
+  "config/no_attack/harmful/VBCDE/flux-1-dev.yaml"
+  # "config/no_attack/harmful/VBCDE/cogview.yaml"q
 )
 
 # Available GPUs as specified
-AVAILABLE_GPUS=(4 7)
+AVAILABLE_GPUS=(1)
 
 # Create logs directory if it doesn't exist
 mkdir -p logs/VBCDE
