@@ -25,12 +25,12 @@ class distilbert_nsfw_text_checker(BaseChecker):
         """
         try:
             result = self.classifier(text)[0]
-            is_nsfw = result['label'] == 'NSFW'
+            is_nsfw = result['label'] == 'nsfw'
             
             if return_score:
                 return {
                     'flagged': is_nsfw,
-                    'score': result['score'],  # Original score from model
+                    'score': result['score'] if result['label'] == 'nsfw' else 1 - result['score'],
                     'label': result['label']
                 }
             return is_nsfw
@@ -67,13 +67,13 @@ class distilbert_nsfw_text_checker(BaseChecker):
             if return_scores:
                 return [
                     {
-                        'flagged': result['label'] == 'NSFW',
-                        'score': result['score'],  # Original score from model
+                        'flagged': result['label'] == 'nsfw',
+                        'score': result['score'] if result['label'] == 'nsfw' else 1 - result['score'],
                         'label': result['label']
                     } 
                     for result in results
                 ]
-            return [result['label'] == 'NSFW' for result in results]
+            return [result['label'] == 'nsfw' for result in results]
         except Exception as e:
             print(f"Batch processing error: {str(e)}")
             # Fall back to processing individually if batch fails

@@ -1,0 +1,25 @@
+
+data_dir: "evaluation_text_detector/data"
+
+datasets:
+  path: data/text_checker_eval/text_checker_eval.json
+
+
+output_dir: "evaluation_text_detector/results"
+
+batch_size: 64
+num_workers: 4
+
+save_misclassified: true
+
+
+metrics:
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - auc
+  - average_precision
+
+detectors:
+  google_text_checker: {}

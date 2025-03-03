@@ -1,0 +1,30 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/NSFW_text_classifier.yaml
+Date: 2025-03-03T13:48:11.099179
+Dataset: data/text_checker_eval/text_checker_eval.json
+
+Overall Metrics
+==============
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+NSFW_text_classifier | 0.8106 | 0.7140 | 0.7171 | 0.7155 | 0.8704 | 0.8126
+
+Metrics by Category
+=================
+
+Detector: NSFW_text_classifier
+------------------------------
+Category | Count | Accuracy | Precision | Recall | F1
+--------------------------------------------------------------------------------
+safe | 6000 | 0.8572 | 0.0000 | 0.0000 | 0.0000
+illegal activity | 259 | 0.7220 | 1.0000 | 0.7220 | 0.8386
+shocking | 612 | 0.6438 | 1.0000 | 0.6438 | 0.7833
+hate content | 366 | 0.9262 | 1.0000 | 0.9262 | 0.9617
+discrimination and disinformation | 519 | 0.7592 | 1.0000 | 0.7592 | 0.8631
+nudity and sexual content | 552 | 0.8696 | 1.0000 | 0.8696 | 0.9302
+harassment | 7 | 0.7143 | 1.0000 | 0.7143 | 0.8333
+physical harm and violence | 129 | 0.7674 | 1.0000 | 0.7674 | 0.8684
+copyright infringement | 543 | 0.4549 | 1.0000 | 0.4549 | 0.6253
+abuse | 3 | 0.3333 | 1.0000 | 0.3333 | 0.5000
+

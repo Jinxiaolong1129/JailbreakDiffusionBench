@@ -62,7 +62,7 @@ class TextBenchmarkRunner:
             "gpt_4o_mini": GPTChecker,
             "llama_guard": LlamaGuardChecker,
             "azure_text_moderation": AzureTextDetector,
-            "google_text_moderation": GoogleTextModerator,
+            "google_text_checker": GoogleTextModerator,
             "nvidia_aegis": NvidiaAegisChecker
         }
         
@@ -83,7 +83,7 @@ class TextBenchmarkRunner:
         return detectors
     
     def calculate_metrics_by_attribute(self, predictions, attribute_name):
-        """Calculate metrics grouped by an attribute (source or category)"""
+        """Calculate metrics grouped by an attribute (category)"""
         result = {}
         attribute_groups = defaultdict(list)
         
@@ -185,12 +185,8 @@ class TextBenchmarkRunner:
                         if "flagged" in pred:
                             binary_predictions.append(1 if pred["flagged"] else 0)
                             if "score" in pred:
-                                if "label" in pred and pred["label"] == "NSFW":
-                                    # For NSFW label, use score directly
+                                if "label" in pred:
                                     confidence_scores.append(float(pred["score"]))
-                                else:
-                                    # For SFW label, use appropriate score for AUC calculation
-                                    confidence_scores.append(1.0 - float(pred["score"]))
                             else:
                                 confidence_scores.append(1.0 if pred["flagged"] else 0.0)
                         elif "harmful" in pred:
@@ -232,6 +228,17 @@ class TextBenchmarkRunner:
                 
                 # Calculate metrics using the confidence scores for better ROC/PR curves
                 metrics = self.metrics_calculator.calculate_metrics(true_labels, confidence_scores)
+                
+                # Double-check accuracy calculation
+                correct_count = sum(1 for i in range(len(binary_predictions)) if binary_predictions[i] == true_labels[i])
+                calculated_accuracy = correct_count / len(binary_predictions)
+                
+                # If there's a significant discrepancy, override the calculated accuracy
+                if abs(metrics["basic_metrics"]["accuracy"] - calculated_accuracy) > 0.01:
+                    print(f"Warning: Original accuracy calculation ({metrics['basic_metrics']['accuracy']:.4f}) differs from direct calculation ({calculated_accuracy:.4f})")
+                    print(f"Using direct calculation instead: {correct_count} correct predictions out of {len(binary_predictions)} total")
+                    metrics["basic_metrics"]["accuracy"] = calculated_accuracy
+                    
                 results[detector_name] = metrics
                 
                 detailed_predictions = []
@@ -248,12 +255,10 @@ class TextBenchmarkRunner:
                         "raw_prediction": raw_predictions[i]
                     })
 
-                # Calculate metrics by source and category
-                source_metrics = self.calculate_metrics_by_attribute(detailed_predictions, "source")
+                # Calculate metrics by category only
                 category_metrics = self.calculate_metrics_by_attribute(detailed_predictions, "category")
                 
-                # Add breakdowns to results
-                results[detector_name]["source_breakdown"] = source_metrics
+                # Add category breakdown to results
                 results[detector_name]["category_breakdown"] = category_metrics
                 
                 # Save detailed results
@@ -263,7 +268,6 @@ class TextBenchmarkRunner:
                     "total_prompts": len(detailed_predictions),
                     "correctly_classified": sum(1 for p in detailed_predictions if p["correct"]),
                     "metrics": metrics["basic_metrics"],
-                    "source_breakdown": source_metrics,
                     "category_breakdown": category_metrics,
                     "predictions": detailed_predictions
                 }
@@ -278,13 +282,8 @@ class TextBenchmarkRunner:
                 with open(detailed_output_file, "w") as f:
                     json.dump(detailed_results, f, indent=2)
                 
-                # Save metrics by source and category to separate files
-                source_metrics_file = dataset_output_dir / f"{dataset_name}_{detector_name}_source_metrics.json"
+                # Save metrics by category to separate file
                 category_metrics_file = dataset_output_dir / f"{dataset_name}_{detector_name}_category_metrics.json"
-                
-                with open(source_metrics_file, "w") as f:
-                    json.dump(source_metrics, f, indent=2)
-                    
                 with open(category_metrics_file, "w") as f:
                     json.dump(category_metrics, f, indent=2)
                 
@@ -296,21 +295,15 @@ class TextBenchmarkRunner:
                         with open(misclassified_file, "w") as f:
                             json.dump(misclassified, f, indent=2)
                 
-                # Create visualizations for source and category breakdowns
+                # Create visualizations for category breakdowns
                 try:
-                    # Visualize performance by source
-                    self.visualizer.plot_category_performance(
-                        {"categories": source_metrics["groups"], "metrics": source_metrics["metrics"]},
-                        f"{dataset_name}_{detector_name}_Source_Performance"
-                    )
-                    
                     # Visualize performance by category
                     self.visualizer.plot_category_performance(
                         {"categories": category_metrics["groups"], "metrics": category_metrics["metrics"]},
                         f"{dataset_name}_{detector_name}_Category_Performance"
                     )
                 except Exception as e:
-                    print(f"Error generating breakdown visualizations: {e}")
+                    print(f"Error generating category breakdown visualizations: {e}")
                     import traceback
                     traceback.print_exc()
                 
@@ -356,7 +349,6 @@ class TextBenchmarkRunner:
             "dataset": self.config.get("datasets", {}).get("path", ""),
             "detectors": list(self.config.get("detectors", {}).keys()),
             "results_summary": {},
-            "source_breakdown_summary": {},
             "category_breakdown_summary": {}
         }
         
@@ -377,18 +369,6 @@ class TextBenchmarkRunner:
                 "roc_auc": metrics["curves"]["roc"]["auc"],
                 "average_precision": metrics["curves"]["pr"]["average_precision"]
             }
-            
-            # Add source breakdown
-            if "source_breakdown" in metrics:
-                summary["source_breakdown_summary"][detector_name] = {}
-                for source, source_metrics in metrics["source_breakdown"]["metrics"].items():
-                    summary["source_breakdown_summary"][detector_name][source] = {
-                        "count": source_metrics["count"],
-                        "accuracy": source_metrics["metrics"]["accuracy"],
-                        "precision": source_metrics["metrics"]["precision"],
-                        "recall": source_metrics["metrics"]["recall"],
-                        "f1": source_metrics["metrics"].get("f1", 0.0)
-                    }
                     
             # Add category breakdown
             if "category_breakdown" in metrics:
@@ -443,34 +423,6 @@ class TextBenchmarkRunner:
                     f.write(" | ".join(row) + "\n")
             
             f.write("\n")
-            
-            # Add source breakdown summary
-            if summary["source_breakdown_summary"]:
-                f.write(f"Metrics by Source\n")
-                f.write(f"===============\n\n")
-                
-                for detector_name, sources in summary["source_breakdown_summary"].items():
-                    f.write(f"Detector: {detector_name}\n")
-                    f.write("-" * (len(detector_name) + 10) + "\n")
-                    
-                    # Create header
-                    metrics_header = ["Source", "Count", "Accuracy", "Precision", "Recall", "F1"]
-                    f.write(" | ".join(metrics_header) + "\n")
-                    f.write("-" * 80 + "\n")
-                    
-                    # Add source rows
-                    for source, metrics in sources.items():
-                        row = [
-                            source,
-                            f"{metrics['count']}",
-                            f"{metrics['accuracy']:.4f}",
-                            f"{metrics['precision']:.4f}",
-                            f"{metrics['recall']:.4f}",
-                            f"{metrics['f1']:.4f}"
-                        ]
-                        f.write(" | ".join(row) + "\n")
-                    
-                    f.write("\n")
             
             # Add category breakdown summary
             if summary["category_breakdown_summary"]:
@@ -554,14 +506,6 @@ def main():
             print(f"      {metric_name}: {value:.4f}")
         print(f"    ROC AUC: {metrics['curves']['roc']['auc']:.4f}")
         print(f"    Average Precision: {metrics['curves']['pr']['average_precision']:.4f}")
-        
-        # Print source breakdown
-        if "source_breakdown" in metrics:
-            print("\n    Metrics by Source:")
-            for source, source_metrics in metrics["source_breakdown"]["metrics"].items():
-                print(f"      {source} (n={source_metrics['count']}):")
-                print(f"        Accuracy: {source_metrics['metrics']['accuracy']:.4f}")
-                print(f"        F1: {source_metrics['metrics'].get('f1', 0.0):.4f}")
         
         # Print category breakdown
         if "category_breakdown" in metrics:

@@ -1,0 +1,30 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/distilbert_nsfw_text_checker.yaml
+Date: 2025-03-03T13:36:46.405955
+Dataset: data/text_checker_eval/text_checker_eval.json
+
+Overall Metrics
+==============
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+distilbert_nsfw_text_checker | 0.8258 | 0.9366 | 0.5099 | 0.6603 | 0.8160 | 0.7902
+
+Metrics by Category
+=================
+
+Detector: distilbert_nsfw_text_checker
+--------------------------------------
+Category | Count | Accuracy | Precision | Recall | F1
+--------------------------------------------------------------------------------
+safe | 6000 | 0.9828 | 0.0000 | 0.0000 | 0.0000
+illegal activity | 259 | 0.3282 | 1.0000 | 0.3282 | 0.4942
+shocking | 612 | 0.4706 | 1.0000 | 0.4706 | 0.6400
+hate content | 366 | 0.7978 | 1.0000 | 0.7978 | 0.8875
+discrimination and disinformation | 519 | 0.4393 | 1.0000 | 0.4393 | 0.6104
+nudity and sexual content | 552 | 0.7681 | 1.0000 | 0.7681 | 0.8689
+harassment | 7 | 0.4286 | 1.0000 | 0.4286 | 0.6000
+physical harm and violence | 129 | 0.6357 | 1.0000 | 0.6357 | 0.7773
+copyright infringement | 543 | 0.2320 | 1.0000 | 0.2320 | 0.3767
+abuse | 3 | 0.0000 | 0.0000 | 0.0000 | 0.0000
+

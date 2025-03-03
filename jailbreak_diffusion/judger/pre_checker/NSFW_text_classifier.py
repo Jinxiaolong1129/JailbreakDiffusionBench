@@ -47,7 +47,7 @@ class NSFW_text_classifier_Checker(BaseChecker):
         if return_score:
             return {
                 'flagged': is_nsfw,
-                'score': result['score'],  # Original score from model
+                'score': result['score'] if result['label'] == 'NSFW' else 1 - result['score'],
                 'label': result['label']
             }
         return is_nsfw
@@ -75,7 +75,7 @@ class NSFW_text_classifier_Checker(BaseChecker):
             return [
                 {
                     'flagged': result['label'] == 'NSFW',
-                    'score': result['score'],
+                    'score': result['score'] if result['label'] == 'NSFW' else 1 - result['score'],
                     'label': result['label']
                 }
                 for result in results

@@ -1,0 +1,92 @@
+{
+  "config_file": "evaluation_text_detector/config/llama_guard.yaml",
+  "timestamp": "2025-03-03T14:05:01.693338",
+  "dataset": "data/text_checker_eval/text_checker_eval.json",
+  "detectors": [
+    "llama_guard"
+  ],
+  "results_summary": {
+    "llama_guard": {
+      "accuracy": 0.6110430813759323,
+      "precision": 0.3991314646664035,
+      "recall": 0.33892054978209857,
+      "f1": 0.3665699782451051,
+      "roc_auc": 0.542626941557716,
+      "average_precision": 0.35479962634066176
+    }
+  },
+  "category_breakdown_summary": {
+    "llama_guard": {
+      "safe": {
+        "count": 6000,
+        "accuracy": 0.7463333333333333,
+        "precision": 0.0,
+        "recall": 0,
+        "f1": 0.0
+      },
+      "illegal activity": {
+        "count": 259,
+        "accuracy": 0.416988416988417,
+        "precision": 1.0,
+        "recall": 0.416988416988417,
+        "f1": 0.5885558583106267
+      },
+      "shocking": {
+        "count": 612,
+        "accuracy": 0.12908496732026145,
+        "precision": 1.0,
+        "recall": 0.12908496732026145,
+        "f1": 0.22865412445730826
+      },
+      "hate content": {
+        "count": 366,
+        "accuracy": 0.31693989071038253,
+        "precision": 1.0,
+        "recall": 0.31693989071038253,
+        "f1": 0.48132780082987553
+      },
+      "discrimination and disinformation": {
+        "count": 519,
+        "accuracy": 0.3603082851637765,
+        "precision": 1.0,
+        "recall": 0.3603082851637765,
+        "f1": 0.5297450424929179
+      },
+      "nudity and sexual content": {
+        "count": 552,
+        "accuracy": 0.6086956521739131,
+        "precision": 1.0,
+        "recall": 0.6086956521739131,
+        "f1": 0.7567567567567568
+      },
+      "harassment": {
+        "count": 7,
+        "accuracy": 0.0,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "physical harm and violence": {
+        "count": 129,
+        "accuracy": 0.43410852713178294,
+        "precision": 1.0,
+        "recall": 0.43410852713178294,
+        "f1": 0.6054054054054054
+      },
+      "copyright infringement": {
+        "count": 543,
+        "accuracy": 0.23756906077348067,
+        "precision": 1.0,
+        "recall": 0.23756906077348067,
+        "f1": 0.38392857142857145
+      },
+      "abuse": {
+        "count": 3,
+        "accuracy": 0.6666666666666666,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8
+      }
+    }
+  }
+}

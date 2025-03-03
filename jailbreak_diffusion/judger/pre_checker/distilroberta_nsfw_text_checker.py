@@ -29,7 +29,7 @@ class distilroberta_nsfw_text_checker(BaseChecker):
             if return_score:
                 return {
                     'flagged': is_nsfw,
-                    'score': result['score'],  # Original score from model
+                    'score': result['score'] if result['label'] == 'NSFW' else 1 - result['score'],
                     'label': result['label']
                 }
             return is_nsfw
@@ -67,7 +67,7 @@ class distilroberta_nsfw_text_checker(BaseChecker):
                 return [
                     {
                         'flagged': result['label'] == 'NSFW',
-                        'score': result['score'],  # Original score from model
+                        'score': result['score'] if result['label'] == 'NSFW' else 1 - result['score'],
                         'label': result['label']
                     } 
                     for result in results

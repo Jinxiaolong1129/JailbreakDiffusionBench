@@ -1,0 +1,92 @@
+{
+  "config_file": "evaluation_text_detector/config/distilbert_nsfw_text_checker.yaml",
+  "timestamp": "2025-03-03T13:36:46.405955",
+  "dataset": "data/text_checker_eval/text_checker_eval.json",
+  "detectors": [
+    "distilbert_nsfw_text_checker"
+  ],
+  "results_summary": {
+    "distilbert_nsfw_text_checker": {
+      "accuracy": 0.8257820327284872,
+      "precision": 0.9365763546798029,
+      "recall": 0.5098893731143145,
+      "f1": 0.6602995441719123,
+      "roc_auc": 0.8159928762990278,
+      "average_precision": 0.7902443100610892
+    }
+  },
+  "category_breakdown_summary": {
+    "distilbert_nsfw_text_checker": {
+      "safe": {
+        "count": 6000,
+        "accuracy": 0.9828333333333333,
+        "precision": 0.0,
+        "recall": 0,
+        "f1": 0.0
+      },
+      "illegal activity": {
+        "count": 259,
+        "accuracy": 0.3281853281853282,
+        "precision": 1.0,
+        "recall": 0.3281853281853282,
+        "f1": 0.4941860465116279
+      },
+      "shocking": {
+        "count": 612,
+        "accuracy": 0.47058823529411764,
+        "precision": 1.0,
+        "recall": 0.47058823529411764,
+        "f1": 0.64
+      },
+      "hate content": {
+        "count": 366,
+        "accuracy": 0.7978142076502732,
+        "precision": 1.0,
+        "recall": 0.7978142076502732,
+        "f1": 0.8875379939209727
+      },
+      "discrimination and disinformation": {
+        "count": 519,
+        "accuracy": 0.4393063583815029,
+        "precision": 1.0,
+        "recall": 0.4393063583815029,
+        "f1": 0.6104417670682731
+      },
+      "nudity and sexual content": {
+        "count": 552,
+        "accuracy": 0.7681159420289855,
+        "precision": 1.0,
+        "recall": 0.7681159420289855,
+        "f1": 0.8688524590163934
+      },
+      "harassment": {
+        "count": 7,
+        "accuracy": 0.42857142857142855,
+        "precision": 1.0,
+        "recall": 0.42857142857142855,
+        "f1": 0.6
+      },
+      "physical harm and violence": {
+        "count": 129,
+        "accuracy": 0.6356589147286822,
+        "precision": 1.0,
+        "recall": 0.6356589147286822,
+        "f1": 0.7772511848341233
+      },
+      "copyright infringement": {
+        "count": 543,
+        "accuracy": 0.23204419889502761,
+        "precision": 1.0,
+        "recall": 0.23204419889502761,
+        "f1": 0.37668161434977576
+      },
+      "abuse": {
+        "count": 3,
+        "accuracy": 0.0,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  }
+}

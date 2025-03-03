@@ -1,0 +1,10 @@
+{
+  "config_file": "evaluation_text_detector/config/google_text_checker.yaml",
+  "timestamp": "2025-03-03T13:58:03.466744",
+  "dataset": "data/text_checker_eval/text_checker_eval.json",
+  "detectors": [
+    "google_text_checker"
+  ],
+  "results_summary": {},
+  "category_breakdown_summary": {}
+}

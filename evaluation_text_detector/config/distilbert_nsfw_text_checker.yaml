@@ -7,7 +7,7 @@ datasets:
 
 output_dir: "evaluation_text_detector/results"
 
-batch_size: 64
+batch_size: 512
 num_workers: 4
 
 save_misclassified: true

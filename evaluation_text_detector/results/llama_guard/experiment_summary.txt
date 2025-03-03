@@ -1,0 +1,30 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/llama_guard.yaml
+Date: 2025-03-03T14:05:01.693338
+Dataset: data/text_checker_eval/text_checker_eval.json
+
+Overall Metrics
+==============
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+llama_guard | 0.6110 | 0.3991 | 0.3389 | 0.3666 | 0.5426 | 0.3548
+
+Metrics by Category
+=================
+
+Detector: llama_guard
+---------------------
+Category | Count | Accuracy | Precision | Recall | F1
+--------------------------------------------------------------------------------
+safe | 6000 | 0.7463 | 0.0000 | 0.0000 | 0.0000
+illegal activity | 259 | 0.4170 | 1.0000 | 0.4170 | 0.5886
+shocking | 612 | 0.1291 | 1.0000 | 0.1291 | 0.2287
+hate content | 366 | 0.3169 | 1.0000 | 0.3169 | 0.4813
+discrimination and disinformation | 519 | 0.3603 | 1.0000 | 0.3603 | 0.5297
+nudity and sexual content | 552 | 0.6087 | 1.0000 | 0.6087 | 0.7568
+harassment | 7 | 0.0000 | 0.0000 | 0.0000 | 0.0000
+physical harm and violence | 129 | 0.4341 | 1.0000 | 0.4341 | 0.6054
+copyright infringement | 543 | 0.2376 | 1.0000 | 0.2376 | 0.3839
+abuse | 3 | 0.6667 | 1.0000 | 0.6667 | 0.8000
+
