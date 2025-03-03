@@ -7,6 +7,8 @@ import datetime
 import importlib
 import sys
 import os
+import pandas as pd
+from collections import defaultdict
 
 from jailbreak_diffusion.judger.pre_checker import OpenAITextDetector, AzureTextDetector, GoogleTextModerator, GPTChecker, LlamaGuardChecker, NSFW_text_classifier_Checker, NSFW_word_match_Checker, distilbert_nsfw_text_checker, distilroberta_nsfw_text_checker, NvidiaAegisChecker
 
@@ -79,6 +81,41 @@ class TextBenchmarkRunner:
                     traceback.print_exc()
                     
         return detectors
+    
+    def calculate_metrics_by_attribute(self, predictions, attribute_name):
+        """Calculate metrics grouped by an attribute (source or category)"""
+        result = {}
+        attribute_groups = defaultdict(list)
+        
+        # Group predictions by the specified attribute
+        for pred in predictions:
+            attr_value = pred.get(attribute_name, "unknown")
+            
+            # Handle category being a list
+            if isinstance(attr_value, list):
+                for value in attr_value:
+                    attribute_groups[value].append(pred)
+            else:
+                attribute_groups[attr_value].append(pred)
+                
+        # Calculate metrics for each group
+        for attr_value, group_preds in attribute_groups.items():
+            true_labels = [1 if p["actual_label"] == "harmful" else 0 for p in group_preds]
+            pred_scores = [p["prediction_score"] for p in group_preds]
+            
+            metrics = self.metrics_calculator.calculate_metrics(true_labels, pred_scores)
+            
+            result[attr_value] = {
+                "count": len(group_preds),
+                "metrics": metrics["basic_metrics"],
+                "confusion_matrix": metrics["confusion_matrix"]
+            }
+            
+        return {
+            "total_count": sum(len(group) for group in attribute_groups.values()),
+            "groups": list(attribute_groups.keys()),
+            "metrics": result
+        }
         
     def evaluate_dataset(self, dataset_path: str) -> Dict:
         """Evaluate a single dataset with all detectors"""
@@ -192,35 +229,9 @@ class TextBenchmarkRunner:
 
                 # Prepare evaluation data
                 true_labels = [1 if p.label == "harmful" else 0 for p in dataset]
-                categories = [p.category for p in dataset]
-
+                
                 # Calculate metrics using the confidence scores for better ROC/PR curves
                 metrics = self.metrics_calculator.calculate_metrics(true_labels, confidence_scores)
-                
-                # Calculate metrics by source
-                sources = [p.source for p in dataset]
-                unique_sources = list(set(sources))
-                source_metrics = {}
-                
-                for source in unique_sources:
-                    # Get indices for this source
-                    source_indices = [i for i, s in enumerate(sources) if s == source]
-                    # Extract data for this source
-                    source_true_labels = [true_labels[i] for i in source_indices]
-                    source_confidence_scores = [confidence_scores[i] for i in source_indices]
-                    # Skip if too few samples
-                    if len(source_true_labels) < 2:
-                        continue
-                    # Calculate metrics for this source
-                    source_metrics[source] = {
-                        "count": len(source_indices),
-                        "metrics": self.metrics_calculator.calculate_metrics(
-                            source_true_labels, source_confidence_scores
-                        )
-                    }
-                
-                # Add source metrics to results
-                metrics["source_metrics"] = source_metrics
                 results[detector_name] = metrics
                 
                 detailed_predictions = []
@@ -237,6 +248,14 @@ class TextBenchmarkRunner:
                         "raw_prediction": raw_predictions[i]
                     })
 
+                # Calculate metrics by source and category
+                source_metrics = self.calculate_metrics_by_attribute(detailed_predictions, "source")
+                category_metrics = self.calculate_metrics_by_attribute(detailed_predictions, "category")
+                
+                # Add breakdowns to results
+                results[detector_name]["source_breakdown"] = source_metrics
+                results[detector_name]["category_breakdown"] = category_metrics
+                
                 # Save detailed results
                 detailed_results = {
                     "detector": detector_name,
@@ -244,6 +263,8 @@ class TextBenchmarkRunner:
                     "total_prompts": len(detailed_predictions),
                     "correctly_classified": sum(1 for p in detailed_predictions if p["correct"]),
                     "metrics": metrics["basic_metrics"],
+                    "source_breakdown": source_metrics,
+                    "category_breakdown": category_metrics,
                     "predictions": detailed_predictions
                 }
                 
@@ -257,6 +278,16 @@ class TextBenchmarkRunner:
                 with open(detailed_output_file, "w") as f:
                     json.dump(detailed_results, f, indent=2)
                 
+                # Save metrics by source and category to separate files
+                source_metrics_file = dataset_output_dir / f"{dataset_name}_{detector_name}_source_metrics.json"
+                category_metrics_file = dataset_output_dir / f"{dataset_name}_{detector_name}_category_metrics.json"
+                
+                with open(source_metrics_file, "w") as f:
+                    json.dump(source_metrics, f, indent=2)
+                    
+                with open(category_metrics_file, "w") as f:
+                    json.dump(category_metrics, f, indent=2)
+                
                 # Save misclassified examples if configured
                 if self.config.get("save_misclassified", False):
                     misclassified = [p for p in detailed_predictions if not p["correct"]]
@@ -264,6 +295,24 @@ class TextBenchmarkRunner:
                         misclassified_file = dataset_output_dir / f"{dataset_name}_{detector_name}_misclassified.json"
                         with open(misclassified_file, "w") as f:
                             json.dump(misclassified, f, indent=2)
+                
+                # Create visualizations for source and category breakdowns
+                try:
+                    # Visualize performance by source
+                    self.visualizer.plot_category_performance(
+                        {"categories": source_metrics["groups"], "metrics": source_metrics["metrics"]},
+                        f"{dataset_name}_{detector_name}_Source_Performance"
+                    )
+                    
+                    # Visualize performance by category
+                    self.visualizer.plot_category_performance(
+                        {"categories": category_metrics["groups"], "metrics": category_metrics["metrics"]},
+                        f"{dataset_name}_{detector_name}_Category_Performance"
+                    )
+                except Exception as e:
+                    print(f"Error generating breakdown visualizations: {e}")
+                    import traceback
+                    traceback.print_exc()
                 
             except Exception as e:
                 print(f"Error evaluating {detector_name} on {dataset_path}: {e}")
@@ -277,59 +326,12 @@ class TextBenchmarkRunner:
             self.visualizer.plot_pr_curves(results, f"{dataset_name} PR Curves")
             self.visualizer.plot_confusion_matrices(results, f"{dataset_name} Confusion Matrices")
             self.visualizer.plot_f1_threshold_curves(results, f"{dataset_name} F1 vs Threshold")
-            
-            # Generate source-specific visualizations
-            self._generate_source_visualizations(results, dataset_name)
         except Exception as e:
             print(f"Error generating visualizations for {dataset_name}: {e}")
             import traceback
             traceback.print_exc()
                 
         return results
-    
-    def _generate_source_visualizations(self, results: Dict, dataset_name: str):
-        """Generate visualizations for each source"""
-        # First, collect all sources across all detectors
-        all_sources = set()
-        for detector_name, metrics in results.items():
-            if "error" in metrics:
-                continue
-            if "source_metrics" in metrics:
-                all_sources.update(metrics["source_metrics"].keys())
-        
-        # For each source, create a filtered view of results for visualization
-        for source in all_sources:
-            source_results = {}
-            
-            for detector_name, metrics in results.items():
-                if "error" in metrics:
-                    continue
-                if "source_metrics" in metrics and source in metrics["source_metrics"]:
-                    source_results[detector_name] = metrics["source_metrics"][source]["metrics"]
-            
-            # Only create visualizations if we have results for this source
-            if source_results:
-                try:
-                    # Create a source-specific directory
-                    source_dir = self.visualizer.output_dir / "sources" / source
-                    source_dir.mkdir(parents=True, exist_ok=True)
-                    
-                    # Temporarily change visualizer output dir
-                    original_dir = self.visualizer.output_dir
-                    self.visualizer.output_dir = source_dir
-                    
-                    # Generate visualizations
-                    self.visualizer.plot_roc_curves(source_results, f"{dataset_name} - {source} ROC Curves")
-                    self.visualizer.plot_pr_curves(source_results, f"{dataset_name} - {source} PR Curves")
-                    self.visualizer.plot_confusion_matrices(source_results, f"{dataset_name} - {source} Confusion Matrices")
-                    self.visualizer.plot_f1_threshold_curves(source_results, f"{dataset_name} - {source} F1 vs Threshold")
-                    
-                    # Restore original output dir
-                    self.visualizer.output_dir = original_dir
-                except Exception as e:
-                    print(f"Error generating visualizations for source {source}: {e}")
-                    import traceback
-                    traceback.print_exc()
     
     def run_evaluation(self):
         """Run complete evaluation pipeline"""
@@ -354,7 +356,8 @@ class TextBenchmarkRunner:
             "dataset": self.config.get("datasets", {}).get("path", ""),
             "detectors": list(self.config.get("detectors", {}).keys()),
             "results_summary": {},
-            "source_results": {}
+            "source_breakdown_summary": {},
+            "category_breakdown_summary": {}
         }
         
         # Create a summary of key metrics for all detectors
@@ -375,23 +378,28 @@ class TextBenchmarkRunner:
                 "average_precision": metrics["curves"]["pr"]["average_precision"]
             }
             
-            # Extract source metrics if available
-            if "source_metrics" in metrics:
-                if detector_name not in summary["source_results"]:
-                    summary["source_results"][detector_name] = {}
-                
-                for source, source_data in metrics["source_metrics"].items():
-                    source_metrics = source_data["metrics"]["basic_metrics"]
-                    source_curves = source_data["metrics"]["curves"]
+            # Add source breakdown
+            if "source_breakdown" in metrics:
+                summary["source_breakdown_summary"][detector_name] = {}
+                for source, source_metrics in metrics["source_breakdown"]["metrics"].items():
+                    summary["source_breakdown_summary"][detector_name][source] = {
+                        "count": source_metrics["count"],
+                        "accuracy": source_metrics["metrics"]["accuracy"],
+                        "precision": source_metrics["metrics"]["precision"],
+                        "recall": source_metrics["metrics"]["recall"],
+                        "f1": source_metrics["metrics"].get("f1", 0.0)
+                    }
                     
-                    summary["source_results"][detector_name][source] = {
-                        "count": source_data["count"],
-                        "accuracy": source_metrics["accuracy"],
-                        "precision": source_metrics["precision"],
-                        "recall": source_metrics["recall"],
-                        "f1": source_metrics.get("f1", 0.0),
-                        "roc_auc": source_curves["roc"]["auc"] if "roc" in source_curves else 0.0,
-                        "average_precision": source_curves["pr"]["average_precision"] if "pr" in source_curves else 0.0
+            # Add category breakdown
+            if "category_breakdown" in metrics:
+                summary["category_breakdown_summary"][detector_name] = {}
+                for category, category_metrics in metrics["category_breakdown"]["metrics"].items():
+                    summary["category_breakdown_summary"][detector_name][category] = {
+                        "count": category_metrics["count"],
+                        "accuracy": category_metrics["metrics"]["accuracy"],
+                        "precision": category_metrics["metrics"]["precision"],
+                        "recall": category_metrics["metrics"]["recall"],
+                        "f1": category_metrics["metrics"].get("f1", 0.0)
                     }
         
         # Save summary to file
@@ -400,17 +408,16 @@ class TextBenchmarkRunner:
         
         # Generate summary tables as text
         with open(self.output_dir / "experiment_summary.txt", "w") as f:
+            dataset_name = Path(summary["dataset"]).stem
             f.write(f"Experiment Summary\n")
             f.write(f"=================\n")
             f.write(f"Config: {self.config_path}\n")
             f.write(f"Date: {summary['timestamp']}\n")
             f.write(f"Dataset: {summary['dataset']}\n\n")
             
-            # Overall metrics table
+            # Create header for overall metrics
             f.write(f"Overall Metrics\n")
-            f.write(f"--------------\n")
-            
-            # Create header
+            f.write(f"==============\n")
             metrics_header = ["Detector", "Accuracy", "Precision", "Recall", "F1", "ROC AUC", "AP"]
             f.write(" | ".join(metrics_header) + "\n")
             f.write("-" * 80 + "\n")
@@ -437,48 +444,61 @@ class TextBenchmarkRunner:
             
             f.write("\n")
             
-            # Source-specific metrics tables
-            f.write(f"Metrics by Source\n")
-            f.write(f"----------------\n\n")
-            
-            # Get all unique sources across all detectors
-            all_sources = set()
-            for detector_results in summary["source_results"].values():
-                all_sources.update(detector_results.keys())
-            
-            for source in sorted(all_sources):
-                f.write(f"Source: {source}\n")
-                f.write("-" * (len(source) + 8) + "\n")
+            # Add source breakdown summary
+            if summary["source_breakdown_summary"]:
+                f.write(f"Metrics by Source\n")
+                f.write(f"===============\n\n")
                 
-                # Create header
-                f.write(" | ".join(metrics_header) + "\n")
-                f.write("-" * 80 + "\n")
-                
-                # Add data rows for each detector
-                for detector_name in summary["detectors"]:
-                    if (detector_name in summary["source_results"] and 
-                        source in summary["source_results"][detector_name]):
-                        
-                        source_metrics = summary["source_results"][detector_name][source]
+                for detector_name, sources in summary["source_breakdown_summary"].items():
+                    f.write(f"Detector: {detector_name}\n")
+                    f.write("-" * (len(detector_name) + 10) + "\n")
+                    
+                    # Create header
+                    metrics_header = ["Source", "Count", "Accuracy", "Precision", "Recall", "F1"]
+                    f.write(" | ".join(metrics_header) + "\n")
+                    f.write("-" * 80 + "\n")
+                    
+                    # Add source rows
+                    for source, metrics in sources.items():
                         row = [
-                            detector_name,
-                            f"{source_metrics['accuracy']:.4f}",
-                            f"{source_metrics['precision']:.4f}",
-                            f"{source_metrics['recall']:.4f}",
-                            f"{source_metrics['f1']:.4f}",
-                            f"{source_metrics['roc_auc']:.4f}",
-                            f"{source_metrics['average_precision']:.4f}"
+                            source,
+                            f"{metrics['count']}",
+                            f"{metrics['accuracy']:.4f}",
+                            f"{metrics['precision']:.4f}",
+                            f"{metrics['recall']:.4f}",
+                            f"{metrics['f1']:.4f}"
                         ]
                         f.write(" | ".join(row) + "\n")
+                    
+                    f.write("\n")
+            
+            # Add category breakdown summary
+            if summary["category_breakdown_summary"]:
+                f.write(f"Metrics by Category\n")
+                f.write(f"=================\n\n")
                 
-                # Add sample count
-                for detector_name in summary["detectors"]:
-                    if (detector_name in summary["source_results"] and 
-                        source in summary["source_results"][detector_name]):
-                        f.write(f"\nSample count: {summary['source_results'][detector_name][source]['count']}\n")
-                        break
-                
-                f.write("\n\n")
+                for detector_name, categories in summary["category_breakdown_summary"].items():
+                    f.write(f"Detector: {detector_name}\n")
+                    f.write("-" * (len(detector_name) + 10) + "\n")
+                    
+                    # Create header
+                    metrics_header = ["Category", "Count", "Accuracy", "Precision", "Recall", "F1"]
+                    f.write(" | ".join(metrics_header) + "\n")
+                    f.write("-" * 80 + "\n")
+                    
+                    # Add category rows
+                    for category, metrics in categories.items():
+                        row = [
+                            category,
+                            f"{metrics['count']}",
+                            f"{metrics['accuracy']:.4f}",
+                            f"{metrics['precision']:.4f}",
+                            f"{metrics['recall']:.4f}",
+                            f"{metrics['f1']:.4f}"
+                        ]
+                        f.write(" | ".join(row) + "\n")
+                    
+                    f.write("\n")
 
 
 def main():
@@ -535,19 +555,21 @@ def main():
         print(f"    ROC AUC: {metrics['curves']['roc']['auc']:.4f}")
         print(f"    Average Precision: {metrics['curves']['pr']['average_precision']:.4f}")
         
-        # Print source-specific metrics
-        if "source_metrics" in metrics:
+        # Print source breakdown
+        if "source_breakdown" in metrics:
             print("\n    Metrics by Source:")
-            for source, source_data in metrics["source_metrics"].items():
-                source_metrics = source_data["metrics"]["basic_metrics"]
-                source_curves = source_data["metrics"]["curves"]
-                print(f"\n      Source: {source} (samples: {source_data['count']})")
-                print(f"        Accuracy: {source_metrics['accuracy']:.4f}")
-                print(f"        Precision: {source_metrics['precision']:.4f}")
-                print(f"        Recall: {source_metrics['recall']:.4f}")
-                print(f"        F1: {source_metrics.get('f1', 0.0):.4f}")
-                print(f"        ROC AUC: {source_curves['roc']['auc']:.4f}")
-                print(f"        Average Precision: {source_curves['pr']['average_precision']:.4f}")
+            for source, source_metrics in metrics["source_breakdown"]["metrics"].items():
+                print(f"      {source} (n={source_metrics['count']}):")
+                print(f"        Accuracy: {source_metrics['metrics']['accuracy']:.4f}")
+                print(f"        F1: {source_metrics['metrics'].get('f1', 0.0):.4f}")
+        
+        # Print category breakdown
+        if "category_breakdown" in metrics:
+            print("\n    Metrics by Category:")
+            for category, category_metrics in metrics["category_breakdown"]["metrics"].items():
+                print(f"      {category} (n={category_metrics['count']}):")
+                print(f"        Accuracy: {category_metrics['metrics']['accuracy']:.4f}")
+                print(f"        F1: {category_metrics['metrics'].get('f1', 0.0):.4f}")
 
 
 if __name__ == "__main__":
