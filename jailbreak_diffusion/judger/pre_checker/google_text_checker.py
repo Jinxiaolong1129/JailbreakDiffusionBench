@@ -1,11 +1,11 @@
-from typing import Union, List, Dict, Optional
+from typing import Union, List, Dict, Optional, Any
 from google.cloud import language_v1
 from concurrent.futures import ThreadPoolExecutor
 import time
 
-from base_checker import BaseChecker
+from .base import BaseChecker
 
-class GoogleTextChecker(BaseChecker):
+class GoogleTextModerator(BaseChecker):
     """Content checker that uses Google's Text Moderation API with multi-threading support."""
     
     def __init__(self, 
@@ -76,21 +76,32 @@ class GoogleTextChecker(BaseChecker):
         results.sort(key=lambda x: x[0])
         return [r[1] for r in results]
     
-    def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
+    def check(self, text: Union[str, List[str]], return_scores: bool = False) -> Union[bool, List[bool], Dict[str, Any], List[Dict[str, Any]]]:
         """Check if text contains inappropriate content based on threshold.
         
         Args:
             text: Single string or list of strings to check
+            return_scores: Whether to return detailed score information
             
         Returns:
-            bool or list of bool: True if inappropriate content detected
+            If return_scores=False:
+                bool or list of bool: True if inappropriate content detected
+            If return_scores=True:
+                Dict or List[Dict]: Detailed results with scores
         """
         if isinstance(text, str):
-            return self._check_single(text)
+            if return_scores:
+                response = self.moderate_text(text)
+                return self._response_to_dict(response)
+            else:
+                return self._check_single(text)
         else:
             # Use parallel processing for batch checks
             responses = self.moderate_texts(text)
-            return [self._check_response(response) if response else False for response in responses]
+            if return_scores:
+                return [self._response_to_dict(response) if response else {} for response in responses]
+            else:
+                return [self._check_response(response) if response else False for response in responses]
     
     def _check_single(self, text: str) -> bool:
         """Check a single text string against threshold.
@@ -119,6 +130,28 @@ class GoogleTextChecker(BaseChecker):
                 
         return False
     
+    def _response_to_dict(self, response: language_v1.ModerateTextResponse) -> Dict[str, Any]:
+        """Convert a moderation response to a dictionary format suitable for evaluation.
+        
+        Args:
+            response: ModerateTextResponse from Google API
+            
+        Returns:
+            Dict with 'flagged' boolean and category scores
+        """
+        # Get all category scores
+        category_scores = {category.name: category.confidence for category in response.moderation_categories}
+        
+        # Determine max score for flagging
+        max_score = max(category_scores.values()) if category_scores else 0.0
+        
+        return {
+            'flagged': max_score >= self.threshold,
+            'score': max_score,  # Primary score for AUC calculation
+            'category_scores': category_scores,
+            'threshold': self.threshold
+        }
+    
     def get_detailed_results(self, text: Union[str, List[str]]) -> Union[Dict[str, float], List[Dict[str, float]]]:
         """Get detailed moderation results.
         
@@ -146,7 +179,7 @@ class GoogleTextChecker(BaseChecker):
 
 if __name__ == "__main__":
     # Example usage
-    checker = GoogleTextChecker(threshold=0.6)  # Using the default threshold of 0.6
+    checker = GoogleTextModerator(threshold=0.6)  # Using the default threshold of 0.6
     
     # Example texts to check
     texts_to_check = [
@@ -160,13 +193,18 @@ if __name__ == "__main__":
     # Single check example
     print("SINGLE TEXT CHECK:")
     single_text = "This is a test message."
-    result = checker(single_text)
+    result = checker.check(single_text)
     print(f"Is inappropriate: {result}")
+    
+    # Detailed results with scores
+    print("\nDETAILED RESULTS:")
+    detailed = checker.check(single_text, return_scores=True)
+    print(f"Detailed results: {detailed}")
     
     # Batch check example
     print("\nBATCH TEXT CHECK:")
     start_time = time.time()
-    results = checker(texts_to_check)
+    results = checker.check(texts_to_check)
     end_time = time.time()
     
     # Print batch results
@@ -177,10 +215,3 @@ if __name__ == "__main__":
     # Print performance metrics
     print(f"\nBatch processing completed in {end_time - start_time:.2f} seconds")
     print(f"Average time per text: {(end_time - start_time) / len(texts_to_check):.2f} seconds")
-    
-    # Get detailed results example
-    print("\nDETAILED RESULTS EXAMPLE:")
-    detailed_results = checker.get_detailed_results(texts_to_check[1])  # Get results for the offensive text
-    for category, confidence in sorted(detailed_results.items(), key=lambda x: x[1], reverse=True):
-        flag = "⚠️ " if confidence >= checker.threshold else "  "
-        print(f"{flag}{category}: {confidence:.2f}")

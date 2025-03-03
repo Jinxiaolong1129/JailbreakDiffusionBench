@@ -3,14 +3,23 @@
 data_dir: "evaluation_text_detector/data"
 
 datasets:
-  i2p_filtered:
-    path: "data/harmful/I2P/I2P_filtered_test.json"
+  harmful:
+    I2P:
+      path: data/harmful/I2P/I2P_filtered_harmful.json
+    4chan:
+      path: data/harmful/4chan/4chan_filtered_harmful.json
+    VBCDE:
+      path: data/harmful/VBCDE/VBCDE_filtered_harmful.json
+    civitai:
+      path: data/harmful/civitai/civitai_filtered_harmful.json
+    diffusion_db:
+      path: data/harmful/diffusion_db/diffusion_db_filtered_harmful.json
+    sneakyprompt:
+      path: data/harmful/sneakyprompt/sneakyprompt_filtered_harmful.json
 
-  # i2p_filtered:
-  #   path: "evaluation_text_detector/data/I2P/I2P_filtered_test.json"
-
-  # test:
-  #   path: "evaluation_text_detector/data/harmful/test.json"
+  benign:
+    diffusion_db:
+      path: data/benign/diffusion_db/diffusion_db_benign_6000_translate.json
 
 
 

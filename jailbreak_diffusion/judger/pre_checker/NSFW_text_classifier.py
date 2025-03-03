@@ -1,11 +1,8 @@
-# jailbreak_diffusion/judger/pre_checker/NSFW_text_classifier.py
-
-from typing import Union, List
+from typing import Union, List, Dict, Any
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 from .base import BaseChecker
 
 
-# NOTE finish testing
 # True: NSFW
 # False: Safe
 
@@ -33,26 +30,56 @@ class NSFW_text_classifier_Checker(BaseChecker):
                 model=self.model
             )
 
-    def _check_single_text(self, text: str) -> bool:
-        """Check single text using the model."""
+    def _check_single_text(self, text: str, return_score: bool = False) -> Union[bool, Dict[str, Any]]:
+        """Check single text using the model.
+        
+        Args:
+            text: Text to check
+            return_score: If True, returns detailed results with score
+            
+        Returns:
+            Boolean result or dictionary with detailed results
+        """
         self._ensure_model_loaded()
         result = self.classifier([text])[0]
-        return result['label'] == 'NSFW'
+        is_nsfw = result['label'] == 'NSFW'
+        
+        if return_score:
+            return {
+                'flagged': is_nsfw,
+                'score': result['score'],  # Original score from model
+                'label': result['label']
+            }
+        return is_nsfw
 
-    def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
+    def check(self, text: Union[str, List[str]], return_scores: bool = False) -> Union[bool, List[bool], Dict[str, Any], List[Dict[str, Any]]]:
         """Check if text contains inappropriate content using the model.
         
         Args:
             text: Single string or list of strings to check
+            return_scores: If True, returns detailed results with confidence scores
             
         Returns:
-            bool or list of bool: True if inappropriate content detected
+            If return_scores=False:
+                Boolean or list of booleans indicating NSFW content
+            If return_scores=True:
+                Dict or list of dicts with 'flagged', 'score', and 'label'
         """
         if isinstance(text, str):
-            return self._check_single_text(text)
+            return self._check_single_text(text, return_scores)
             
         self._ensure_model_loaded()
         results = self.classifier(text)
+        
+        if return_scores:
+            return [
+                {
+                    'flagged': result['label'] == 'NSFW',
+                    'score': result['score'],
+                    'label': result['label']
+                }
+                for result in results
+            ]
         return [result['label'] == 'NSFW' for result in results]
     
     
@@ -64,7 +91,15 @@ if __name__ == "__main__":
         "Let's have a nice day at the park",
         "Fuck your mother!",
     ]
+    
+    # Test with simple boolean results
     results = checker.check(test_texts)
     for text, is_nsfw in zip(test_texts, results):
         print(f"Text: {text}")
         print(f"Is NSFW: {is_nsfw}\n")
+    
+    # Test with detailed scores
+    results_with_scores = checker.check(test_texts, return_scores=True)
+    for text, result in zip(test_texts, results_with_scores):
+        print(f"Text: {text}")
+        print(f"Result: {result}\n")

@@ -61,6 +61,10 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "evaluation_text_detector/config/distilbert_nsfw_text_checker.yaml"
+            ],
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }

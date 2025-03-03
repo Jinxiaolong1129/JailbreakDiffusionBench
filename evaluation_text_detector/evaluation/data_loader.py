@@ -55,7 +55,12 @@ class DatasetLoader:
         for p in data["prompts"]:
             category = p.get("category", "")
             if category:
-                categories[category] = categories.get(category, 0) + 1
+                # Handle case where category is a list
+                if isinstance(category, list):
+                    for cat in category:
+                        categories[cat] = categories.get(cat, 0) + 1
+                else:
+                    categories[category] = categories.get(category, 0) + 1
         
         # Get sources
         sources = {}

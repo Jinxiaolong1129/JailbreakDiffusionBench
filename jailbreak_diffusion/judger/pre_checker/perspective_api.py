@@ -2,7 +2,7 @@ from typing import Union, List, Dict, Any
 import os
 from googleapiclient import discovery
 
-from base_checker import BaseChecker
+from .base import BaseChecker
 
 class PerspectiveAPIChecker(BaseChecker):
     """Content checker that uses Google's Perspective API to detect toxicity."""

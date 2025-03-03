@@ -1,0 +1,23 @@
+{
+  "name": "sneaky",
+  "description": "",
+  "total_prompts": 200,
+  "harmful_prompts": 200,
+  "benign_prompts": 0,
+  "categories": {
+    "unique": [
+      "nudity and sexual content"
+    ],
+    "counts": {
+      "nudity and sexual content": 200
+    }
+  },
+  "sources": {
+    "unique": [
+      "sneaky"
+    ],
+    "counts": {
+      "sneaky": 200
+    }
+  }
+}

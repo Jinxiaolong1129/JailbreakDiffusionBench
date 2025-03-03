@@ -1,0 +1,23 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/distilbert_nsfw_text_checker.yaml
+Date: 2025-03-03T12:15:43.143707
+
+
+Category: harmful
+=================
+
+
+Dataset: text_checker_eval
+---------------------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+distilbert_nsfw_text_checker | 0.6679 | 0.0000 | 0.0000 | 0.0000 | 0.6363 | 0.4986
+
+
+Category Average: harmful
+------------------------
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+distilbert_nsfw_text_checker | 0.6679 | 0.0000 | 0.0000 | 0.0000 | 0.6363 | 0.4986
+
