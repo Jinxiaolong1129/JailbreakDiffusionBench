@@ -23,4 +23,4 @@ metrics:
   - average_precision
 
 detectors:
-  gpt_4o_mini: {simple}
+  gpt_4o_mini: {}

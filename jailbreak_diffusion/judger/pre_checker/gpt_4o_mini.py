@@ -19,7 +19,7 @@ class GPTChecker(BaseChecker):
         api_key = os.getenv('OPENAI_API_KEY')
         if not api_key:
             raise ValueError("OPENAI_API_KEY environment variable not set")
-        prompt_file = f'prompts/{prompt_file}.md'
+        prompt_file = f'jailbreak_diffusion/judger/pre_checker/prompts/{prompt_file}.md'
         self.client = openai.OpenAI(api_key=api_key)
         self.model = model
         self.max_workers = max_workers
@@ -63,6 +63,7 @@ class GPTChecker(BaseChecker):
         
         Args:
             text: Single string or list of strings to check
+            return_scores: Not implemented in this version, kept for API compatibility
             
         Returns:
             Boolean (for single text) or list of booleans (for multiple texts)

@@ -72,9 +72,9 @@
                 // "evaluation_text_detector/config/google_text_checker.yaml"
 
 
-                "evaluation_text_detector/config/openai_text_moderation.yaml"
+                // "evaluation_text_detector/config/openai_text_moderation.yaml"
 
-                // "evaluation_text_detector/config/gpt_4o_mini.yaml"
+                "evaluation_text_detector/config/gpt_4o_mini.yaml"
 
             ],
             "env": {

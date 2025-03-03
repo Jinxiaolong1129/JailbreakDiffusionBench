@@ -1,0 +1,11 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/gpt_4o_mini.yaml
+Date: 2025-03-03T14:54:42.829096
+Dataset: data/text_checker_eval/text_checker_eval.json
+
+Overall Metrics
+==============
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+
