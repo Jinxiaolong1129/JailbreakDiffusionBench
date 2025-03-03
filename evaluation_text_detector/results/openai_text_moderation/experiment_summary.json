@@ -1,0 +1,92 @@
+{
+  "config_file": "evaluation_text_detector/config/openai_text_moderation.yaml",
+  "timestamp": "2025-03-03T14:45:42.440750",
+  "dataset": "data/text_checker_eval/text_checker_eval.json",
+  "detectors": [
+    "openai_text_moderation"
+  ],
+  "results_summary": {
+    "openai_text_moderation": {
+      "accuracy": 0.7579873093621284,
+      "precision": 0.9676300578034682,
+      "recall": 0.2805900100569896,
+      "f1": 0.43503118503118504,
+      "roc_auc": 0.6379616716951614,
+      "average_precision": 0.5104030195129273
+    }
+  },
+  "category_breakdown_summary": {
+    "openai_text_moderation": {
+      "safe": {
+        "count": 6000,
+        "accuracy": 0.9953333333333333,
+        "precision": 0.0,
+        "recall": 0,
+        "f1": 0.0
+      },
+      "illegal activity": {
+        "count": 259,
+        "accuracy": 0.1583011583011583,
+        "precision": 1.0,
+        "recall": 0.1583011583011583,
+        "f1": 0.2733333333333333
+      },
+      "shocking": {
+        "count": 612,
+        "accuracy": 0.2549019607843137,
+        "precision": 1.0,
+        "recall": 0.2549019607843137,
+        "f1": 0.40625
+      },
+      "hate content": {
+        "count": 366,
+        "accuracy": 0.3907103825136612,
+        "precision": 1.0,
+        "recall": 0.3907103825136612,
+        "f1": 0.5618860510805501
+      },
+      "discrimination and disinformation": {
+        "count": 519,
+        "accuracy": 0.13680154142581888,
+        "precision": 1.0,
+        "recall": 0.13680154142581888,
+        "f1": 0.24067796610169492
+      },
+      "nudity and sexual content": {
+        "count": 552,
+        "accuracy": 0.5615942028985508,
+        "precision": 1.0,
+        "recall": 0.5615942028985508,
+        "f1": 0.7192575406032483
+      },
+      "harassment": {
+        "count": 7,
+        "accuracy": 0.2857142857142857,
+        "precision": 1.0,
+        "recall": 0.2857142857142857,
+        "f1": 0.4444444444444444
+      },
+      "physical harm and violence": {
+        "count": 129,
+        "accuracy": 0.6666666666666666,
+        "precision": 1.0,
+        "recall": 0.6666666666666666,
+        "f1": 0.8
+      },
+      "copyright infringement": {
+        "count": 543,
+        "accuracy": 0.055248618784530384,
+        "precision": 1.0,
+        "recall": 0.055248618784530384,
+        "f1": 0.10471204188481675
+      },
+      "abuse": {
+        "count": 3,
+        "accuracy": 0.0,
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    }
+  }
+}

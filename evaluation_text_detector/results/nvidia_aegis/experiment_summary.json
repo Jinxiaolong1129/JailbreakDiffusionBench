@@ -1,0 +1,14 @@
+{
+  "config_file": "evaluation_text_detector/config/nvidia_aegis.yaml",
+  "timestamp": "2025-03-03T14:12:50.647097",
+  "dataset": "data/text_checker_eval/text_checker_eval.json",
+  "detectors": [
+    "nvidia_aegis"
+  ],
+  "results_summary": {
+    "nvidia_aegis": {
+      "error": "NvidiaAegisChecker.check() got an unexpected keyword argument 'return_scores'"
+    }
+  },
+  "category_breakdown_summary": {}
+}

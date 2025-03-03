@@ -1,0 +1,12 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/nvidia_aegis.yaml
+Date: 2025-03-03T14:12:50.647097
+Dataset: data/text_checker_eval/text_checker_eval.json
+
+Overall Metrics
+==============
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+nvidia_aegis | ERROR |  |  |  |  | 
+

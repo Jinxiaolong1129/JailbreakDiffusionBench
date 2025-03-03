@@ -6,10 +6,9 @@ datasets:
   path: data/text_checker_eval/text_checker_eval.json
 
 
-
 output_dir: "evaluation_text_detector/results"
 
-batch_size: 32
+batch_size: 512
 num_workers: 4
 
 save_misclassified: true

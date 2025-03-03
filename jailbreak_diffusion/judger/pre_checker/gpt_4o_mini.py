@@ -7,7 +7,7 @@ from .base import BaseChecker
 class GPTChecker(BaseChecker):
     """Content checker using GPT API with batch processing capabilities and customizable prompts."""
     
-    def __init__(self, prompt_file: str = None, model: str = "gpt-4o-mini", max_workers: int = 128):
+    def __init__(self, prompt_file: str = 'gpt_4o_mini_simple', model: str = "gpt-4o-mini", max_workers: int = 128):
         """Initialize with API key from environment variable, model, and max worker threads.
         
         Args:
@@ -58,7 +58,7 @@ class GPTChecker(BaseChecker):
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             return list(executor.map(self._check_single_text, texts))
             
-    def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
+    def check(self, text: Union[str, List[str]], return_scores=False) -> Union[bool, List[bool]]:
         """Check text(s) for inappropriate content.
         
         Args:

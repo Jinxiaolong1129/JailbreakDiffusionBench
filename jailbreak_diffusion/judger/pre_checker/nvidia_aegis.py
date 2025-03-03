@@ -144,7 +144,8 @@ class NvidiaAegisChecker(BaseChecker):
             model = AutoModelForCausalLM.from_pretrained(
                 base_model_id,
                 torch_dtype=self.dtype,
-                device_map=self.device
+                # device_map=self.device
+                device_map= "auto"
             )
             
             # Load the adapter weights
@@ -217,7 +218,7 @@ class NvidiaAegisChecker(BaseChecker):
             print(f"NVIDIA Aegis error: {str(e)}")
             return False
             
-    def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
+    def check(self, text: Union[str, List[str]], return_scores=False) -> Union[bool, List[bool]]:
         """Check text(s) for inappropriate content."""
         if isinstance(text, str):
             return self._check_single_text(text)

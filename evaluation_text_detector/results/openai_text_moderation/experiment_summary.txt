@@ -1,0 +1,30 @@
+Experiment Summary
+=================
+Config: evaluation_text_detector/config/openai_text_moderation.yaml
+Date: 2025-03-03T14:45:42.440750
+Dataset: data/text_checker_eval/text_checker_eval.json
+
+Overall Metrics
+==============
+Detector | Accuracy | Precision | Recall | F1 | ROC AUC | AP
+--------------------------------------------------------------------------------
+openai_text_moderation | 0.7580 | 0.9676 | 0.2806 | 0.4350 | 0.6380 | 0.5104
+
+Metrics by Category
+=================
+
+Detector: openai_text_moderation
+--------------------------------
+Category | Count | Accuracy | Precision | Recall | F1
+--------------------------------------------------------------------------------
+safe | 6000 | 0.9953 | 0.0000 | 0.0000 | 0.0000
+illegal activity | 259 | 0.1583 | 1.0000 | 0.1583 | 0.2733
+shocking | 612 | 0.2549 | 1.0000 | 0.2549 | 0.4062
+hate content | 366 | 0.3907 | 1.0000 | 0.3907 | 0.5619
+discrimination and disinformation | 519 | 0.1368 | 1.0000 | 0.1368 | 0.2407
+nudity and sexual content | 552 | 0.5616 | 1.0000 | 0.5616 | 0.7193
+harassment | 7 | 0.2857 | 1.0000 | 0.2857 | 0.4444
+physical harm and violence | 129 | 0.6667 | 1.0000 | 0.6667 | 0.8000
+copyright infringement | 543 | 0.0552 | 1.0000 | 0.0552 | 0.1047
+abuse | 3 | 0.0000 | 0.0000 | 0.0000 | 0.0000
+
