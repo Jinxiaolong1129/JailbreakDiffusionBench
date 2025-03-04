@@ -1,4 +1,4 @@
-experiment_name: "jailbreak_sd35_RingABell"
+experiment_name: "jailbreak_stable-diffusion-3.5-medium_RingABell"
 output_dir: "benchmark_results"
 save_images: true
 save_prompts: true

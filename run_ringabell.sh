@@ -5,7 +5,7 @@ TOTAL_IDS=400
 CONFIG_PATH="config/RingABell/stable-diffusion-3.5-medium.yaml"
 
 # Create a directory for logs if it doesn't exist
-mkdir -p logs/ringabell
+mkdir -p logs
 
 # Explicitly define GPU IDs
 GPU_IDS=(0 1 2 3 4 5 6 7)
@@ -21,10 +21,10 @@ for i in "${!GPU_IDS[@]}"; do
     start_id=$((i * IDS_PER_GPU + 1))
     end_id=$(((i + 1) * IDS_PER_GPU))
     
-    # Create the command
-    CMD="CUDA_VISIBLE_DEVICES=$gpu_id python exp_ringabell.py --config_path $CONFIG_PATH --start_id $start_id --end_id $end_id"
+    # Create the command - environment variable needs to be set differently for nohup
+    CMD="python exp_ringabell.py --config_path $CONFIG_PATH --start_id $start_id --end_id $end_id"
     
-    echo "GPU $gpu_id: $CMD"
+    echo "GPU $gpu_id: CUDA_VISIBLE_DEVICES=$gpu_id $CMD"
 done
 echo "======================================================="
 
@@ -38,12 +38,9 @@ for i in "${!GPU_IDS[@]}"; do
     start_id=$((i * IDS_PER_GPU + 1))
     end_id=$(((i + 1) * IDS_PER_GPU))
     
-    # Create the command
-    CMD="CUDA_VISIBLE_DEVICES=$gpu_id python exp_ringabell.py --config_path $CONFIG_PATH --start_id $start_id --end_id $end_id"
-    
     # Run the command with nohup and save logs
     echo "Starting job on GPU $gpu_id: Processing IDs $start_id to $end_id"
-    nohup $CMD > logs/ringabell/ringabell_gpu${gpu_id}_${start_id}-${end_id}.log 2>&1 &
+    nohup env CUDA_VISIBLE_DEVICES=$gpu_id python exp_ringabell.py --config_path $CONFIG_PATH --start_id $start_id --end_id $end_id > logs/ringabell_gpu${gpu_id}_${start_id}-${end_id}.log 2>&1 &
     
     # Small delay to prevent potential issues
     sleep 1

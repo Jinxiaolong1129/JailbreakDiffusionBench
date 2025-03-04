@@ -47,7 +47,7 @@ class RingABell(BaseAttacker):
         self.tokenizer = CLIPTokenizer.from_pretrained(dir_, subfolder="tokenizer")
         
         
-        self.generation = kwargs.get('generation', 10) # DEBUG
+        self.generation = kwargs.get('generation', 2000) # DEBUG
         self.length = kwargs.get('length', 16)
         self.cof = kwargs.get('cof', 3)
         self.population_size = kwargs.get('population_size', 200)

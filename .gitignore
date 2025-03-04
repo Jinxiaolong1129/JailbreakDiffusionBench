@@ -395,3 +395,4 @@ unsafe-diffusion-main.zip
 metadata.parquet
 evaluation_text_detector/results/
 data-back-2/
+logs/
