@@ -385,7 +385,7 @@ class DACA(BaseAttacker):
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0,
+                temperature=1e-6,
             )
             return response.choices[0].message.content
         except Exception as e:

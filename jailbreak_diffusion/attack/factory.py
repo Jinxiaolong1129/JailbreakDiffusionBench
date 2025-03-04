@@ -62,3 +62,12 @@ class AttackerFactory:
     def list_available_attackers(cls) -> List[str]:
         """Get list of all registered attacker names."""
         return list(cls._registry.keys())
+    
+    
+    def attack_batch(self, prompts: List[str], **kwargs) -> List[AttackResult]:
+        self.attacker.attack_batch(prompts, **kwargs)
+        pass
+    
+    def attack(self, prompt, **kwargs) -> List[AttackResult]:
+        self.attacker.attack(prompt, **kwargs)
+        pass

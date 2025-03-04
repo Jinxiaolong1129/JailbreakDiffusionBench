@@ -23,7 +23,7 @@ class LLMvLLM(LLM):
                 temperature=self.temperature, top_p=self.top_p, max_tokens=self.max_n_tokens
             )
         else:
-            self.sampling_params = vllm.SamplingParams(temperature=0, max_tokens=self.max_n_tokens)
+            self.sampling_params = vllm.SamplingParams(temperature=1e-6, max_tokens=self.max_n_tokens)
 
     def update_max_new_tokens(self, n: int | None):
         """Update the maximum number of generation tokens."""

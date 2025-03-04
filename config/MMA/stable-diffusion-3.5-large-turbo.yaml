@@ -1,0 +1,19 @@
+experiment_name: "jailbreak_MMA_stable-diffusion-3.5-large-turbo"
+output_dir: "benchmark_results"
+save_images: true
+save_prompts: true
+log_level: "INFO"
+batch_size: 1
+num_workers: 1
+
+model:
+  name: "stable-diffusion-3.5-large-turbo"
+  params:
+    model_name: "stable-diffusion-3.5-large-turbo"
+    device: "cuda"
+
+
+attack_method: "MMA"
+
+datasets:
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench.json"

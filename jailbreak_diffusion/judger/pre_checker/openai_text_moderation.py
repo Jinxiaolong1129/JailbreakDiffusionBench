@@ -107,7 +107,7 @@ class OpenAITextDetector(BaseChecker):
         except Exception as e:
             raise Exception(f"Batch text moderation failed: {str(e)}")
 
-    def check(self, text: Union[str, List[str]]) -> Union[bool, List[bool]]:
+    def check(self, text: Union[str, List[str]], return_scores=False) -> Union[bool, List[bool]]:
         """
         Check if content is inappropriate.
         

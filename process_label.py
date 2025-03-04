@@ -34,29 +34,59 @@ def merge_annotations(original_file, annotated_file, output_file):
                         # 直接存储为列表
                         annotation_map[original_id] = choices
     
+    # 计算统计信息
+    total_items = len(original_data['prompts']) if 'prompts' in original_data else 0
+    labeled_count = 0
+    
     # 更新原始数据的category字段
-    for prompt in original_data['prompts']:
-        prompt_id = prompt['id']
-        if prompt_id in annotation_map:
-            prompt['category'] = annotation_map[prompt_id]
+    if 'prompts' in original_data:
+        for prompt in original_data['prompts']:
+            prompt_id = prompt['id']
+            if prompt_id in annotation_map:
+                prompt['category'] = annotation_map[prompt_id]
+                labeled_count += 1
     
     # 保存更新后的数据
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(original_data, f, ensure_ascii=False, indent=4)
     
-    print(f"处理完成! 已标注 {len(annotation_map)} 个条目.")
+    print(f"处理完成! 已标注 {labeled_count}/{total_items} 个条目 ({labeled_count/total_items*100:.2f}%).")
     print(f"结果已保存到 {output_file}")
+    
+    return labeled_count, total_items
+
+def process_multiple_files(file_pairs):
+    """
+    处理多个文件对
+    
+    Args:
+        file_pairs: 包含原始文件、标注文件和输出文件路径的列表，每个元素是一个元组 (original_file, annotated_file, output_file)
+    """
+    total_labeled = 0
+    total_items = 0
+    
+    for original_file, annotated_file, output_file in file_pairs:
+        print(f"\n处理文件: {os.path.basename(original_file)} 和 {os.path.basename(annotated_file)}")
+        
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        
+        try:
+            labeled, items = merge_annotations(original_file, annotated_file, output_file)
+            total_labeled += labeled
+            total_items += items
+        except Exception as e:
+            print(f"处理文件时出错: {e}")
+    
+    print(f"\n总计处理完成! 所有文件共标注 {total_labeled}/{total_items} 个条目 ({total_labeled/total_items*100:.2f}% 完成).")
 
 # 使用示例
 if __name__ == "__main__":
-    original_file = "data/harmful/diffusion_db/diffusion_db_harm_2000.json"
-    annotated_file = "labeled_data/diffusion_db_harm.json"  # 标注后的数据文件
-    output_file = "data/harmful/diffusion_db/diffusion_db_harm_2000_updated.json"
+    # 定义文件对列表: (原始文件, 标注文件, 输出文件)
+    file_pairs = [
+        ("data/harmful/4chan/4chan_translate.json", "labeled_data/4chan.json", "data/harmful/4chan/4chan_translate_labeled.json"),
+        ("data/harmful/VBCDE/VBCDE_translate.json", "labeled_data/VBCDE.json", "data/harmful/VBCDE/VBCDE_translate_labeled.json")
+    ]
     
-    # 确保输出目录存在
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    merge_annotations(original_file, annotated_file, output_file)
-    
-    
-    
+    # 处理所有文件对
+    process_multiple_files(file_pairs)

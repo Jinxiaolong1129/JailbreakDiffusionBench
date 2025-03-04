@@ -1,0 +1,43 @@
+# evaluation_text_detector/config/text_evaluation_configs.yaml
+
+data_dir: "evaluation_text_detector/data"
+
+datasets:
+  harmful:
+    I2P:
+      path: data/harmful/I2P/I2P_filtered_harmful.json
+    4chan:
+      path: data/harmful/4chan/4chan_filtered_harmful.json
+    VBCDE:
+      path: data/harmful/VBCDE/VBCDE_filtered_harmful.json
+    civitai:
+      path: data/harmful/civitai/civitai_filtered_harmful.json
+    diffusion_db:
+      path: data/harmful/diffusion_db/diffusion_db_filtered_harmful.json
+    sneakyprompt:
+      path: data/harmful/sneakyprompt/sneakyprompt_filtered_harmful.json
+
+  benign:
+    diffusion_db:
+      path: data/benign/diffusion_db/diffusion_db_benign_6000_translate.json
+
+
+
+output_dir: "evaluation_text_detector/results"
+
+batch_size: 32
+num_workers: 4
+
+save_misclassified: true
+
+
+metrics:
+  - accuracy
+  - precision
+  - recall
+  - f1
+  - auc
+  - average_precision
+
+detectors:
+  nvidia_aegis: {}

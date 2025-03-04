@@ -13,6 +13,108 @@
             "justMyCode": false
         },
         {
+            "name": "PGJ exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/PGJ/stable-diffusion-3.5-medium_PGJ.yaml",
+                "--start_id", "1",
+                "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "sneakprompt exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/sneakprompt/stable-diffusion-3.5-medium.yaml",
+                "--start_id", "1",
+                "--end_id", "5"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "RingABell exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_ringabell.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/RingABell/stable-diffusion-3.5-medium.yaml",
+                "--start_id", "1",
+                "--end_id", "5"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "7"
+            }
+        },
+        {
+            "name": "DACA exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/stable-diffusion-3.5-medium_DACA.yaml",
+                "--start_id", "1",
+                "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "ParallelMMA exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_MMA.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/MMA/stable-diffusion-3-medium.yaml",
+                // "--start_id", "1",
+                // "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
+            "name": "RingABell exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/RingABell/stable-diffusion-3.5-medium_RingABell.yaml",
+                "--start_id", "1",
+                "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+        {
             "name": "exp_no_attack.py",
             "type": "debugpy",
             "request": "launch",
@@ -61,8 +163,21 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "${workspaceFolder}",
+            "args": [
+                "--config",
+                "evaluation_text_detector/config/distilbert_nsfw_text_checker.yaml"
+
+                // "evaluation_text_detector/config/distilroberta_nsfw_text_checker.yaml"
+                // "evaluation_text_detector/config/llama_guard.yaml"
+                // "evaluation_text_detector/config/NSFW_text_classifier.yaml"
+                // "evaluation_text_detector/config/nvidia_aegis.yaml"
+                // "evaluation_text_detector/config/google_text_checker.yaml"
+                // "evaluation_text_detector/config/openai_text_moderation.yaml"
+                // "evaluation_text_detector/config/gpt_4o_mini.yaml"
+            ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}",
+                "CUDA_VISIBLE_DEVICES": "1"
             }
         },
         {
@@ -154,6 +269,21 @@
             "env": {
                 "CUDA_VISIBLE_DEVICES": "7"
             },
+        },
+        {
+            "name": "PGJ exp.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/PGJ/stable-diffusion-3.5-medium_PGJ.yaml"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
         },
         {
             "name": "test_MultiHead.py",

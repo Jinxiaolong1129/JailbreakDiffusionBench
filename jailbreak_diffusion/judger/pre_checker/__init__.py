@@ -4,7 +4,7 @@ from .base import BaseChecker
 from .NSFW_text_classifier import NSFW_text_classifier_Checker
 from .NSFW_word_match import NSFW_word_match_Checker
 from .azure_text_checker import AzureTextDetector
-from .claude import ClaudeChecker
+# from .claude import ClaudeChecker
 from .composite import CompositeChecker
 from .distilbert_nsfw_text_checker import distilbert_nsfw_text_checker
 from .distilroberta_nsfw_text_checker import distilroberta_nsfw_text_checker
@@ -19,7 +19,6 @@ __all__ = [
     'NSFW_text_classifier_Checker',
     'NSFW_word_match_Checker',
     'AzureTextDetector',
-    'ClaudeChecker',
     'CompositeChecker',
     'distilbert_nsfw_text_checker',
     'distilroberta_nsfw_text_checker',
