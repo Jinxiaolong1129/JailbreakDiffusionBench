@@ -1,4 +1,4 @@
-experiment_name: "jailbreak_DACA_stable-diffusion-3-medium"
+experiment_name: "jailbreak_DACA_flux-1-dev"
 output_dir: "benchmark_results"
 save_images: true
 save_prompts: true
@@ -7,9 +7,9 @@ batch_size: 1
 num_workers: 1
 
 model:
-  name: "stable-diffusion-3-medium"
+  name: "flux-1-dev"
   params:
-    model_name: "stable-diffusion-3-medium"
+    model_name: "flux-1-dev"
     device: "cuda"
 
 

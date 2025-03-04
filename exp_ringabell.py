@@ -547,4 +547,4 @@ if __name__ == "__main__":
 
 # CUDA_VISIBLE_DEVICES=1 python exp_ringabell.py --config_path config/RingABell/stable-diffusion-3.5-medium.yaml --start_id 6 --end_id 10
     
-    
+# CUDA_VISIBLE_DEVICES=1 python exp_ringabell.py --config_path config/RingABell/stable-diffusion-3.5-medium.yaml --start_id 11 --end_id 15
