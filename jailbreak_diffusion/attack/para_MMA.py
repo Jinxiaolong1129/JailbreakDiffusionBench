@@ -124,7 +124,6 @@ class BatchAttackResult:
 
 
 
-
 @dataclass
 class PromptTracker:
     """追踪单个prompt的完整优化过程"""
@@ -580,19 +579,19 @@ class ParallelMMA(BaseAttacker):
     
     def step(self,batch_controls,batch_target_embeddings,topk):
         # 计算梯度
-        print("getting gradient")
+        # print("getting gradient")
         grads = self.token_gradient_batch(
             batch_controls,
             batch_target_embeddings
         )
-        print("sampling")
+        # print("sampling")
         # 采样新的控制字符串
         new_controls = self.sample_control_batch(
             grads,
             batch_controls,
             topk=topk
         ) #[32,512,20] 32是batch，512是candidate个数，20是字符串长度。
-        print("filtering")
+        # print("filtering")
         control_cands=self.get_filtered_cands(new_controls)
 
         del grads, new_controls ; gc.collect()
@@ -600,7 +599,7 @@ class ParallelMMA(BaseAttacker):
         # 更新当前batch的控制字符串
         
         # 计算新的loss
-        print("getting loss")
+        # print("getting loss")
         with torch.no_grad():
             control_embeddings = None  # 初始化为空
             # NOTE 是并行吗
@@ -684,9 +683,10 @@ class ParallelMMA(BaseAttacker):
                     print(f"Step {step}/{n_steps} | Avg Best Loss: {avg_loss:.4f}")
 
                 # 可选：提前停止
-                if max(self.best_losses) < 0.1:
-                    print(f"Early stopping at step {step} - target loss achieved")
-                    break
+                # if max(self.best_losses) < 0.1:
+                #     print(f"Early stopping at step {step} - target loss achieved")
+                #     break
+                
             self.results.extend(self.best_controls)
 
         return self.results
@@ -694,7 +694,7 @@ class ParallelMMA(BaseAttacker):
     def attack_batch(
         self, 
         prompts: List[str], #传递的是数据集所有prompt
-        n_steps: int = 1000, 
+        n_steps: int = 5, 
         batch_size: int = 256,
         topk: int = 256,
         track_interval: int = 1  # 每隔多少步记录一次
@@ -713,35 +713,37 @@ class ParallelMMA(BaseAttacker):
             " ".join([random.choice(string.ascii_letters) for _ in range(20)])
             for _ in range(len(prompts))
         ]
-        best_controls = control_strs.copy()#[243]
+        best_controls = control_strs.copy() #[243]
         # print(control_strs)
         # print(len(control_strs))#[243]
-        result=self.run(control_strs,target_embeddings,batch_size,n_steps)
-        df = pd.DataFrame(result, columns=["prompt"])       
-        df.to_csv("prompts.csv", index=True, encoding="utf-8")
-        print("finished")
-        exit()
-        # 如果有tracker，初始化所有prompt
-        if self.tracker:
-            for i, prompt in enumerate(prompts):
-                self.tracker.initialize_prompt(i, prompt)
+        result=self.run(control_strs, target_embeddings,batch_size,n_steps)
+        
+        # df = pd.DataFrame(result, columns=["prompt"])       
+        # df.to_csv("prompts.csv", index=True, encoding="utf-8")
+        # print("finished")
+        # exit()
+        
+        # # 如果有tracker，初始化所有prompt
+        # if self.tracker:
+        #     for i, prompt in enumerate(prompts):
+        #         self.tracker.initialize_prompt(i, prompt)
 
-        # 分batch处理
-        # 完成所有prompt的优化并保存结果
-        if self.tracker:
-            for i in range(len(prompts)):
-                self.tracker.finish_prompt(i)
-                self.tracker.save_prompt_history(i)
+        # # 分batch处理
+        # # 完成所有prompt的优化并保存结果
+        # if self.tracker:
+        #     for i in range(len(prompts)):
+        #         self.tracker.finish_prompt(i)
+        #         self.tracker.save_prompt_history(i)
             
-            # 保存实验总结
-            self.tracker.save_experiment_summary()
+        #     # 保存实验总结
+        #     self.tracker.save_experiment_summary()
 
         end_time = time.time()
         
         return BatchAttackResult(
             success=[True] * len(prompts),
             original_prompts=prompts,
-            attack_prompts=best_controls,
+            attack_prompts=self.results,
             execution_time=end_time - start_time
         )
 

@@ -16,4 +16,4 @@ model:
 attack_method: "MMA"
 
 datasets:
-  - "data/jailbreak_diffusion_bench/text_checker_eval.json"
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"
