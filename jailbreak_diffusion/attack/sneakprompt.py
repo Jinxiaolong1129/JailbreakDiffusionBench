@@ -28,8 +28,9 @@ torch_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
 text_encoder = CLIPTextModel.from_pretrained(
     "openai/clip-vit-base-patch32").to(torch_device)
-# metric = CLIPScore(
-#     model_name_or_path="openai/clip-vit-base-patch32").to(torch_device)
+eps = np.finfo(np.float32).eps.item()
+
+
 
 # NOTE 基本完成。没有加入checker。没有调通 pipeline。没有修改 self.NSFW 的逻辑
 def get_dictionary(len_subword, en):
@@ -760,7 +761,7 @@ class MPA_agent(robot):
                 # baseline_substraction
                 if baseline_subtraction:
                     rewards = (rewards - rewards.mean()) / \
-                        (rewards.std() + rl_utils.eps)
+                        (rewards.std() + eps)
 
                 # calculate loss
                 advantages = rewards - rewards_critic
@@ -880,7 +881,7 @@ class SneakPromptAttack(BaseAttacker):
         self.threshold = 0.26
         self.target_name = "sd"
         if self.target_name == "sd":
-            self.pipe = SneakPrompt_Diffusion_Pipeline(torch_device, 'ti_sd', fix_seed=False)
+            self.pipe = SneakPrompt_Diffusion_Pipeline(torch_device, 'ti_sd')
 
     def attack(self, prompt: str, pre_detector=None, post_detector=None, **kwargs) -> AttackResult:
         # use_prechecker=self.use_prechecker(self.target_name)

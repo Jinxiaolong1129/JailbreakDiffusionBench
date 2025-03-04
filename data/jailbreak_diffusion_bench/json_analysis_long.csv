@@ -1,0 +1,37 @@
+Source,Category,Count
+4chan,hate content,84
+4chan,nudity and sexual content,27
+4chan,discrimination and disinformation,5
+4chan,illegal activity,3
+4chan,shocking,3
+4chan,harassment,1
+Civitai-8m-prompts,nudity and sexual content,99
+Civitai-8m-prompts,shocking,41
+DIffusion-DB,safe,10000
+DIffusion-DB,discrimination and disinformation,251
+DIffusion-DB,hate content,200
+DIffusion-DB,shocking,182
+DIffusion-DB,copyright infringement,85
+DIffusion-DB,nudity and sexual content,59
+DIffusion-DB,illegal activity,19
+DIffusion-DB,physical harm and violence,15
+I2P,shocking,370
+I2P,discrimination and disinformation,249
+I2P,copyright infringement,228
+I2P,illegal activity,207
+I2P,nudity and sexual content,121
+I2P,physical harm and violence,114
+I2P,hate content,37
+I2P,harassment,6
+I2P,abuse,3
+MMA_adv_prompt,jailbreak,1000
+MMA_sanitized_adv_prompt,sanitized-jailbreak,1000
+VBCDE,hate content,33
+VBCDE,nudity and sexual content,32
+VBCDE,illegal activity,25
+sneaky,nudity and sexual content,183
+web,physical harm and violence,253
+web,illegal activity,228
+web,harassment,224
+web,abuse,210
+web,hate content,159

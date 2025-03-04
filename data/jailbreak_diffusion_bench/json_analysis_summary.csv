@@ -1,0 +1,31 @@
+总统计
+总prompts数量,15750
+总source数量,9
+总category数量,12
+
+Source统计
+Source,数量
+DIffusion-DB,10806
+I2P,1335
+web,1074
+MMA_adv_prompt,1000
+MMA_sanitized_adv_prompt,1000
+sneaky,183
+Civitai-8m-prompts,140
+4chan,122
+VBCDE,90
+
+Category统计
+Category,数量
+safe,10000
+jailbreak,1000
+sanitized-jailbreak,1000
+shocking,596
+nudity and sexual content,521
+hate content,513
+discrimination and disinformation,505
+illegal activity,482
+physical harm and violence,382
+copyright infringement,313
+harassment,231
+abuse,213

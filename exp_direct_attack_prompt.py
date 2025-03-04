@@ -22,6 +22,8 @@ class BenchmarkConfig:
     experiment_name: str
     output_dir: str
     model: ModelConfig
+    save_images: bool
+    save_prompts: bool
     datasets: List[str]
     attack_method: str
     log_level: str = "INFO"

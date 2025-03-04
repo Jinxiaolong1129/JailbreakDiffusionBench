@@ -3,20 +3,12 @@
 data_dir: "evaluation_text_detector/data"
 
 datasets:
-  harmful:
-    i2p:
-      path: "data/harmful/I2P/I2P_filtered_test.json"
-
-  benign:
-    diffusion_db:
-      path: data/benign/diffusion_db/diffusion_db-back.json
-
-
+  path: data/text_checker_eval/text_checker_eval.json
 
 
 output_dir: "evaluation_text_detector/results"
 
-batch_size: 32
+batch_size: 64
 num_workers: 4
 
 save_misclassified: true

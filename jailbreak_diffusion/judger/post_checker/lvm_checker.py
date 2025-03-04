@@ -57,7 +57,7 @@
 #             self._build_classifier_input(prompt, response) for prompt, response in zip(prompts, responses)
 #         ]
 #         outputs = litellm.batch_completion(
-#             model=self.LITELLM_MODEL, messages=classifier_inputs, api_key=self._api_key, temperature=0
+#             model=self.LITELLM_MODEL, messages=classifier_inputs, api_key=self._api_key, temperature=1e-6
 #         )
 
 #         classifications = []
@@ -105,7 +105,7 @@
 #             self._build_classifier_input(prompt, response) for prompt, response in zip(prompts, responses)
 #         ]
 #         outputs = litellm.batch_completion(
-#             model=self.LITELLM_MODEL, messages=classifier_inputs, api_key=self._api_key, temperature=0
+#             model=self.LITELLM_MODEL, messages=classifier_inputs, api_key=self._api_key, temperature=1e-6
 #         )
 #         classifications = []
 #         for output in outputs:

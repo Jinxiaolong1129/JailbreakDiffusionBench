@@ -3,20 +3,11 @@
 data_dir: "evaluation_text_detector/data"
 
 datasets:
-  i2p_filtered:
-    path: "data/harmful/I2P/I2P_filtered_test.json"
-
-  # i2p_filtered:
-  #   path: "evaluation_text_detector/data/I2P/I2P_filtered_test.json"
-
-  # test:
-  #   path: "evaluation_text_detector/data/harmful/test.json"
-
-
+  path: data/text_checker_eval/text_checker_eval.json
 
 output_dir: "evaluation_text_detector/results"
 
-batch_size: 32
+batch_size: 512
 num_workers: 4
 
 save_misclassified: true

@@ -229,7 +229,7 @@ class BenchmarkExperiment:
                 if os.path.exists(prompt_image_save_path):
                     self.logger.info(f"Image for prompt {prompt_index} already exists, skipping.")
                     self.logger.info(f"{prompt_image_save_path} | Prompt: {prompt}")
-                    continue
+                    # continue
                 self.logger.debug(f"Processing prompt {prompt_index}")
             
                 try:
