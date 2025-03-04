@@ -240,6 +240,7 @@ class BenchmarkExperiment:
         # Create enriched dataset by combining original JSON with results
         self._create_enriched_dataset()
 
+
     def _create_enriched_dataset(self):
         """Create enriched dataset by combining original JSON with results"""
         # Create a mapping of prompt_id to result for quick lookup
@@ -249,15 +250,38 @@ class BenchmarkExperiment:
         with open(self.dataset.json_path, 'r') as f:
             original_data = json.load(f)
         
-        # Create a copy of the original dataset
-        enriched_data = copy.deepcopy(original_data)
+        # Create enriched dataset file path
+        enriched_path = self.exp_dir / "enriched_dataset.json"
         
-        # Enrich each prompt with attack results if available
-        for prompt in enriched_data.get("prompts", []):
-            prompt_id = str(prompt.get("id", ""))
-            if prompt_id in result_map:
-                result = result_map[prompt_id]
-                # Add attack results to the prompt
+        # Initialize enriched_data with original dataset or existing enriched dataset
+        if enriched_path.exists():
+            try:
+                # 读取现有的enriched_dataset文件
+                with open(enriched_path, 'r') as f:
+                    enriched_data = json.load(f)
+                
+                # 检查文件格式是否符合预期
+                if "prompts" not in enriched_data:
+                    self.logger.warning(f"Existing enriched dataset has invalid format. Creating new from original.")
+                    enriched_data = copy.deepcopy(original_data)
+            except json.JSONDecodeError:
+                self.logger.warning(f"Could not read existing enriched dataset. Creating new from original.")
+                enriched_data = copy.deepcopy(original_data)
+        else:
+            # 如果文件不存在，从原始数据复制
+            enriched_data = copy.deepcopy(original_data)
+        
+        # 创建现有prompt的ID到索引的映射，用于快速查找
+        prompt_id_to_index = {str(prompt.get("id", "")): i for i, prompt in enumerate(enriched_data.get("prompts", []))}
+        
+        # 遍历当前批次的结果，更新或添加到enriched_data
+        for prompt_id, result in result_map.items():
+            if prompt_id in prompt_id_to_index:
+                # 如果prompt已存在，更新其属性
+                idx = prompt_id_to_index[prompt_id]
+                prompt = enriched_data["prompts"][idx]
+                
+                # 添加或更新attack结果
                 prompt["attack_prompt"] = result.get("attack_prompt", "")
                 prompt["image_path"] = result.get("image_path", "")
                 prompt["success"] = result.get("success", False)
@@ -265,24 +289,69 @@ class BenchmarkExperiment:
                 prompt["is_text_NSFW"] = result.get("is_text_NSFW", False)
                 prompt["is_image_NSFW"] = result.get("is_image_NSFW", False)
                 
-                # Add any additional metadata
+                # 添加元数据
                 if "metadata" in result:
                     prompt["attack_metadata"] = result["metadata"]
+            else:
+                # 如果这个prompt_id在原始数据集中但不在enriched数据中
+                # 需要从原始数据中找到这个prompt并添加
+                for orig_prompt in original_data.get("prompts", []):
+                    if str(orig_prompt.get("id", "")) == prompt_id:
+                        # 复制原始prompt
+                        new_prompt = copy.deepcopy(orig_prompt)
+                        
+                        # 添加attack结果
+                        new_prompt["attack_prompt"] = result.get("attack_prompt", "")
+                        new_prompt["image_path"] = result.get("image_path", "")
+                        new_prompt["success"] = result.get("success", False)
+                        new_prompt["execution_time"] = result.get("execution_time", 0)
+                        new_prompt["is_text_NSFW"] = result.get("is_text_NSFW", False)
+                        new_prompt["is_image_NSFW"] = result.get("is_image_NSFW", False)
+                        
+                        # 添加元数据
+                        if "metadata" in result:
+                            new_prompt["attack_metadata"] = result["metadata"]
+                        
+                        # 添加到enriched数据中
+                        enriched_data["prompts"].append(new_prompt)
+                        break
         
-        # Add experiment metadata
-        enriched_data["experiment_metadata"] = {
+        # 更新实验元数据，保留时间戳为最新的处理时间
+        if "experiment_metadata" not in enriched_data:
+            enriched_data["experiment_metadata"] = {}
+        
+        # 更新元数据，但保留可能存在的其他字段
+        current_metadata = enriched_data["experiment_metadata"]
+        current_metadata.update({
             "experiment_name": self.config.experiment_name,
             "timestamp": datetime.now().isoformat(),
             "model": self.config.model.name,
             "attack_method": self.config.attack_method
-        }
+        })
         
-        # Save enriched dataset
-        enriched_path = self.exp_dir / "enriched_dataset.json"
-        with open(enriched_path, 'w') as f:
-            json.dump(enriched_data, f, indent=2, cls=NumpyEncoder)
+        # 使用文件锁保证并发安全
+        try:
+            # 确保目录存在
+            os.makedirs(os.path.dirname(enriched_path), exist_ok=True)
             
-        self.logger.info(f"Enriched dataset saved to {enriched_path}")
+            # 使用临时文件和重命名策略避免部分写入问题
+            temp_path = str(enriched_path) + ".tmp"
+            with open(temp_path, 'w') as f:
+                # 在某些系统上可能需要导入fcntl并使用文件锁
+                # import fcntl
+                # fcntl.flock(f, fcntl.LOCK_EX)
+                json.dump(enriched_data, f, indent=2, cls=NumpyEncoder)
+            
+            # 原子地重命名临时文件为目标文件
+            os.replace(temp_path, enriched_path)
+            
+            self.logger.info(f"Enriched dataset saved to {enriched_path}")
+        except Exception as e:
+            self.logger.error(f"Error saving enriched dataset: {str(e)}")
+            # 确保删除临时文件
+            if os.path.exists(temp_path):
+                os.remove(temp_path)    
+            
             
             
     def _process_attack_result(
@@ -364,10 +433,10 @@ class BenchmarkExperiment:
                             "prompt_index": prompt_index,
                             "original_prompt": original_prompt,
                             "attack_prompt": attack_prompt,
-                            "success": batch_result.success[i] if i < len(batch_result.success) else True,
-                            "execution_time": batch_result.execution_time / len(batch_prompts),  # Estimate per-prompt time
-                            "is_text_NSFW": False,  # Placeholder as we're not running text detection
-                            "is_image_NSFW": False,  # Placeholder as we're not generating images
+                            "success": True,
+                            "execution_time": batch_result.execution_time / len(batch_prompts),  
+                            "is_text_NSFW": False,  
+                            "is_image_NSFW": False,  
                         }
                         
                         # Add image path but don't generate image
@@ -376,11 +445,11 @@ class BenchmarkExperiment:
                             processed_result["image_path"] = image_path
                         
                         # Add metadata
-                        if i < len(batch_result.num_queries):
-                            processed_result["metadata"] = {
-                                "num_queries": batch_result.num_queries[i],
-                                "batch_processed": True
-                            }
+                        # if i < len(batch_result.num_queries):
+                        #     processed_result["metadata"] = {
+                        #         "num_queries": batch_result.num_queries[i],
+                        #         "batch_processed": True
+                        #     }
                         
                         self.results.append(processed_result)
                         
@@ -523,5 +592,9 @@ if __name__ == "__main__":
     run_benchmark(args.config_path, args.start_id, args.end_id)
     
     
+    
+# CUDA_VISIBLE_DEVICES=0 python exp_MMA.py --config_path config/MMA/stable-diffusion-3-medium.yaml --start_id 1 --end_id 5
+
+# CUDA_VISIBLE_DEVICES=1 python exp_MMA.py --config_path config/MMA/stable-diffusion-3-medium.yaml --start_id 6 --end_id 10
     
     

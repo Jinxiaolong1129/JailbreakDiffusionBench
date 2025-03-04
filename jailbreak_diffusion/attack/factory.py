@@ -65,9 +65,9 @@ class AttackerFactory:
     
     
     def attack_batch(self, prompts: List[str], **kwargs) -> List[AttackResult]:
-        self.attacker.attack_batch(prompts, **kwargs)
-        pass
+        results = self.attacker.attack_batch(prompts, **kwargs)
+        return results
     
     def attack(self, prompt, **kwargs) -> List[AttackResult]:
-        self.attacker.attack(prompt, **kwargs)
-        pass
+        results = self.attacker.attack(prompt, **kwargs)
+        return results

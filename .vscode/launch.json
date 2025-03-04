@@ -90,8 +90,8 @@
             "args": [
                 "--config_path",
                 "config/MMA/stable-diffusion-3-medium.yaml",
-                // "--start_id", "1",
-                // "--end_id", "2"
+                "--start_id", "1",
+                "--end_id", "5"
             ],
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0"
