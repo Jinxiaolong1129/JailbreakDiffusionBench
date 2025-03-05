@@ -2,14 +2,14 @@
 
 # List of Stable Diffusion models in the diffusion_db directory
 MODELS=(
-  "config/no_attack/harmful/diffusion_db/stable-diffusion-3.5-medium.yaml"
-  "config/no_attack/harmful/diffusion_db/stable-diffusion-3.5-large.yaml"
-  "config/no_attack/harmful/diffusion_db/flux-1-dev.yaml"
   "config/no_attack/harmful/diffusion_db/hunyuan-dit-v1.2-distilled.yaml"
+  "config/no_attack/harmful/diffusion_db/stable-diffusion-2.yaml"
+  "config/no_attack/harmful/diffusion_db/stable-diffusion-xl-base-0.9.yaml"
+  "config/no_attack/harmful/diffusion_db/stable-diffusion-3.5-large-turbo.yaml"
 )
 
 # Available GPUs
-AVAILABLE_GPUS=(0 2 4 7)
+AVAILABLE_GPUS=(0 1 2 7)
 
 # Create logs directory if it doesn't exist
 mkdir -p logs/harmful_diffusion_db
