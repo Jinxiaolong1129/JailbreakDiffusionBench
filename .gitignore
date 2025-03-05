@@ -402,3 +402,4 @@ jailbreak_attack_results/
 
 *.tar.gz
 benchmark_results/
+nohup_logs/

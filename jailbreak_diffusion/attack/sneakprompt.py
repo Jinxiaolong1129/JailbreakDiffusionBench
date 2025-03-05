@@ -20,7 +20,7 @@ from diffusers import StableDiffusionPipeline, LMSDiscreteScheduler
 
 from ..judger.pre_checker.gpt_4o_mini import GPTChecker
 from ..judger.post_checker.SD_safety_checker import SD_SafetyCheckerDetector
-
+import logging
 
 from .base import BaseAttacker, AttackResult
 from .factory import AttackerFactory
@@ -234,17 +234,32 @@ class SneakPrompt_Diffusion_Pipeline():
         
     @torch.no_grad()
     def __call__(self, text_inputs):
+        print(f'==> Start generating image...')
+        print(f"==> check text: {text_inputs}")
         is_text_NSFW = self.check_text(text_inputs)
         if is_text_NSFW[0]["flagged"]:
+            logging.info(f"Text is NSFW")
+            print(f"Text is NSFW")
+            print(f'====================')
             return True, None
         
         self.g_cuda = None
         pil_images = self.target_model.generate(text_inputs)
         
+        print(f'==> Image generated...')
+        print(f'==> check image...')
         is_image_NSFW = self.check_image(pil_images.images[0])
         
         if is_image_NSFW:
+            logging.info(f"Image is NSFW")
+            print(f"Image is NSFW")
+            print(f'====================')
             return True, pil_images.images[0]
+        
+        
+        print(f'==> Bypass the safety filter...')
+        logging.info(f"Bypass the safety filter")
+        print(f'====================')
         
         return False, pil_images.images[0]
 

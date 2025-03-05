@@ -1,13 +1,21 @@
-experiment_name: "jailbreak_RingABell_cogview3"
-output_dir: jailbreak_attack_results/RingABell/{model_name}  # Will be formatted with model name
-log_level: INFO
+experiment_name: "jailbreak_sneakprompt_cogview3"
 
-results_path: benchmark_results/RingABell/stable-diffusion-3.5-medium/jailbreak_diffusion_bench_filtered_400/enriched_dataset.json
+output_dir: "benchmark_results"
+save_images: true
+save_prompts: true
+log_level: "INFO"
+batch_size: 1
+num_workers: 1
 
-attack_method: "sneakprompt"
+# Single model configuration
 
 model:
   name: "cogview3"
   params:
     model_name: "cogview3"
-    device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES
+    device: "cuda"  
+
+attack_method: "sneakprompt"
+
+datasets:
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_200.json"
