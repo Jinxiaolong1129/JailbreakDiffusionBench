@@ -1,21 +1,25 @@
 #!/bin/bash
-# "config/no_attack/harmful/civitai/stable-diffusion-safe.yaml"
-# "config/no_attack/harmful/civitai/stable-diffusion-3.5-medium.yaml"
-# "config/no_attack/harmful/civitai/stable-diffusion-3.5-large.yaml"
+
+  # "config/no_attack/harmful/civitai/stable-diffusion-v1-5.yaml"
+  # "config/no_attack/harmful/civitai/stable-diffusion-2.yaml"
+  # "config/no_attack/harmful/civitai/stable-diffusion-xl-base-0.9.yaml"
+  # "config/no_attack/harmful/civitai/stable-diffusion-3-medium.yaml"
+  # "config/no_attack/harmful/civitai/stable-diffusion-3.5-large-turbo.yaml"
 
 #!/bin/bash
 
 # List of Stable Diffusion models in the civitai directory
 MODELS=(
-  "config/no_attack/harmful/civitai/stable-diffusion-v1-5.yaml"
-  "config/no_attack/harmful/civitai/stable-diffusion-2.yaml"
-  "config/no_attack/harmful/civitai/stable-diffusion-xl-base-0.9.yaml"
-  "config/no_attack/harmful/civitai/stable-diffusion-3-medium.yaml"
-  "config/no_attack/harmful/civitai/stable-diffusion-3.5-large-turbo.yaml"
+  # "config/no_attack/harmful/civitai/stable-diffusion-3.5-medium.yaml"
+  # "config/no_attack/harmful/civitai/stable-diffusion-3.5-large.yaml"
+  # "config/no_attack/harmful/civitai/flux-1-dev.yaml"
+
+  "config/no_attack/harmful/civitai/hunyuan-dit-v1.2-distilled.yaml"
+  "config/no_attack/harmful/civitai/cogview.yaml"
 )
 
 # Available GPUs
-AVAILABLE_GPUS=(0 1 2 4 5)
+AVAILABLE_GPUS=(5 7)
 
 # Create logs directory if it doesn't exist
 mkdir -p logs/civitai

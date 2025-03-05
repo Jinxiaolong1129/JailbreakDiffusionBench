@@ -37,9 +37,9 @@ done
 
 echo "All experiments launched. Check logs in logs/i2p/ directory."
 
+# CUDA_VISIBLE_DEVICES=0 nohup python exp_no_attack.py --config_path config/no_attack/harmful/i2p/cogview.yaml > logs/i2p/cogview.log 2>&1 &
+
+# CUDA_VISIBLE_DEVICES=3 nohup python exp_no_attack.py --config_path "config/no_attack/harmful/i2p/flux-1-dev.yaml" > logs/i2p/flux-1-dev.log 2>&1 &
 
 
-# CUDA_VISIBLE_DEVICES=1 nohup python exp_no_attack.py --config_path config/no_attack/harmful/i2p/hunyuan-dit-v1.2-distilled.yaml > logs/i2p/hunyuan-dit-v1.2-distilled.log 2>&1 &
-
-
-
+  

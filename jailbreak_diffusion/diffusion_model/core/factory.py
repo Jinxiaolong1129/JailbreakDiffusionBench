@@ -89,10 +89,10 @@ class DiffusionFactory(DiffusionWrapper):
             "arch": ModelArchitecture.FLUX,
             "type": ModelType.TEXT_TO_IMAGE,
             "default_params": {
-            "width": 1024,
-            "height": 1024,
-            "num_inference_steps": 25,
-            "guidance_scale": 7.5
+                "width": 1024,
+                "height": 1024,
+                "num_inference_steps": 25,
+                "guidance_scale": 7.5
             }
         },
         "cogview3": {
