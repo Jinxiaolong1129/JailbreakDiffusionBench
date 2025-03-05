@@ -697,6 +697,7 @@ class SneakPromptAttack(BaseAttacker):
             flag_add_word, query_offline, query_online, prompt_record, result = actor.reinforcement_learn(
                 steps=50, baseline_subtraction=False) # TODO 50?
 
+            iter_num = 0
             while flag_add_word == True:
                 add_num += 1
                 nsfw_word, nsfw_index, num_nsfw_word, add_num = get_nsfw_word_index(
@@ -709,7 +710,10 @@ class SneakPromptAttack(BaseAttacker):
 
                 flag_add_word, query_offline, query_online, prompt_record, result = actor.reinforcement_learn(
                     steps=50, baseline_subtraction=False)
-
+                iter_num += 1
+                if iter_num > 500:
+                    break
+            
             return result
 
         result = _attack_impl(flag_add_word, prompt_record,

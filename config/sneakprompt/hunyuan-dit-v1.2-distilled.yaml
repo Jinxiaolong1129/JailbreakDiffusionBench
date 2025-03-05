@@ -1,4 +1,4 @@
-experiment_name: "jailbreak_sneakprompt_stable-diffusion-3.5-large-turbo"
+experiment_name: "jailbreak_sneakprompt_hunyuan-dit-v1.2-distilled"
 
 output_dir: "benchmark_results"
 save_images: true
@@ -10,9 +10,9 @@ num_workers: 1
 # Single model configuration
 
 model:
-  name: "stable-diffusion-3.5-large-turbo"
+  name: "hunyuan-dit-v1.2-distilled"
   params:
-    model_name: "stable-diffusion-3.5-large-turbo"
+    model_name: "hunyuan-dit-v1.2-distilled"
     device: "cuda"  
 
 attack_method: "sneakprompt"

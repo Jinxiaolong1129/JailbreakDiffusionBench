@@ -1,4 +1,4 @@
-experiment_name: "jailbreak_sneakprompt_stable-diffusion-3.5-large-turbo"
+experiment_name: "jailbreak_sneakprompt_stable-diffusion-v1-5"
 
 output_dir: "benchmark_results"
 save_images: true
@@ -10,9 +10,9 @@ num_workers: 1
 # Single model configuration
 
 model:
-  name: "stable-diffusion-3.5-large-turbo"
+  name: "stable-diffusion-v1-5"
   params:
-    model_name: "stable-diffusion-3.5-large-turbo"
+    model_name: "stable-diffusion-v1-5"
     device: "cuda"  
 
 attack_method: "sneakprompt"
