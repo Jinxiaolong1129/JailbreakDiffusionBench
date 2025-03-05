@@ -306,6 +306,8 @@ class BenchmarkExperiment:
                 prompt_index,
             )
             processed["image_path"] = image_path
+        else:
+            processed["image_path"] = self._save_image(None, prompt_index, save=False)    
             
         if result.metadata:
             processed["metadata"] = result.metadata

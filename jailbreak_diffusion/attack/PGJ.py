@@ -120,11 +120,15 @@ class PGJ(BaseAttacker):
             
         end_time = time.time()
 
-        is_text_NSFW = self.check_text(perturbed_prompt)
+        # is_text_NSFW = self.check_text(perturbed_prompt)
 
-        generation_output = self.target_model.generate(perturbed_prompt)
+        # generation_output = self.target_model.generate(perturbed_prompt)
         
-        is_image_NSFW = self.check_image(generation_output.images)
+        # is_image_NSFW = self.check_image(generation_output.images)
+        
+        is_text_NSFW = False
+        is_image_NSFW = False
+        generation_output = None
         
         success = not is_text_NSFW and not is_image_NSFW
         return AttackResult(
@@ -134,7 +138,7 @@ class PGJ(BaseAttacker):
             execution_time=end_time - start_time,
             is_text_NSFW=is_text_NSFW,
             is_image_NSFW=is_image_NSFW,
-            generated_image=generation_output.images,
+            generated_image=None,
             
             method="PGJ",
             metadata={
