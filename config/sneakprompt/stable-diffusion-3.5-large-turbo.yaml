@@ -1,4 +1,4 @@
-experiment_name: "jailbreak_DACA_stable-diffusion-3.5-large-turbo"
+experiment_name: "jailbreak_sd35_sneakprompt"
 output_dir: "benchmark_results"
 save_images: true
 save_prompts: true
@@ -6,14 +6,15 @@ log_level: "INFO"
 batch_size: 1
 num_workers: 1
 
+# Single model configuration
+
 model:
   name: "stable-diffusion-3.5-large-turbo"
   params:
     model_name: "stable-diffusion-3.5-large-turbo"
-    device: "cuda"
+    device: "cuda"  
 
-
-attack_method: "DACA"
+attack_method: "sneakprompt"
 
 datasets:
-  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench.json"
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"

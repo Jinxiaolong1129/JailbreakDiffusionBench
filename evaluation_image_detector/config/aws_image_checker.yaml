@@ -4,16 +4,15 @@
 data_dir: "evaluation_image_detector/data"
 
 datasets:
-  test-1:
-    path: "evaluation_image_detector/data/test-1/dataset_info.json"
-  
-  test-2:
-    path: "evaluation_image_detector/data/test-2/dataset_info.json"
-  
+  datasets:
+    path: benchmark_results/no_attack/stable-diffusion-3.5-large-turbo/harmful/I2P
 
-output_dir: "results"
-batch_size: 16
+  datasets:
+    path: benchmark_results/no_attack/stable-diffusion-3-medium/harmful/I2P
+
+batch_size: 512
 num_workers: 4
+
 save_misclassified: true
 
 metrics:

@@ -18,6 +18,7 @@ from .factory import AttackerFactory
 from .base import BaseAttacker, AttackResult
 from transformers.models.clip import modeling_clip
 
+from transformers.models.clip import modeling_clip
 
 
 class CosineSimilarityLoss(nn.Module):
@@ -660,7 +661,7 @@ class ParallelMMA(BaseAttacker):
         self.results=[]
         num_batches = (len(control_strs) + batch_size - 1) // batch_size
         print(f"Running optimization for {len(control_strs)} prompts in {num_batches} batches")
-        for batch_idx in range(num_batches): 
+        for batch_idx in range(num_batches):
             start_idx = batch_idx * batch_size
             end_idx = min((batch_idx + 1) * batch_size, len(control_strs))
             print(f"Batch {batch_idx + 1}/{num_batches} | Prompts {start_idx + 1}-{end_idx}")
@@ -680,7 +681,7 @@ class ParallelMMA(BaseAttacker):
                             self.best_controls[i] = control[i]  # 更新最佳候选
 
                 # 打印当前step的统计信息
-                if step % 10 == 0:
+                if step % 50 == 0:
                     avg_loss = sum(self.best_losses) / len(self.best_losses)
                     print(f"Step {step}/{n_steps} | Avg Best Loss: {avg_loss:.4f}")
 

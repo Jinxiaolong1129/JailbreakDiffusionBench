@@ -292,7 +292,7 @@ class BenchmarkExperiment:
         processed = {
             "prompt_index": prompt_index,
             "original_prompt": result.original_prompt,
-            "attack_prompt": result.attack_prompt,
+            "attack_prompt": result.attack_prompt[0] if isinstance(result.attack_prompt, list) else result.attack_prompt,
             "success": result.success,
             "execution_time": result.execution_time,
             "is_text_NSFW": result.is_text_NSFW,
