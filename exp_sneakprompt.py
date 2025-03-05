@@ -328,6 +328,8 @@ class BenchmarkExperiment:
                 prompt_index = sample['index']
                 prompt = sample['prompt']
                 
+                print(f"Processing prompt {prompt_index} | {prompt}")
+                print('='*50)
                 # Check if the image for this prompt already exists
                 prompt_image_save_path = self._save_image(None, prompt_index, save=False)
                 if os.path.exists(prompt_image_save_path):

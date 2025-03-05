@@ -1,0 +1,248 @@
+commit 4e77a4ff73645f45873188de2683067d6756038e
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Feb 14 15:17:21 2025 +0000
+
+    Version v1.69.1
+
+commit b63c42f39bd5ab9fe9385ad2274efc34b0b272ee
+Author: Anagh Kumar Baranwal <6824881+darthShadow@users.noreply.github.com>
+Date:   Tue Feb 11 19:08:46 2025 +0530
+
+    build: disable docker builds on PRs & add missing dockerfile changes
+    
+    Signed-off-by: Anagh Kumar Baranwal <6824881+darthShadow@users.noreply.github.com>
+
+commit 30c9bab35dadee9d9924f41ba31598baa3f26f5e
+Author: Anagh Kumar Baranwal <6824881+darthShadow@users.noreply.github.com>
+Date:   Wed Nov 6 15:43:18 2024 +0530
+
+    Added parallel docker builds and caching for go build in the container
+    
+    Signed-off-by: Anagh Kumar Baranwal <6824881+darthShadow@users.noreply.github.com>
+
+commit 68bbd8017d3f07f5eb729ecf98ed78b3e43e8c77
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Feb 14 12:29:32 2025 +0000
+
+    docs: add FileLu as sponsors and tidy sponsor logos
+
+commit 259dbbab55101b60ac0ac65c2cd2c29a0cc410f2
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Feb 10 17:13:59 2025 +0000
+
+    vfs: fix the cache failing to upload symlinks when --links was specified
+    
+    Before this change, if --vfs-cache-mode writes or above was set and
+    --links was in use, when a symlink was saved then the VFS failed to
+    upload it. This meant when the VFS was restarted the link wasn't there
+    any more.
+    
+    This was caused by the local backend, which we use to manage the VFS
+    cache, picking up the global --links flag.
+    
+    This patch makes sure that the internal instantations of the local
+    backend in the VFS cache don't ever use the --links flag or the
+    --local-links flag even if specified on the command line.
+    
+    Fixes #8367
+
+commit 5fa85f66feb893aab8c4d5c07c9587c703de2bf3
+Author: Zachary Vorhies <zachvorhies@protonmail.com>
+Date:   Thu Feb 13 04:41:37 2025 -0700
+
+    doc: add note on concurrency of rclone purge
+
+commit fb648e4774cc9291e7f873137867a425ceaaea60
+Author: jbagwell-akamai <113531113+jbagwell-akamai@users.noreply.github.com>
+Date:   Thu Feb 13 03:36:22 2025 -0600
+
+    s3: add latest Linode Object Storage endpoints
+    
+    Added missing Linode Object Storage endpoints AMS, MAA, CGK, LON, LAX, MAD, MEL, MIA, OSA, GRU, SIN
+
+commit 9978750a8c00a905867231da2b3137102e81dbe3
+Author: nielash <nielronash@gmail.com>
+Date:   Wed Feb 12 00:57:52 2025 -0500
+
+    fix golangci-lint errors
+
+commit d953c0c51b668598bcc5731102b1ed469eb6ab3f
+Author: nielash <nielronash@gmail.com>
+Date:   Sun Feb 9 21:13:55 2025 -0500
+
+    bisync: fix listings missing concurrent modifications - fixes #8359
+    
+    Before this change, there was a bug affecting listing files when:
+    
+    - a given bisync run had changes in the 2to1 direction
+    AND
+    - the run had NO changes in the 1to2 direction
+    AND
+    - at least one of the changed files changed AGAIN during the run
+    (specifically, after the initial march and before the transfers.)
+    
+    In this situation, the listings on one side would still retain the prior version
+    of the changed file, potentially causing conflicts or errors.
+    
+    This change fixes the issue by making sure that if we're updating the listings
+    on one side, we must also update the other. (We previously tried to skip it for
+    efficiency, but this failed to account for the possibility that a changed file
+    could change again during the run.)
+
+commit 9dfce11c9babe56ac60f8361a26a44ccc7f8a18c
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Feb 1 12:07:25 2025 +0000
+
+    lib/oauthutil: fix redirect URL mismatch errors - fixes #8351
+    
+    In this commit we introduced support for client credentials flow:
+    
+    65012beea4b93b7f lib/oauthutil: add support for OAuth client credential flow
+    
+    This involved re-organising the oauth credentials.
+    
+    Unfortunately a small error was made which used a fixed redirect URL
+    rather than the one configured for the backend.
+    
+    This caused the box backend oauth flow not to work properly with
+    redirect_uri_mismatch errors.
+    
+    These backends were using the wrong redirect URL and will likely be
+    affected, though it is possible the backends have workarounds.
+    
+    - box
+    - drive
+    - googlecloudstorage
+    - googlephotos
+    - hidrive
+    - pikpak
+    - premiumizeme
+    - sharefile
+    - yandex
+
+commit 504f2fb571a0d9289d01c74616ee5373020d0b99
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sun Feb 2 11:14:38 2025 +0000
+
+    b2: fix "fatal error: concurrent map writes" - fixes #8355
+    
+    This was caused by the embryonic metadata support. Since this isn't
+    actually visible externally, this patch removes it for the time being.
+
+commit f79f929e57da2d339f4c7c2f8cea2ddab21e3908
+Author: Zachary Vorhies <zachvorhies@protonmail.com>
+Date:   Sat Feb 1 05:20:09 2025 -0700
+
+    serve nfs: update docs to note Windows is not supported - fixes #8352
+
+commit 83e04ead37a31bc86a02c23caac5aa8034391e5e
+Author: jkpe <16779171+jkpe@users.noreply.github.com>
+Date:   Thu Jan 23 12:33:14 2025 +0000
+
+    s3: add DigitalOcean regions SFO2, LON1, TOR1, BLR1
+
+commit 1a95a23fdcb50136859eac589025e2400a3dbc6d
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jan 22 10:59:57 2025 +0000
+
+    onedrive: mark German (de) region as deprecated
+    
+    See: https://learn.microsoft.com/en-us/previous-versions/azure/germany/
+
+commit c4b592e5498b56ff0592f86acc99a124d0911dbd
+Author: Bruno Fernandes <bruno.fernandes1996@hotmail.com>
+Date:   Tue Oct 15 16:18:33 2024 -0300
+
+    s3: Added new storage class to magalu provider
+
+commit 642d1415d15d311a46286b489d7a4403e6fed71d
+Author: izouxv <izouxv@users.noreply.github.com>
+Date:   Fri Jan 17 23:38:09 2025 +0800
+
+    vfs: close the change notify channel on Shutdown
+
+commit 64556d4ca226435a5dde3c4dc8bcad58c284af7f
+Author: Tim White <tim.white@su.org.au>
+Date:   Wed Jan 15 14:17:17 2025 +0800
+
+    docs: add OneDrive Impersonate instructions - fixes #5610
+
+commit de69448565115b2f1f3c612cd1c407ab26dccbfd
+Author: Christoph Berger <github@christophberger.com>
+Date:   Fri Jan 17 09:50:22 2025 +0100
+
+    docs: explain the stringArray flag parameter descriptor
+
+commit ad941655c54c0f329d360583f0acc0528d145e99
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jan 15 17:58:49 2025 +0000
+
+    iclouddrive: add notes on ADP and Missing PCS cookies - fixes #8310
+
+commit 6cbb9fd7cbfb500517c2c78e7833e0b4ef4fd952
+Author: Dimitri Papadopoulos <3234522+DimitriPapadopoulos@users.noreply.github.com>
+Date:   Wed Jan 15 14:01:06 2025 +0100
+
+    docs: fix typos found by codespell in docs and code comments
+
+commit 7988300f50ed34a8f86b68c3aa5575787f9b02be
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Wed Jan 15 16:32:59 2025 +0000
+
+    fs: fix confusing "didn't find section in config file" error
+    
+    This change decorates the error with the section name not found which
+    will hopefully save user confusion.
+    
+    Fixes #8170
+
+commit 1b47b7a6bb77f92f48cd99520f3f51c446d64b4b
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Tue Jan 14 20:21:40 2025 +0000
+
+    vfs: fix race detected by race detector
+    
+    This race would only happen when --dir-cache-time was very small.
+    
+    This was noticed in the VFS tests when --dir-cache-time was 100 mS so
+    is unlikely to affect normal users.
+
+commit 626bdacd59182621d5a868536b5d2211d8a752c8
+Author: Matt Ickstadt <matt@beckenterprises.com>
+Date:   Tue Jan 14 10:37:25 2025 -0600
+
+    docs: fix reference to serves3 setting disable_multipart_uploads which was renamed
+
+commit 1ef2da31a7c3bed602124f7b049532fce0a59706
+Author: Matt Ickstadt <mattico8@gmail.com>
+Date:   Tue Jan 14 10:18:53 2025 -0600
+
+    docs: fix link to Rclone Serve S3
+
+commit 376a5b1a836db9df21c72ca45bc0781011c2e6b3
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Sat Dec 28 16:29:55 2024 +0000
+
+    serve s3: fix list objects encoding-type
+    
+    Before this change rclone would always use encoding-type url even if
+    the client hadn't asked for it.
+    
+    This confused some clients.
+    
+    This fixes the problem by leaving the URL encoding to the gofakes3
+    library which has also been fixed.
+    
+    Fixes #7836
+
+commit ddaeb0701968ba622a362faad58256f04fa52cb8
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Mon Jan 13 18:35:27 2025 +0000
+
+    doc: make man page well formed for whatis - fixes #7430
+
+commit c72f71bd028d5a18a36b5ca1a348152954a4f675
+Author: Nick Craig-Wood <nick@craig-wood.com>
+Date:   Fri Feb 14 13:02:54 2025 +0000
+
+    Start v1.69.1-DEV development

@@ -1,4 +1,5 @@
-experiment_name: "jailbreak_sd35_sneakprompt"
+experiment_name: "jailbreak_sneakprompt_stable-diffusion-3.5-medium"
+
 output_dir: "benchmark_results"
 save_images: true
 save_prompts: true
@@ -7,13 +8,14 @@ batch_size: 1
 num_workers: 1
 
 # Single model configuration
+
 model:
   name: "stable-diffusion-3.5-medium"
   params:
     model_name: "stable-diffusion-3.5-medium"
-    device: "cuda"
+    device: "cuda"  
 
 attack_method: "sneakprompt"
 
 datasets:
-  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench.json"
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"

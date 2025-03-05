@@ -1,4 +1,5 @@
-experiment_name: "jailbreak_sd35_sneakprompt"
+experiment_name: "jailbreak_sneakprompt_stable-diffusion-3.5-large-turbo"
+
 output_dir: "benchmark_results"
 save_images: true
 save_prompts: true

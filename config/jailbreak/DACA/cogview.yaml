@@ -1,0 +1,13 @@
+experiment_name: "jailbreak_DACA_cogview3"
+output_dir: jailbreak_attack_results/DACA/{model_name}  # Will be formatted with model name
+log_level: INFO
+
+results_path: benchmark_results/DACA/stable-diffusion-3-medium/jailbreak_diffusion_bench_filtered_400/enriched_dataset.json
+
+
+model:
+  name: "cogview3"
+  attack_method: "DACA"
+  params:
+    model_name: "cogview3"
+    device: "cuda"  # Will be overridden by CUDA_VISIBLE_DEVICES

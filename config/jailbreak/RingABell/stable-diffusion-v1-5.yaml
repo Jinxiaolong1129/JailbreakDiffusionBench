@@ -1,0 +1,14 @@
+experiment_name: "jailbreak_RingABell_stable-diffusion-v1-5"
+output_dir: jailbreak_attack_results/RingABell/{model_name}  # Will be formatted with model name
+log_level: INFO
+
+results_path: benchmark_results/RingABell/stable-diffusion-3.5-medium/jailbreak_diffusion_bench_filtered_400/enriched_dataset.json
+
+
+model:
+  name: "stable-diffusion-v1-5"
+  attack_method: "RingABell"
+
+  params:
+    model_name: "stable-diffusion-v1-5"
+    device: "cuda"
