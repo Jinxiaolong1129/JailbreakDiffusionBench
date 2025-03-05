@@ -12,6 +12,25 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
+
+        {
+            "name": "jailbreak_MMA.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_MMA.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/jailbreak/MMA/stable-diffusion-3.5-large-turbo.yaml",
+                // "--start_id", "1",
+                // "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+
         {
             "name": "PGJ exp_jailbreak_diff_bench.py",
             "type": "debugpy",

@@ -396,3 +396,4 @@ metadata.parquet
 evaluation_text_detector/results/
 data-back-2/
 logs/
+jailbreak_attack_results/

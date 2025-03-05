@@ -16,6 +16,8 @@ from typing import Optional
 import torch.nn.functional as F
 from .factory import AttackerFactory
 from .base import BaseAttacker, AttackResult
+from transformers.models.clip import modeling_clip
+
 
 
 class CosineSimilarityLoss(nn.Module):
@@ -694,7 +696,7 @@ class ParallelMMA(BaseAttacker):
     def attack_batch(
         self, 
         prompts: List[str], #传递的是数据集所有prompt
-        n_steps: int = 5, 
+        n_steps: int = 1000, 
         batch_size: int = 256,
         topk: int = 256,
         track_interval: int = 1  # 每隔多少步记录一次
