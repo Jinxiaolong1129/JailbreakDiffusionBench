@@ -65,8 +65,8 @@ class BaseAttacker(ABC):
         # bypass_image_detector = self.check_image(result.generated_image)
         
         # execution_time = time.time() - start_time
-        if not attack_prompt:
-            print("!!!! Already have attack prompt")
+        # if not attack_prompt:
+        #     print("!!!! Already have attack prompt")
         result = self.attack(prompt, attack_prompt, **kwargs)
         
         return result

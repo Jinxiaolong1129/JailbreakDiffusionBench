@@ -21,12 +21,32 @@
             "justMyCode": false,
             "args": [
                 "--config_path",
-                "config/PGJ/stable-diffusion-3.5-medium_PGJ.yaml",
+                "config/PGJ/stable-diffusion-3-medium.yaml",
                 "--start_id", "1",
-                "--end_id", "2"
+                "--end_id", "5"
             ],
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "0",
+                "OPENAI_API_KEY": "sk-proj-zQYjaXk5jvcT5MZEpYvmT3BlbkFJZd55Ful9cRZBwQi4JdCd"
+
+            }
+        },
+        {
+            "name": "DACA exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/stable-diffusion-3-medium.yaml",
+                "--start_id", "1",
+                "--end_id", "5"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0",
+                "OPENAI_API_KEY": "sk-proj-zQYjaXk5jvcT5MZEpYvmT3BlbkFJZd55Ful9cRZBwQi4JdCd"
             }
         },
         {
@@ -63,23 +83,7 @@
                 "CUDA_VISIBLE_DEVICES": "7"
             }
         },
-        {
-            "name": "DACA exp_jailbreak_diff_bench.py",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "args": [
-                "--config_path",
-                "config/DACA/stable-diffusion-3.5-medium_DACA.yaml",
-                "--start_id", "1",
-                "--end_id", "2"
-            ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
-            }
-        },
+
         {
             "name": "ParallelMMA exp_jailbreak_diff_bench.py",
             "type": "debugpy",

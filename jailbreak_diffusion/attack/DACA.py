@@ -555,7 +555,7 @@ class DACA(BaseAttacker):
             execution_time=end_time - start_time,
             is_text_NSFW=is_text_NSFW,
             is_image_NSFW=is_image_NSFW,
-            generated_image=generation_output.images,
+            generated_image=None,
             method='DACA',
             metadata={
                 'num_queries': result['num_query'],

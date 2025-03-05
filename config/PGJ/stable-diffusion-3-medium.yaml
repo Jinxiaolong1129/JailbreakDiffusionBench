@@ -16,4 +16,4 @@ model:
 attack_method: "PGJ"
 
 datasets:
-  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench.json"
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"
