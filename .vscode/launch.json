@@ -58,11 +58,12 @@
             "args": [
                 "--config_path",
                 "config/sneakprompt/stable-diffusion-3.5-large-turbo.yaml",
-                "--start_id", "1",
-                "--end_id", "2"
+                // "--start_id", "1",
+                // "--end_id", "2"
             ],
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0"
+                "CUDA_VISIBLE_DEVICES": "0",
+                "OPENAI_API_KEY": "sk-proj-zQYjaXk5jvcT5MZEpYvmT3BlbkFJZd55Ful9cRZBwQi4JdCd"
             }
         },
         {

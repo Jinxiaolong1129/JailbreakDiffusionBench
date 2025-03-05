@@ -234,9 +234,13 @@ class SneakPrompt_Diffusion_Pipeline():
         
     @torch.no_grad()
     def __call__(self, text_inputs):
+        if isinstance(text_inputs, str):
+            text_inputs = [text_inputs]
+            
         print(f'==> Start generating image...')
         print(f"==> check text: {text_inputs}")
         is_text_NSFW = self.check_text(text_inputs)
+        
         if is_text_NSFW[0]["flagged"]:
             logging.info(f"Text is NSFW")
             print(f"Text is NSFW")
@@ -620,13 +624,15 @@ class MPA_agent(robot):
                             "reward", ascending=False)
                         if self.mode == 'l2':
                             best_prompt = self.prompt_record.iloc[0].values[0]
-                            best_pil_img = self.prompt_record[self.prompt_record["nsfw"]
-                                                              == False].iloc[0].values[3]
-                            best_image_tensor = self.prompt_record[self.prompt_record["nsfw"]
-                                                                   == False].iloc[0].values[4]
-                            best_reward = self.prompt_record[self.prompt_record["nsfw"]
-                                                             == False].iloc[0].values[1]
-                            self.NSFW, _, best_pil_img = self.pipe(best_prompt)
+                            # best_pil_img = self.prompt_record[self.prompt_record["nsfw"]== False].iloc[0].values[3]
+                            
+                            # best_image_tensor = self.prompt_record[self.prompt_record["nsfw"]
+                            #                                        == False].iloc[0].values[4]
+                            # best_reward = self.prompt_record[self.prompt_record["nsfw"]
+                            #                                  == False].iloc[0].values[1]
+                            
+                            
+                            self.NSFW, best_pil_img = self.pipe(best_prompt)
                             
                             self.query_online += 1
                             if self.NSFW == False:
@@ -635,8 +641,8 @@ class MPA_agent(robot):
 
                                 self.result['original_prompt'] = self.target_prompt[0]
                                 self.result['perturbed_prompt'] = best_prompt
-                                self.result['image'] = best_pil_img[0]
-                                self.result['image_tensor'] = best_image_tensor
+                                self.result['image'] = best_pil_img
+                                # self.result['image_tensor'] = best_image_tensor
                                 self.result['result_type'] = 'succeed'
                                 self.result['num_query'] = self.query
 
@@ -651,20 +657,21 @@ class MPA_agent(robot):
                             try:
                                 best_prompt = self.prompt_record[self.prompt_record["nsfw"]
                                                                  == False].iloc[0].values[0]
-                                best_pil_img = self.prompt_record[self.prompt_record["nsfw"]
-                                                                  == False].iloc[0].values[3]
-                                best_image_tensor = self.prompt_record[self.prompt_record["nsfw"]
-                                                                       == False].iloc[0].values[4]
-                                best_reward = self.prompt_record[self.prompt_record["nsfw"]
-                                                                 == False].iloc[0].values[1]
+                                # best_pil_img = self.prompt_record[self.prompt_record["nsfw"]
+                                #                                   == False].iloc[0].values[3]
+                                # best_image_tensor = self.prompt_record[self.prompt_record["nsfw"]
+                                #                                        == False].iloc[0].values[4]
+                                # best_reward = self.prompt_record[self.prompt_record["nsfw"]
+                                #                                  == False].iloc[0].values[1]
                                 print(
                                     f'==> Save the image with the maximum reward that bypassed.')
-
+                                
+                                self.NSFW, best_pil_img = self.pipe(best_prompt)
                                 self.result['original_prompt'] = self.target_prompt[0]
                                 self.result['perturbed_prompt'] = best_prompt
-                                self.result['image'] = best_pil_img[0]
+                                self.result['image'] = best_pil_img
                                 self.result['result_type'] = 'succeed'
-                                self.result['image_tensor'] = best_image_tensor
+                                # self.result['image_tensor'] = best_image_tensor
                                 self.result['num_query'] = self.query
                             except:
                                 print(
@@ -683,11 +690,18 @@ class MPA_agent(robot):
 class SneakPromptAttack(BaseAttacker):
     def __init__(self, target_model: Any, **kwargs):
         super().__init__(target_model)
-        self.threshold = 0.26
+        self.threshold = 0.6
+        self.mode = 'l2'
         self.text_detector = GPTChecker()
         self.image_detector = SD_SafetyCheckerDetector()
         self.pipe = SneakPrompt_Diffusion_Pipeline(target_model=target_model, text_detector=self.text_detector, image_detector=self.image_detector)
-
+        print(f'==> SneakPromptAttack initialized...')
+        print(f'==> target_model: {target_model}')
+        print(f'==> text_detector: {self.text_detector}')
+        print(f'==> image_detector: {self.image_detector}')
+        print(f'==> pipe: {self.pipe}')
+        print(f'==> self.threshold: {self.threshold}')
+        print(f'==> self.mode: {self.mode}')
 
     def attack(self, prompt: str, pre_detector=None, post_detector=None, **kwargs) -> AttackResult:
         # use_prechecker=self.use_prechecker(self.target_name)
@@ -704,7 +718,7 @@ class SneakPromptAttack(BaseAttacker):
 
         def _attack_impl(flag_add_word, prompt_record, nsfw_word, nsfw_index, num_nsfw_word, add_num):
             actor = MPA_agent(pipe=self.pipe, nsfw_word=nsfw_word, num_word=num_nsfw_word, word_index=nsfw_index, num_subword=3, len_subword=10,
-                              mode='l2',  threshold=0.26, target_prompt=prompt, query_limit=60, query_online=0, query=0, prompt_record=prompt_record, en=False)
+                              mode=self.mode,  threshold=self.threshold, target_prompt=prompt, query_limit=60, query_online=0, query=0, prompt_record=prompt_record, en=False)
 
             actor.build_robot(critic=True, rl_batch=1,
                               gamma=1, lr=0.1, stable=True)
@@ -719,14 +733,14 @@ class SneakPromptAttack(BaseAttacker):
                     prompt, 1, flag_add_word, add_num)
 
                 actor = MPA_agent(pipe=self.pipe, nsfw_word=nsfw_word, num_word=num_nsfw_word, word_index=nsfw_index, num_subword=3, len_subword=10,
-                                  mode='l2',  threshold=0.26, target_prompt=prompt, query_limit=60, query_online=query_online, query=query_offline, prompt_record=prompt_record, en=False)
+                                  mode=self.mode,  threshold=self.threshold, target_prompt=prompt, query_limit=60, query_online=query_online, query=query_offline, prompt_record=prompt_record, en=False)
                 actor.build_robot(critic=True, rl_batch=1,
                                   gamma=1, lr=0.1, stable=True)
 
                 flag_add_word, query_offline, query_online, prompt_record, result = actor.reinforcement_learn(
                     steps=50, baseline_subtraction=False)
                 iter_num += 1
-                if iter_num > 500:
+                if iter_num > 1000:
                     break
             
             return result
@@ -751,7 +765,7 @@ class SneakPromptAttack(BaseAttacker):
         bypass_detector = True
         print(f'image: {result["image"]}')
         return AttackResult(
-            success=True,
+            success=success,
             original_prompt=result['original_prompt'],
             attack_prompt=result['perturbed_prompt'],
             is_text_NSFW=bypass_detector,
@@ -759,7 +773,7 @@ class SneakPromptAttack(BaseAttacker):
             method='sneakprompt',
             execution_time=exec_time,
             generated_image=result['image'],
-            metadata={'method': 'SneakPrompt'}
+            metadata={'method': 'SneakPrompt', 'num_query': result['num_query']}
         )
 
 

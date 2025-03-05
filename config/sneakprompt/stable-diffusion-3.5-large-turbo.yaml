@@ -18,4 +18,4 @@ model:
 attack_method: "sneakprompt"
 
 datasets:
-  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_200.json"
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"
