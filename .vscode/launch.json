@@ -12,6 +12,25 @@
             "console": "integratedTerminal",
             "justMyCode": false
         },
+
+        {
+            "name": "jailbreak_MMA.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/jailbreak_MMA.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/jailbreak/MMA/stable-diffusion-3.5-large-turbo.yaml",
+                // "--start_id", "1",
+                // "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
+
         {
             "name": "PGJ exp_jailbreak_diff_bench.py",
             "type": "debugpy",
@@ -21,46 +40,26 @@
             "justMyCode": false,
             "args": [
                 "--config_path",
-                "config/PGJ/stable-diffusion-3-medium.yaml",
+                "config/PGJ/stable-diffusion-3.5-medium_PGJ.yaml",
                 "--start_id", "1",
-                "--end_id", "5"
+                "--end_id", "2"
             ],
             "env": {
-                "CUDA_VISIBLE_DEVICES": "0",
-                "OPENAI_API_KEY": "sk-proj-zQYjaXk5jvcT5MZEpYvmT3BlbkFJZd55Ful9cRZBwQi4JdCd"
-
-            }
-        },
-        {
-            "name": "DACA exp_jailbreak_diff_bench.py",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "args": [
-                "--config_path",
-                "config/DACA/stable-diffusion-3-medium.yaml",
-                "--start_id", "1",
-                "--end_id", "5"
-            ],
-            "env": {
-                "CUDA_VISIBLE_DEVICES": "0",
-                "OPENAI_API_KEY": "sk-proj-zQYjaXk5jvcT5MZEpYvmT3BlbkFJZd55Ful9cRZBwQi4JdCd"
+                "CUDA_VISIBLE_DEVICES": "0"
             }
         },
         {
             "name": "sneakprompt exp_jailbreak_diff_bench.py",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "program": "${workspaceFolder}/exp_sneakprompt.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
                 "--config_path",
-                "config/sneakprompt/stable-diffusion-3.5-medium.yaml",
+                "config/sneakprompt/stable-diffusion-3.5-large-turbo.yaml",
                 "--start_id", "1",
-                "--end_id", "5"
+                "--end_id", "2"
             ],
             "env": {
                 "CUDA_VISIBLE_DEVICES": "0"
@@ -83,7 +82,23 @@
                 "CUDA_VISIBLE_DEVICES": "7"
             }
         },
-
+        {
+            "name": "DACA exp_jailbreak_diff_bench.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exp_jailbreak_diff_bench.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_path",
+                "config/DACA/stable-diffusion-3.5-medium_DACA.yaml",
+                "--start_id", "1",
+                "--end_id", "2"
+            ],
+            "env": {
+                "CUDA_VISIBLE_DEVICES": "0"
+            }
+        },
         {
             "name": "ParallelMMA exp_jailbreak_diff_bench.py",
             "type": "debugpy",

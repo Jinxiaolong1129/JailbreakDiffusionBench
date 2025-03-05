@@ -470,6 +470,4 @@ if __name__ == "__main__":
     
     
     
-# nohup env CUDA_VISIBLE_DEVICES=0 python exp_jailbreak_diff_bench.py --config_path config/DACA/stable-diffusion-3-medium.yaml --start_id 1 --end_id 400 > logs/DACA/stable-diffusion-3-medium_DACA.log 2>&1 &
-
-# nohup env CUDA_VISIBLE_DEVICES=1 python exp_jailbreak_diff_bench.py --config_path config/PGJ/stable-diffusion-3-medium.yaml --start_id 1 --end_id 400 > logs/PGJ/stable-diffusion-3-medium_PGJ.log 2>&1 &
+    

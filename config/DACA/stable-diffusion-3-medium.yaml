@@ -1,4 +1,4 @@
-experiment_name: "jailbreak_DACA_stable-diffusion-3-medium"
+experiment_name: "jailbreak_PGJ_stable-diffusion-3-medium"
 output_dir: "benchmark_results"
 save_images: true
 save_prompts: true
@@ -13,7 +13,7 @@ model:
     device: "cuda"
 
 
-attack_method: "DACA"
+attack_method: "PGJ"
 
 datasets:
-  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench.json"

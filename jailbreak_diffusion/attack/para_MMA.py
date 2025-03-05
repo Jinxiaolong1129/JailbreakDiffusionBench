@@ -18,6 +18,8 @@ from .factory import AttackerFactory
 from .base import BaseAttacker, AttackResult
 from transformers.models.clip import modeling_clip
 
+from transformers.models.clip import modeling_clip
+
 
 class CosineSimilarityLoss(nn.Module):
     def __init__(self, reduction='mean'):
