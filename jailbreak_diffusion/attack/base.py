@@ -67,6 +67,5 @@ class BaseAttacker(ABC):
         # execution_time = time.time() - start_time
         if not attack_prompt:
             print("!!!! Already have attack prompt")
-        result = self.attack(prompt, attack_prompt, **kwargs)
         
-        return result
+        return self.attack(prompt, attack_prompt, **kwargs)
