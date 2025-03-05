@@ -17,4 +17,4 @@ model:
 attack_method: "no_attack"
 
 datasets:
-  - data/harmful/I2P/i2p.json
+  - data/harmful/I2P/I2P_filtered_harmful.json

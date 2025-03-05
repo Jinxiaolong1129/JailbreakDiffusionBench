@@ -17,4 +17,4 @@ model:
 attack_method: "no_attack"
 
 datasets:
-  - "data/harmful/4chan/4chan.json"
+  - "data/harmful/diffusion_db/diffusion_db_filtered_harmful.json"
