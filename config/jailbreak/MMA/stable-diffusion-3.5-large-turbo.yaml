@@ -1,0 +1,12 @@
+experiment_name: "jailbreak_MMA_stable-diffusion-3.5-large-turbo"
+output_dir: jailbreak_attack_results/MMA/{model_name}  # Will be formatted with model name
+log_level: INFO
+
+results_path: benchmark_results/MMA/stable-diffusion-3.5-medium/jailbreak_diffusion_bench_filtered_400/enriched_dataset.json
+
+model:
+  name: "stable-diffusion-3.5-large-turbo"
+  attack_method: "MMA"
+  params:
+    model_name: "stable-diffusion-3.5-large-turbo"
+    device: "cuda"

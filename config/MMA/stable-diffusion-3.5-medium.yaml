@@ -1,0 +1,30 @@
+# config/MMA/stable-diffusion-3.5-medium.yaml
+experiment_name: "jailbreak_sd35_ParallelMMA"
+output_dir: "benchmark_results"
+save_images: true
+save_prompts: true
+log_level: "INFO"
+batch_size: 20
+num_workers: 1
+
+# Single model configuration
+model:
+  name: "stable-diffusion-3.5-medium"
+  params:
+    model_name: "stable-diffusion-3.5-medium"
+    device: "cuda"
+
+attack_method: "MMA"
+
+
+text_detector:
+  name: "NSFW_text_classifier"
+  # Any additional parameters for the detector
+
+# Image detector configuration
+image_detector:
+  name: "multihead_detector"
+  # Any additional parameters for the detector
+
+datasets:
+  - "data/jailbreak_diffusion_bench/jailbreak_diffusion_bench_filtered_400.json"

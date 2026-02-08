@@ -1,0 +1,14 @@
+experiment_name: "jailbreak_DACA_hunyuan-dit-v1.2-distilled"
+output_dir: jailbreak_attack_results/DACA/{model_name}  # Will be formatted with model name
+log_level: INFO
+
+results_path: benchmark_results/DACA/stable-diffusion-3-medium/jailbreak_diffusion_bench_filtered_400/enriched_dataset.json
+
+
+model:
+  name: "hunyuan-dit-v1.2-distilled"
+  attack_method: "DACA"
+
+  params:
+    model_name: "hunyuan-dit-v1.2-distilled"
+    device: "cuda"
